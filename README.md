@@ -51,4 +51,4 @@ Shared source is edited in this repository's normal writable clone. Unity's Git 
 
 Source-only ZIP fallback: run `Tools~/Export-Source.ps1`; the result is under ignored `Artifacts~`. Verification: `Tools~/Check-Wallet.ps1` runs SDK-free wallet checks with the .NET SDK. Add `com.ripplegame.base` to the consuming project's `testables` and install Unity Test Framework to run the included EditMode/PlayMode tests.
 
-See [Usage](Documentation~/Usage.md), [Migration](Documentation~/Migration.md) and [Changelog](CHANGELOG.md).
+See [Usage](Documentation~/Usage.md), [Migration](Documentation~/Migration.md), [Verification](Documentation~/Verification.md) and [Changelog](CHANGELOG.md).

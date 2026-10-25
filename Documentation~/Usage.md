@@ -30,7 +30,7 @@ public sealed class SettingsButton : MonoBehaviour
 }
 ```
 
-Attach PopupHost to your Canvas/container and drag your own prefab into the caller's field. A custom view can derive from PopupView and call Close or the protected InvokeAndClose helper. Closing deactivates the view immediately, then destroys it at frame end. Showing a valid replacement closes the previous popup. No Resources folder, prefab naming convention, ad action or reward formula is imposed. PopupHost.Container can point to an explicit transform.
+Attach PopupHost to your Canvas/container and drag your own prefab into the caller's field. A custom view can derive from PopupView and call Close or the protected InvokeAndClose helper. Closing deactivates the view immediately, then destroys it at frame end. Showing a valid replacement closes the previous popup and activates the new view, including an inactive prefab. The host stages instances inactive before taking ownership, so OnEnable sees the correct current view. If a lifecycle callback opens a newer popup, that newer request owns the host and the superseded returned view is already closing. No Resources folder, prefab naming convention, ad action or reward formula is imposed. PopupHost.Container can point to an explicit transform.
 
 ## ADS and Analytics
 

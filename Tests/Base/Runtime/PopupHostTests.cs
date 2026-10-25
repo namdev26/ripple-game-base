@@ -57,6 +57,47 @@ namespace RippleGame.Base.Tests
         }
 
         [UnityTest]
+        public IEnumerator InactivePrefabIsShown()
+        {
+            var host = hostObject.AddComponent<PopupHost>();
+            template.SetActive(false);
+            var instance = host.Show(template.GetComponent<PopupView>());
+            Assert.That(instance.gameObject.activeSelf, Is.True);
+            Assert.That(template.activeSelf, Is.False);
+            host.CloseActive();
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator CloseCallbackCanOpenTrackedNextPopup()
+        {
+            var host = hostObject.AddComponent<PopupHost>();
+            var first = host.Show(template.GetComponent<PopupView>());
+            first.gameObject.AddComponent<OpenPopupOnDisable>().Configure(host, template.GetComponent<PopupView>());
+            host.CloseActive();
+            Assert.That(host.Active == null, Is.False);
+            Assert.That(host.Active, Is.Not.SameAs(first));
+            Assert.That(host.GetComponentsInChildren<PopupView>().Length, Is.EqualTo(1));
+            host.CloseActive();
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator ReplacementCloseCallbackKeepsOnlyTheNewestPopup()
+        {
+            var host = hostObject.AddComponent<PopupHost>();
+            var first = host.Show(template.GetComponent<PopupView>());
+            first.gameObject.AddComponent<OpenPopupOnDisable>().Configure(host, template.GetComponent<PopupView>());
+            var superseded = host.Show(template.GetComponent<PopupView>());
+            Assert.That(host.Active == null, Is.False);
+            Assert.That(host.Active, Is.Not.SameAs(superseded));
+            Assert.That(superseded.gameObject.activeSelf, Is.False);
+            Assert.That(host.GetComponentsInChildren<PopupView>().Length, Is.EqualTo(1));
+            host.CloseActive();
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator ExternalContainerIsRespectedAndClosedWithHost()
         {
             var host = hostObject.AddComponent<PopupHost>();

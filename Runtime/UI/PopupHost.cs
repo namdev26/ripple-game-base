@@ -8,6 +8,7 @@ namespace RippleGame.UI
     {
         [SerializeField] private Transform container;
         private PopupView active;
+        private Transform staging;
 
         public PopupView Active => active;
         public Transform Container
@@ -19,16 +20,32 @@ namespace RippleGame.UI
         public T Show<T>(T prefab) where T : PopupView
         {
             if (prefab == null) throw new ArgumentNullException(nameof(prefab));
-            var instance = Instantiate(prefab, Container, false);
-            CloseActive();
+            var instance = Instantiate(prefab, GetStagingContainer(), false);
+            instance.gameObject.SetActive(false);
+            instance.transform.SetParent(Container, false);
+            var previous = active;
             active = instance;
+            if (previous != null) previous.Close();
+            // A close callback may replace this request with a newer popup.
+            if (instance != null && active == instance) instance.gameObject.SetActive(true);
             return instance;
         }
 
         public void CloseActive()
         {
-            if (active != null) active.Close();
+            var previous = active;
             active = null;
+            if (previous != null) previous.Close();
+        }
+
+        private Transform GetStagingContainer()
+        {
+            if (staging != null) return staging;
+            var holder = new GameObject("Popup staging");
+            holder.SetActive(false);
+            staging = holder.transform;
+            staging.SetParent(transform, false);
+            return staging;
         }
 
         private void OnDestroy() => CloseActive();
