@@ -1,0 +1,6 @@
+{
+  "name": "RippleGame.Base.UI",
+  "rootNamespace": "RippleGame.UI",
+  "references": [],
+  "autoReferenced": true
+}

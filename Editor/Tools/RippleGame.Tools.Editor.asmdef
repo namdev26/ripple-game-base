@@ -1,0 +1,7 @@
+{
+  "name": "RippleGame.Tools.Editor",
+  "rootNamespace": "RippleGame.Tools",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

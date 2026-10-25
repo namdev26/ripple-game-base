@@ -1,0 +1,14 @@
+{
+  "name": "RippleGame.Analytics.Editor",
+  "rootNamespace": "RippleGame.Analytics.Editor",
+  "references": ["RippleGame.Analytics.Runtime"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

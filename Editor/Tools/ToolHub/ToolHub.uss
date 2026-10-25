@@ -1,0 +1,115 @@
+.tool-hub {
+    flex-grow: 1;
+    background-color: #24272d;
+    color: #e8ecf3;
+}
+.hub-header {
+    flex-direction: row;
+    align-items: center;
+    height: 64px;
+    padding-left: 24px;
+    padding-right: 24px;
+    background-color: #1d2025;
+    border-bottom-width: 1px;
+    border-bottom-color: #353a43;
+    flex-shrink: 0;
+}
+.hub-heading { font-size: 23px; -unity-font-style: bold; }
+.hub-project { margin-left: auto; color: #9aa6b8; font-size: 12px; }
+.hub-workspace { flex-direction: row; flex-grow: 1; min-height: 0; }
+.hub-navigation {
+    width: 216px;
+    flex-shrink: 0;
+    padding-top: 24px;
+    padding-left: 14px;
+    padding-right: 14px;
+    background-color: #202329;
+    border-right-width: 1px;
+    border-right-color: #353a43;
+}
+.hub-brand { padding-left: 12px; font-size: 16px; -unity-font-style: bold; color: #70d9c4; }
+.hub-eyebrow { font-size: 10px; color: #98a5b7; margin-top: 9px; margin-bottom: 16px; }
+.hub-navigation > .hub-eyebrow { padding-left: 12px; }
+.hub-navigation-scroll { flex-grow: 1; margin-top: 8px; }
+.hub-navigation-scroll .hub-eyebrow { margin-left: 12px; margin-top: 26px; margin-bottom: 10px; }
+.hub-navigation-footer { white-space: normal; color: #7f8c9e; font-size: 10px; padding: 12px; margin-bottom: 12px; }
+.hub-nav-item {
+    flex-direction: row;
+    align-items: center;
+    height: 42px;
+    margin-bottom: 5px;
+    padding-left: 12px;
+    background-color: transparent;
+    color: #b6c1d0;
+    border-width: 0;
+    border-radius: 6px;
+    -unity-text-align: middle-left;
+}
+.hub-nav-item:hover { background-color: #303741; color: #ffffff; }
+.hub-nav-item.selected { background-color: #284a47; color: #9bf0dc; }
+.hub-nav-icon { width: 19px; height: 19px; margin-right: 12px; }
+.hub-main { flex-grow: 1; min-width: 0; }
+.hub-toolbar { height: 54px; padding: 14px 24px 6px 24px; flex-shrink: 0; }
+.hub-search { max-width: 460px; flex-grow: 1; }
+.hub-page-header { padding: 10px 24px 18px 24px; flex-shrink: 0; }
+.hub-page-title { font-size: 22px; -unity-font-style: bold; margin-bottom: 7px; }
+.hub-description { color: #a4b1c4; white-space: normal; font-size: 12px; }
+.hub-body { flex-grow: 1; min-height: 0; padding: 0 24px 20px 24px; }
+.hub-overview { flex-grow: 1; }
+.hub-intro {
+    background-color: #293b3b;
+    border-left-width: 3px;
+    border-left-color: #70d9c4;
+    border-radius: 7px;
+    padding: 16px 22px 22px 22px;
+    margin-bottom: 22px;
+    margin-right: 14px;
+}
+.hub-intro .hub-eyebrow { color: #9cddce; margin-bottom: 8px; }
+.hub-intro-title { font-size: 23px; -unity-font-style: bold; margin-bottom: 10px; white-space: normal; }
+.hub-cards { flex-direction: row; flex-wrap: wrap; }
+.hub-card {
+    width: 46%;
+    min-width: 240px;
+    max-width: 480px;
+    min-height: 188px;
+    margin: 0 14px 14px 0;
+    padding: 20px;
+    background-color: #2c313a;
+    color: #e8ecf3;
+    border-width: 1px;
+    border-color: #3b4452;
+    border-radius: 8px;
+    align-items: flex-start;
+    -unity-text-align: upper-left;
+}
+.hub-card:hover { background-color: #333f49; border-color: #70d9c4; }
+.hub-card:focus { border-color: #70d9c4; }
+.hub-card-icon { width: 27px; height: 27px; margin-bottom: 12px; }
+.hub-card-title { font-size: 16px; -unity-font-style: bold; margin-bottom: 9px; }
+.hub-card .hub-description { flex-grow: 1; }
+.hub-card-action { color: #81d9c7; margin-top: 18px; font-size: 11px; }
+.hub-empty { margin: 24px 0; white-space: normal; color: #a4b1c4; }
+.hub-inline-content {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    padding: 16px;
+    background-color: #30343b;
+    border-width: 1px;
+    border-color: #434b58;
+    border-radius: 7px;
+    overflow: hidden;
+}
+.tool-hub.light { background-color: #eceff3; color: #202936; }
+.light .hub-header, .light .hub-navigation { background-color: #e1e6ec; border-color: #c7cfd9; }
+.light .hub-project, .light .hub-description, .light .hub-eyebrow, .light .hub-empty { color: #5b687b; }
+.light .hub-brand { color: #176e60; }
+.light .hub-nav-item { color: #3b4b60; }
+.light .hub-nav-item:hover { background-color: #d1dae5; }
+.light .hub-nav-item.selected { background-color: #b8ddd3; color: #124f43; }
+.light .hub-intro { background-color: #d1e7e1; border-left-color: #278c77; }
+.light .hub-intro .hub-eyebrow, .light .hub-card-action { color: #216b5a; }
+.light .hub-card { background-color: #f8f9fb; border-color: #c6d0dd; color: #202936; }
+.light .hub-card:hover { background-color: #e9f3f0; border-color: #278c77; }
+.light .hub-inline-content { background-color: #dedfe1; border-color: #c1c5cc; }

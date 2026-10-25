@@ -1,0 +1,26 @@
+{
+  "name": "RippleGame.Ads.Editor.Tests",
+  "rootNamespace": "RippleGame.Ads.Editor.Tests",
+  "references": [
+    "RippleGame.Ads.Runtime",
+    "RippleGame.Ads.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "RIPPLEGAME_TEST_FRAMEWORK"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.test-framework",
+      "expression": "1.1.0",
+      "define": "RIPPLEGAME_TEST_FRAMEWORK"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "RippleGame.Base.Persistence",
+  "rootNamespace": "RippleGame.Persistence",
+  "references": ["RippleGame.Base.Economy"],
+  "autoReferenced": true
+}

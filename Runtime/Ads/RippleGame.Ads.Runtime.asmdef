@@ -1,0 +1,14 @@
+{
+  "name": "RippleGame.Ads.Runtime",
+  "rootNamespace": "RippleGame.Ads",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

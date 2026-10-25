@@ -1,0 +1,26 @@
+{
+  "name": "RippleGame.Analytics.Editor.Tests",
+  "rootNamespace": "RippleGame.Analytics.Tests",
+  "references": [
+    "RippleGame.Analytics.Runtime",
+    "RippleGame.Analytics.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "RIPPLEGAME_TEST_FRAMEWORK"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.test-framework",
+      "expression": "1.1.0",
+      "define": "RIPPLEGAME_TEST_FRAMEWORK"
+    }
+  ]
+}

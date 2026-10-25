@@ -1,0 +1,20 @@
+{
+  "name": "RippleGame.Base.Runtime.Tests",
+  "references": [
+    "RippleGame.Base.UI"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "RIPPLEGAME_TEST_FRAMEWORK"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.test-framework",
+      "expression": "1.1.0",
+      "define": "RIPPLEGAME_TEST_FRAMEWORK"
+    }
+  ]
+}

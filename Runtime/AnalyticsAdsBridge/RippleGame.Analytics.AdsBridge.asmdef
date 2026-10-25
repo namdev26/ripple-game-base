@@ -1,0 +1,25 @@
+{
+  "name": "RippleGame.Analytics.AdsBridge",
+  "rootNamespace": "RippleGame.Analytics.AdsBridge",
+  "references": [
+    "RippleGame.Analytics.Runtime",
+    "RippleGame.Ads.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_ADS"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.ripplegame.base",
+      "expression": "0.1.0",
+      "define": "RIPPLEGAME_ADS"
+    }
+  ],
+  "noEngineReferences": false
+}

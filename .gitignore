@@ -1,0 +1,10 @@
+/Artifacts~/
+/VerificationOutput~/
+/Library/
+/Temp/
+*.log
+*.csproj
+*.sln
+*.slnx
+.vs/
+.vscode/
