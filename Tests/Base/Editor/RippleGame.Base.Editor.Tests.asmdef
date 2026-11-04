@@ -2,7 +2,8 @@
   "name": "RippleGame.Base.Editor.Tests",
   "references": [
     "RippleGame.Base.Economy",
-    "RippleGame.Base.Persistence"
+    "RippleGame.Base.Persistence",
+    "RippleGame.Base.Save"
   ],
   "includePlatforms": [
     "Editor"
