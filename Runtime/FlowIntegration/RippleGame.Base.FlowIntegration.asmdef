@@ -1,0 +1,10 @@
+{
+  "name": "RippleGame.Base.FlowIntegration",
+  "rootNamespace": "RippleGame.FlowIntegration",
+  "references": [
+    "RippleGame.Base.Flow",
+    "RippleGame.Ads.Runtime",
+    "RippleGame.Analytics.Runtime"
+  ],
+  "autoReferenced": true
+}

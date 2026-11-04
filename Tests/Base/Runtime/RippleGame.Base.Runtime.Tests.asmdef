@@ -1,7 +1,9 @@
 {
   "name": "RippleGame.Base.Runtime.Tests",
   "references": [
-    "RippleGame.Base.UI"
+    "RippleGame.Base.UI",
+    "RippleGame.Base.Save",
+    "RippleGame.Base.Scenes"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

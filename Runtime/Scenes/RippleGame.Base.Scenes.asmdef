@@ -1,0 +1,6 @@
+{
+  "name": "RippleGame.Base.Scenes",
+  "rootNamespace": "RippleGame.Scenes",
+  "references": [],
+  "autoReferenced": true
+}
