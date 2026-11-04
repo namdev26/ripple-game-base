@@ -2,6 +2,62 @@
 
 Author: RIPPLE Game by Namdev26
 
+## Start a new game
+
+1. Install the package from its Git URL.
+2. Create your save key in **TOOL > Open Hub > Save**.
+3. Implement `ILevelGameplay` with your rules and `ILevelFlowView` with your popups.
+4. Create one `SaveFile`, a wallet, `LevelProgress` and a `LevelFlow` in your gameplay scene, and dispose the flow when the scene unloads.
+
+`Samples~/Basic Integration/LevelFlowExample.cs` shows the whole connection. Your game keeps its rules, reward formula, level data, scene names, prefabs and key.
+
+## Level flow
+
+```csharp
+using RippleGame.Economy;
+using RippleGame.Flow;
+using RippleGame.FlowIntegration;
+using RippleGame.Persistence;
+using RippleGame.Progression;
+using RippleGame.Scenes;
+
+var flow = new LevelFlow(new LevelFlowConfig
+{
+    Gameplay = gameplay,                // ILevelGameplay
+    View = popups,                      // ILevelFlowView
+    Progress = new LevelProgress(save.LevelStore("levels")),
+    Wallet = new CurrencyWallet(save.BalanceStore("coins")),
+    RewardPolicy = outcome => outcome.Score * 10,
+    Ads = new AdsLevelFlowAds(),
+    Events = new AnalyticsLevelFlowEvents(),
+    LevelCount = 20,
+    Commit = () => save.Flush(),
+    ExitToHome = () => SceneLoader.Load("Home")
+});
+flow.Start(level);
+```
+
+`Ads`, `Events` and the `Wallet` with `RewardPolicy` pair are optional. A win saves progress and coins before any popup appears, so closing the app on the win screen loses nothing. Double reward adds the same amount again. Each attempt may revive once. Popups act through the offer they receive; a call on an expired offer does nothing. Call `flow.Dispose()` when the scene unloads.
+
+## Save
+
+See [Save](Save.md).
+
+## Scenes
+
+```csharp
+using RippleGame.Scenes;
+
+SceneLoader.Load("Home");
+StartCoroutine(SceneLoader.LoadRoutine("Home", minSeconds: 1f, onProgress: value => bar.fillAmount = value));
+```
+
+A scene missing from Build Settings throws an error naming it.
+
+## Safe area
+
+Add `RippleGame.UI.SafeArea` to a full-screen RectTransform under your Canvas to keep its content away from notches and home bars.
+
 ## Currency
 
 ```csharp
