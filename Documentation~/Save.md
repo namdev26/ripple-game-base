@@ -25,8 +25,15 @@ using RippleGame.Save;
 
 public static class GameData
 {
-    public static readonly SaveFile Save = new SaveFile("main", GameSaveKey.Value);
+    public static readonly SaveFile Save = Open();
     public static readonly SaveSection<PlayerData> Player = Save.Section<PlayerData>("player");
+
+    private static SaveFile Open()
+    {
+        var save = new SaveFile("main", GameSaveKey.Value);
+        save.ProblemRaised += problem => { /* Báo lên hệ thống log của game */ };
+        return save;
+    }
 }
 ```
 
@@ -89,20 +96,15 @@ Thiếu hàm chuyển đổi khi save cũ có version thấp hơn sẽ báo lỗ
 
 ## Lỗi xảy ra thì sao
 
-Đăng ký sự kiện **trước** lần gọi `Section` đầu tiên, vì file được đọc vào lúc đó:
-
-```csharp
-var save = new SaveFile("main", GameSaveKey.Value);
-save.ProblemRaised += problem => Debug.LogWarning("Save: " + problem);
-var player = save.Section<PlayerData>("player");
-```
+Mọi lỗi đều được ghi log cảnh báo sẵn. Nếu muốn tự xử lý, hãy đăng ký `ProblemRaised` **trước** lần gọi `Section` đầu tiên, vì file được đọc vào lúc đó, như trong `GameData.Open()` ở trên.
 
 | `SaveProblem` | Chuyện gì đã xảy ra | Game nên làm gì |
 |---|---|---|
 | `RecoveredFromBackup` | File chính hỏng, đã đọc từ bản dự phòng | Thường không cần làm gì. Có thể mất vài thay đổi gần nhất |
-| `DataLost` | Không còn bản nào đọc được. Dữ liệu về mặc định, file lỗi được giữ ở `.corrupt` | Ghi log để điều tra. Hay gặp nhất là do đổi key |
+| `DataLost` | Không còn bản nào đọc được. Dữ liệu về mặc định, mọi file lỗi được giữ lại ở `.corrupt`, `.corrupt.1`... | Điều tra ngay. Hay gặp nhất là do đổi key: trả lại key đúng thì save tự khôi phục từ các bản giữ lại |
 | `WriteFailed` | Không ghi được, thường do đầy bộ nhớ. Sẽ tự thử lại | Có thể báo người chơi |
 | `NewerVersion` | Save được tạo bởi bản game mới hơn. Phiên này không ghi để bảo vệ dữ liệu | Nhắc người chơi cập nhật game |
+| `ReadFailed` | Có file nhưng tạm thời không đọc được. File giữ nguyên, game chạy với dữ liệu mặc định, phiên này không ghi | Nhắc người chơi mở lại game |
 
 ## Xem nội dung save khi debug
 
@@ -130,9 +132,9 @@ Giữ lại key PlayerPrefs cũ để có thể quay về bản trước nếu c
 
 ## Giới hạn cần biết
 
-- **Đổi hoặc mất key thì save cũ không đọc được.** Sau khi phát hành, key phải giữ cố định và lưu trong repo của game.
+- **Đổi hoặc mất key thì save cũ không đọc được.** Sau khi phát hành, key phải giữ cố định và lưu trong repo của game. Lỡ phát hành nhầm key thì trả lại key cũ sẽ khôi phục được từ các bản `.corrupt`, nhưng mất key là mất hẳn.
 - **Mã hóa chỉ chặn việc sửa file thông thường.** Người có kinh nghiệm vẫn có thể lấy key từ bản build, sửa bộ nhớ khi chạy hoặc chép đè save cũ. IAP và bảng xếp hạng thật vẫn cần server xác thực.
 - **`JsonUtility` không lưu trực tiếp `Dictionary`.** Dùng `List` của một class `[Serializable]` thay thế. Class dữ liệu không được là `MonoBehaviour` hay `ScriptableObject`.
-- **Mở trùng tên báo lỗi.** Mỗi tên file chỉ có một `SaveFile` trong một phiên chạy, nên hãy giữ nó ở một nơi dùng chung.
+- **Mở trùng tên báo lỗi.** Mỗi tên file chỉ có một `SaveFile` trong một phiên chạy, nên hãy giữ nó ở một nơi dùng chung cho cả game. Nếu tạo trong một scene thì phải `Dispose` khi scene đó bị hủy.
 - **Nhắm tới Android và iOS.** WebGL cần xử lý ghi file riêng, hiện chưa làm.
 - **Chưa có cloud save.** Có thể tự thêm bằng cách implement `ISaveStorage` và truyền qua `SaveOptions.Storage`.

@@ -71,6 +71,8 @@ namespace RippleGame.Base.Tests
         public void Quitting_Writes()
         {
             Runner.SendMessage("OnApplicationQuit");
+            // The app is not really quitting, so later tests must still get runners.
+            SaveRunner.ApplicationQuitting = false;
             Assert.That(storage.Exists("runner.sav"), Is.True);
         }
 
@@ -89,6 +91,18 @@ namespace RippleGame.Base.Tests
 
             Assert.That(SaveInspector.TryDecrypt(storage.ReadOrNull("runner.sav"), Key, out var json), Is.True);
             Assert.That(json, Does.Contain("value\\\":2"));
+        }
+
+        [UnityTest]
+        public IEnumerator DestroyedRunner_IsRecreatedOnNextUse()
+        {
+            UnityEngine.Object.Destroy(Runner.gameObject);
+            yield return null;
+            Assert.That(Runner, Is.Null);
+
+            save.Flush();
+            Assert.That(Runner, Is.Not.Null);
+            Runner.SendMessage("OnApplicationPause", true);
         }
 
         [UnityTest]

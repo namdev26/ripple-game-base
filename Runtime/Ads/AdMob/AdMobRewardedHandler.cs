@@ -1,11 +1,15 @@
 #if ADS
 using System;
+using System.Threading.Tasks;
 using GoogleMobileAds.Api;
 
 namespace RippleGame.Ads
 {
     internal sealed class AdMobRewardedHandler : IDisposable
     {
+        // The order of the reward and close callbacks is not guaranteed by mediation adapters.
+        private const int RewardGraceMilliseconds = 1000;
+
         private readonly string _unitId;
         private RewardedAd _ad;
 
@@ -47,11 +51,32 @@ namespace RippleGame.Ads
             var ad = _ad;
             _ad = null;
             var didReward = false;
+            var waitingForReward = false;
+            var finished = false;
+
+            void Finish()
+            {
+                if (finished)
+                {
+                    return;
+                }
+
+                finished = true;
+                closed?.Invoke();
+            }
+
             ad.OnAdFullScreenContentOpened += () => MainThreadDispatcher.Post(opened);
             ad.OnAdFullScreenContentClosed += () => MainThreadDispatcher.Post(() =>
             {
                 ad.Destroy();
-                closed?.Invoke();
+                if (didReward)
+                {
+                    Finish();
+                    return;
+                }
+
+                waitingForReward = true;
+                Task.Delay(RewardGraceMilliseconds).ContinueWith(_ => MainThreadDispatcher.Post(Finish));
             });
             ad.OnAdFullScreenContentFailed += error => MainThreadDispatcher.Post(() =>
             {
@@ -67,6 +92,10 @@ namespace RippleGame.Ads
 
                 didReward = true;
                 rewardEarned?.Invoke();
+                if (waitingForReward)
+                {
+                    Finish();
+                }
             }));
             return true;
         }

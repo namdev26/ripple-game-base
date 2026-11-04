@@ -25,6 +25,7 @@ namespace RippleGame.Base.Tests
     {
         private readonly ISaveStorage inner;
         private int remaining = -1;
+        public bool FailReads;
 
         public FlakyStorage(ISaveStorage inner) => this.inner = inner;
 
@@ -41,7 +42,11 @@ namespace RippleGame.Base.Tests
         }
 
         public bool Exists(string file) => inner.Exists(file);
-        public byte[] ReadOrNull(string file) => inner.ReadOrNull(file);
+        public byte[] ReadOrNull(string file)
+        {
+            if (FailReads) throw new IOException("Simulated read failure.");
+            return inner.ReadOrNull(file);
+        }
 
         public void Write(string file, byte[] data)
         {
@@ -81,9 +86,9 @@ namespace RippleGame.Base.Tests
         private SaveFile Open(ISaveStorage target = null, string key = null, float autoFlush = 0f) =>
             new SaveFile(Name, key ?? Key, new SaveOptions { Storage = target ?? storage, AutoFlushSeconds = autoFlush });
 
-        private void WriteScore(int score, ISaveStorage target = null)
+        private void WriteScore(int score, ISaveStorage target = null, string key = null)
         {
-            using (var save = Open(target))
+            using (var save = Open(target, key))
             {
                 save.Section<PlayerData>("player").Update(d => d.score = score);
                 Assert.That(save.Flush(), Is.True);
@@ -317,15 +322,112 @@ namespace RippleGame.Base.Tests
         }
 
         [Test]
-        public void WrongKey_DoesNotDestroyRealSave()
+        public void WrongKeySession_ThenRightKey_RestoresRealSave()
         {
+            WriteScore(4);
             WriteScore(5);
-            Assert.That(ReadScore(out var problems, key: OtherKey), Is.EqualTo(0));
-            Assert.That(problems, Does.Contain(SaveProblem.DataLost));
+            WriteScore(99, key: OtherKey);
 
-            storage.Delete("main.sav");
-            storage.Move("main.corrupt", "main.sav");
-            Assert.That(ReadScore(out _), Is.EqualTo(5));
+            Assert.That(ReadScore(out var problems), Is.EqualTo(5));
+            Assert.That(problems, Does.Contain(SaveProblem.RecoveredFromBackup));
+            Assert.That(ReadScore(out var later), Is.EqualTo(5), "The restored save stays in place.");
+            Assert.That(later, Is.Empty);
+        }
+
+        [Test]
+        public void DataLost_KeepsEveryUnreadableFile()
+        {
+            WriteScore(1);
+            WriteScore(2);
+            FlipByte("main.sav", 30);
+            FlipByte("main.bak", 30);
+            var damagedMain = storage.ReadOrNull("main.sav");
+            var damagedBackup = storage.ReadOrNull("main.bak");
+            ReadScore(out _);
+            Assert.That(storage.ReadOrNull("main.corrupt"), Is.EqualTo(damagedMain));
+            Assert.That(storage.ReadOrNull("main.corrupt.1"), Is.EqualTo(damagedBackup));
+        }
+
+        [Test]
+        public void RepeatedDataLoss_NeverOverwritesOldestCopy()
+        {
+            WriteScore(1);
+            FlipByte("main.sav", 30);
+            ReadScore(out _);
+            var oldest = storage.ReadOrNull("main.corrupt");
+
+            for (var i = 0; i < 8; i++)
+            {
+                storage.Delete("main.bak");
+                storage.Write("main.sav", new byte[] { (byte)i });
+                ReadScore(out var problems);
+                Assert.That(problems, Does.Contain(SaveProblem.DataLost));
+            }
+
+            Assert.That(storage.ReadOrNull("main.corrupt"), Is.EqualTo(oldest));
+            Assert.That(storage.Exists("main.corrupt.5"), Is.False, "Copies are capped.");
+        }
+
+        [Test]
+        public void ReadError_LeavesFilesAloneAndRefusesToWrite()
+        {
+            WriteScore(1);
+            WriteScore(2);
+            var flaky = new FlakyStorage(storage) { FailReads = true };
+            var problems = new List<SaveProblem>();
+
+            using (var save = Open(flaky))
+            {
+                save.ProblemRaised += problems.Add;
+                var section = save.Section<PlayerData>("player");
+                Assert.That(section.Value.score, Is.EqualTo(0));
+                Assert.That(save.IsReadOnly, Is.True);
+                section.Update(d => d.score = 50);
+                Assert.That(save.Flush(), Is.False);
+            }
+
+            Assert.That(problems, Is.EqualTo(new[] { SaveProblem.ReadFailed }));
+            Assert.That(storage.Exists("main.corrupt"), Is.False);
+            flaky.FailReads = false;
+            Assert.That(ReadScore(out var later, flaky), Is.EqualTo(2));
+            Assert.That(later, Is.Empty);
+        }
+
+        [Test]
+        public void RecoveringFromBackup_KeepsGoodBackupAndDamagedCopy()
+        {
+            WriteScore(1);
+            WriteScore(2);
+            var goodBackup = storage.ReadOrNull("main.bak");
+            FlipByte("main.sav", 30);
+
+            WriteScoreAfterRecovery(7);
+
+            Assert.That(storage.Exists("main.corrupt"), Is.True);
+            Assert.That(storage.ReadOrNull("main.bak"), Is.EqualTo(goodBackup), "The first write after recovery must not replace the good backup.");
+            Assert.That(ReadScore(out _), Is.EqualTo(7));
+        }
+
+        private void WriteScoreAfterRecovery(int score)
+        {
+            using (var save = Open())
+            {
+                save.Section<PlayerData>("player").Update(d => d.score = score);
+                Assert.That(save.Flush(), Is.True);
+            }
+        }
+
+        [Test]
+        public void RecoveringFromTemporaryFile_PromotesItBeforeAnyWrite()
+        {
+            WriteScore(1);
+            storage.Move("main.sav", "main.tmp");
+            using (var save = Open())
+            {
+                save.Section<PlayerData>("player");
+                Assert.That(storage.Exists("main.sav"), Is.True);
+                Assert.That(storage.Exists("main.tmp"), Is.False);
+            }
         }
 
         [Test]

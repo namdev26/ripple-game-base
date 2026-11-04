@@ -5,6 +5,8 @@ namespace RippleGame.Save
     /// <summary>Connects a save file to the app lifecycle: timed writes, and writes before the OS can kill the app.</summary>
     internal sealed class SaveRunner : MonoBehaviour
     {
+        internal static bool ApplicationQuitting;
+
         private SaveFile owner;
 
         internal static SaveRunner Create(SaveFile owner)
@@ -34,6 +36,10 @@ namespace RippleGame.Save
             if (!focused) owner?.Flush();
         }
 
-        private void OnApplicationQuit() => owner?.Flush();
+        private void OnApplicationQuit()
+        {
+            owner?.Flush();
+            ApplicationQuitting = true;
+        }
     }
 }

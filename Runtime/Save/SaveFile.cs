@@ -10,12 +10,14 @@ namespace RippleGame.Save
     {
         /// <summary>The main file was unusable and an older copy was loaded.</summary>
         RecoveredFromBackup,
-        /// <summary>No readable copy exists. Defaults are used and the bad file is kept as ".corrupt".</summary>
+        /// <summary>No readable copy exists. Defaults are used and every bad file is kept as ".corrupt", ".corrupt.1" and so on.</summary>
         DataLost,
         /// <summary>Writing failed, for example because storage is full. The write is retried later.</summary>
         WriteFailed,
         /// <summary>A section was written by a newer build. This session will not write.</summary>
-        NewerVersion
+        NewerVersion,
+        /// <summary>Files exist but could not be read right now. Defaults are used, files are untouched and this session will not write.</summary>
+        ReadFailed
     }
 
     public sealed class SaveOptions
@@ -44,6 +46,7 @@ namespace RippleGame.Save
     /// <remarks>Subscribe to <see cref="ProblemRaised"/> before the first <see cref="Section{T}"/> call, which is when loading happens.</remarks>
     public sealed class SaveFile : IDisposable
     {
+        private const int MaxCorruptCopies = 5;
         private static readonly HashSet<string> OpenNames = new HashSet<string>();
 
         private readonly string name;
@@ -61,16 +64,21 @@ namespace RippleGame.Save
 
         public event Action<SaveProblem> ProblemRaised;
 
-        /// <summary>True when a section came from a newer build. Writes are refused to protect that data.</summary>
+        /// <summary>True after <see cref="SaveProblem.NewerVersion"/> or <see cref="SaveProblem.ReadFailed"/>. Writes are refused to protect existing data.</summary>
         public bool IsReadOnly { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetOpenNames() => OpenNames.Clear();
+        private static void ResetOpenNames()
+        {
+            OpenNames.Clear();
+            SaveRunner.ApplicationQuitting = false;
+        }
 
         private string MainFile => name + ".sav";
         private string TemporaryFile => name + ".tmp";
         private string BackupFile => name + ".bak";
-        private string CorruptFile => name + ".corrupt";
+
+        private string CorruptCopy(int index) => index == 0 ? name + ".corrupt" : name + ".corrupt." + index;
 
         /// <param name="name">File name without extension, unique within the running game.</param>
         /// <param name="base64Key">A 32-byte key from TOOL Hub. Changing or losing it makes existing saves unreadable.</param>
@@ -89,7 +97,7 @@ namespace RippleGame.Save
             if (!OpenNames.Add(name))
                 throw new InvalidOperationException($"Save file '{name}' is already open. Share the existing instance or dispose it first.");
 
-            if (Application.isPlaying) runner = SaveRunner.Create(this);
+            EnsureRunner();
         }
 
         /// <param name="version">Raise this when the data shape changes.</param>
@@ -98,6 +106,7 @@ namespace RippleGame.Save
         {
             ThrowIfDisposed();
             if (string.IsNullOrEmpty(key)) throw new ArgumentException("A section key is required.", nameof(key));
+            EnsureRunner();
             EnsureLoaded();
 
             if (sections.TryGetValue(key, out var existing))
@@ -115,6 +124,12 @@ namespace RippleGame.Save
         public bool Flush()
         {
             if (disposed) return false;
+            EnsureRunner();
+            return WriteIfChanged();
+        }
+
+        private bool WriteIfChanged()
+        {
             EnsureLoaded();
             if (IsReadOnly) return false;
 
@@ -134,7 +149,7 @@ namespace RippleGame.Save
                 dirty = true;
                 secondsSinceFlush = 0f;
                 Debug.LogWarning($"[RippleGame Save] Could not write '{name}': {exception.Message}");
-                ProblemRaised?.Invoke(SaveProblem.WriteFailed);
+                Raise(SaveProblem.WriteFailed);
                 return false;
             }
 
@@ -149,13 +164,13 @@ namespace RippleGame.Save
         {
             if (disposed || !dirty || IsReadOnly || autoFlushSeconds <= 0f) return;
             secondsSinceFlush += deltaSeconds;
-            if (secondsSinceFlush >= autoFlushSeconds) Flush();
+            if (secondsSinceFlush >= autoFlushSeconds) WriteIfChanged();
         }
 
         public void Dispose()
         {
             if (disposed) return;
-            Flush();
+            WriteIfChanged();
             disposed = true;
             OpenNames.Remove(name);
             if (runner != null) runner.Release();
@@ -172,7 +187,7 @@ namespace RippleGame.Save
             if (entry.version > version)
             {
                 IsReadOnly = true;
-                ProblemRaised?.Invoke(SaveProblem.NewerVersion);
+                Raise(SaveProblem.NewerVersion);
                 return new T();
             }
 
@@ -209,9 +224,20 @@ namespace RippleGame.Save
         private void WriteAtomically(byte[] data)
         {
             storage.Write(TemporaryFile, data);
-            storage.Delete(BackupFile);
-            if (storage.Exists(MainFile)) storage.Move(MainFile, BackupFile);
+            // With no main file to rotate, the existing backup is the newest good copy and stays.
+            if (storage.Exists(MainFile))
+            {
+                storage.Delete(BackupFile);
+                storage.Move(MainFile, BackupFile);
+            }
             storage.Move(TemporaryFile, MainFile);
+        }
+
+        private void EnsureRunner()
+        {
+            // Without a domain reload a static SaveFile outlives the runner from the previous play session.
+            if (Application.isPlaying && !SaveRunner.ApplicationQuitting && runner == null)
+                runner = SaveRunner.Create(this);
         }
 
         private void EnsureLoaded()
@@ -219,38 +245,83 @@ namespace RippleGame.Save
             if (loaded) return;
             loaded = true;
 
-            string firstExisting = null;
+            try
+            {
+                LoadFromStorage();
+            }
+            catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+            {
+                // The files may be perfectly good, so nothing is moved and nothing may overwrite them.
+                document = new SaveDocument();
+                IsReadOnly = true;
+                Debug.LogWarning($"[RippleGame Save] Could not read '{name}': {exception.Message}");
+                Raise(SaveProblem.ReadFailed);
+            }
+        }
+
+        private void LoadFromStorage()
+        {
+            var damaged = new List<string>();
             foreach (var file in new[] { MainFile, TemporaryFile, BackupFile })
             {
-                if (!Exists(file)) continue;
-                firstExisting = firstExisting ?? file;
-                if (!TryRead(file, out var loadedDocument)) continue;
-
-                document = loadedDocument;
-                if (file == MainFile)
+                if (!storage.Exists(file)) continue;
+                if (TryParse(storage.ReadOrNull(file), out var found))
                 {
-                    lastWrittenJson = JsonUtility.ToJson(document);
+                    Adopt(file, found, damaged);
                     return;
                 }
+                damaged.Add(file);
+            }
 
-                // lastWrittenJson stays null so the next write replaces the damaged main file.
-                dirty = true;
-                ProblemRaised?.Invoke(SaveProblem.RecoveredFromBackup);
-                return;
+            // A kept copy only opens if the key changed and has now been restored.
+            for (var index = 0; index < MaxCorruptCopies; index++)
+            {
+                var file = CorruptCopy(index);
+                if (storage.Exists(file) && TryParse(storage.ReadOrNull(file), out var found))
+                {
+                    Adopt(file, found, damaged);
+                    return;
+                }
             }
 
             lastWrittenJson = JsonUtility.ToJson(document);
-            if (firstExisting == null) return;
+            if (damaged.Count == 0) return;
 
-            KeepCorruptCopy(firstExisting);
-            ProblemRaised?.Invoke(SaveProblem.DataLost);
+            foreach (var file in damaged) KeepCorruptCopy(file);
+            Raise(SaveProblem.DataLost);
         }
 
-        private bool Exists(string file)
+        private void Adopt(string file, SaveDocument found, List<string> damaged)
+        {
+            document = found;
+            if (file == MainFile)
+            {
+                lastWrittenJson = JsonUtility.ToJson(document);
+                return;
+            }
+
+            foreach (var bad in damaged) KeepCorruptCopy(bad);
+
+            if (file != BackupFile && TryPromote(file))
+            {
+                lastWrittenJson = JsonUtility.ToJson(document);
+            }
+            else
+            {
+                // lastWrittenJson stays null so the next write recreates the main file. A recovered backup stays as it is.
+                dirty = true;
+            }
+
+            Raise(SaveProblem.RecoveredFromBackup);
+        }
+
+        private bool TryPromote(string file)
         {
             try
             {
-                return storage.Exists(file);
+                if (!storage.Exists(file) || storage.Exists(MainFile)) return false;
+                storage.Move(file, MainFile);
+                return true;
             }
             catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
             {
@@ -258,32 +329,43 @@ namespace RippleGame.Save
             }
         }
 
-        private bool TryRead(string file, out SaveDocument result)
+        private bool TryParse(byte[] data, out SaveDocument result)
         {
             result = null;
+            if (!SaveCrypto.TryOpen(data, key, out var plain)) return false;
             try
             {
-                if (!SaveCrypto.TryOpen(storage.ReadOrNull(file), key, out var plain)) return false;
                 result = JsonUtility.FromJson<SaveDocument>(Encoding.UTF8.GetString(plain));
                 return result?.sections != null;
             }
-            catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException || exception is ArgumentException)
+            catch (ArgumentException)
             {
                 return false;
             }
         }
 
+        /// <summary>Copies are never overwritten, except the last slot once all are in use, so the oldest always survive.</summary>
         private void KeepCorruptCopy(string file)
         {
             try
             {
-                storage.Delete(CorruptFile);
-                storage.Move(file, CorruptFile);
+                var index = 0;
+                while (index < MaxCorruptCopies - 1 && storage.Exists(CorruptCopy(index))) index++;
+                var target = CorruptCopy(index);
+                storage.Delete(target);
+                storage.Move(file, target);
             }
             catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
             {
                 Debug.LogWarning($"[RippleGame Save] Could not keep a copy of damaged file '{file}': {exception.Message}");
             }
+        }
+
+        private void Raise(SaveProblem problem)
+        {
+            // Logged as well, because static initializers can load before anyone subscribes.
+            Debug.LogWarning($"[RippleGame Save] '{name}': {problem}");
+            ProblemRaised?.Invoke(problem);
         }
 
         private void ThrowIfDisposed()

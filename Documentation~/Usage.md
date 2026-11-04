@@ -7,7 +7,7 @@ Author: RIPPLE Game by Namdev26
 1. Install the package from its Git URL.
 2. Create your save key in **TOOL > Open Hub > Save**.
 3. Implement `ILevelGameplay` with your rules and `ILevelFlowView` with your popups.
-4. Create one `SaveFile`, a wallet, `LevelProgress` and a `LevelFlow` in your gameplay scene, and dispose the flow when the scene unloads.
+4. Keep one `SaveFile`, wallet and `LevelProgress` for the whole game. Create a `LevelFlow` in your gameplay scene and dispose it when the scene unloads. A `SaveFile` created in a scene must also be disposed with it, because a name can only be open once.
 
 `Samples~/Basic Integration/LevelFlowExample.cs` shows the whole connection. Your game keeps its rules, reward formula, level data, scene names, prefabs and key.
 
