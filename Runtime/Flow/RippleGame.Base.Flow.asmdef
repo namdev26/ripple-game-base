@@ -1,0 +1,10 @@
+{
+  "name": "RippleGame.Base.Flow",
+  "rootNamespace": "RippleGame.Flow",
+  "references": [
+    "RippleGame.Base.Economy",
+    "RippleGame.Base.Progression"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}
