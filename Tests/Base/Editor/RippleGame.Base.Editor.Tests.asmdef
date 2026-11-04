@@ -6,7 +6,8 @@
     "RippleGame.Base.Save",
     "RippleGame.Base.Progression",
     "RippleGame.Base.Flow",
-    "RippleGame.Base.FlowIntegration"
+    "RippleGame.Base.FlowIntegration",
+    "RippleGame.Tools.Editor"
   ],
   "includePlatforms": [
     "Editor"

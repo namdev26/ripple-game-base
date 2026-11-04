@@ -14,6 +14,7 @@ internal sealed class ToolHubWindow : EditorWindow
     [SerializeField] private TextureHubPage textures = new TextureHubPage();
     [SerializeField] private AdsHubPage ads = new AdsHubPage();
     [SerializeField] private AnalyticsHubPage analytics = new AnalyticsHubPage();
+    [SerializeField] private SaveHubPage save = new SaveHubPage();
     [SerializeField] private BuildReportsHubPage reports = new BuildReportsHubPage();
     private ToolHubNavigation navigation;
     private VisualElement body;
@@ -29,7 +30,7 @@ internal sealed class ToolHubWindow : EditorWindow
         window.Show();
     }
 
-    private ToolHubPage[] Pages => new ToolHubPage[] { scenes, build, textures, ads, analytics, reports };
+    private ToolHubPage[] Pages => new ToolHubPage[] { scenes, build, textures, ads, analytics, save, reports };
 
     private void OnEnable()
     {
@@ -104,7 +105,7 @@ internal sealed class ToolHubWindow : EditorWindow
         selected = section == null ? "overview" : id;
         navigation.Update(selected, query);
         pageTitle.text = section?.Title ?? "Overview";
-        pageDescription.text = section?.Description ?? "Six workspaces. One place to manage your project.";
+        pageDescription.text = section?.Description ?? "Every workspace, one place to manage your project.";
         body.Clear();
         if (section == null)
         {
@@ -126,6 +127,7 @@ internal sealed class ToolHubWindow : EditorWindow
             case "textures": return textures;
             case "ads": return ads;
             case "analytics": return analytics;
+            case "save": return save;
             default: return reports;
         }
     }
