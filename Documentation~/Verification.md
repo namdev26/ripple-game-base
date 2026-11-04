@@ -1,3 +1,25 @@
+# Verification - 0.2.0, 2026-11-05
+
+Unity Editor: 6000.0.71f1 on Windows.
+
+## Completed
+
+- EditMode suite: 171 passed, 0 failed. PlayMode suite: 24 passed, 0 failed. Both include every 0.1.0 test.
+- Save writes were interrupted at each mutation, with partial files, and stayed readable. Tampering, truncation, wrong keys, restored keys, read errors, write errors and version migration are covered.
+- Git install from a local repository at the release candidate commit into an empty project without SDKs: source `git`, 14 RippleGame assemblies compiled, no errors.
+- Windows Mono player with managed stripping at High: save smoke test passed, covering encryption, reopen, wallet and level stores on a private type, and tamper recovery. `Flush` of a 10 KB document averaged 3.77 ms and peaked at 8.13 ms on the development PC.
+- Android IL2CPP APK built from the TOOL sample with ADS enabled and managed stripping at Low: `libil2cpp.so` present, no Mono runtime, and AesManaged, HMACSHA256, RNGCryptoServiceProvider and the Save types present in the metadata.
+- TOOL sample in Play Mode with Google test ads: loading, locked levels, win, double reward, next with interstitial, revive when earned, revive not earned, decline, retry, home, last level, persistence across runs and one-time coin import from PlayerPrefs.
+- TOOL Hub Save page opened without errors. Key file creation is covered by tests.
+- An independent review found eight issues in save recovery, read errors, late rewards and documentation. All were fixed, with regression tests where the code can run without the ad SDK.
+
+## Not run
+
+- Android or iOS device. No device was connected, so IL2CPP runtime behaviour, a real app kill and `Flush` time on a phone are unverified. The 16 ms target has only been measured on a PC.
+- Real ad networks. The wait for a reward that arrives after the close event ran only through the Google placeholder ads, which never deliver a late reward.
+- Install from the GitHub URL. The `v0.2.0` tag has not been created or pushed.
+- Windows IL2CPP, because the machine has no Visual Studio C++ toolchain.
+
 # Verification - 2026-10-25
 
 Unity Editor: 6000.0.71f1 on Windows. External Google Mobile Ads and Firebase SDKs were not installed in the verification projects; ADS and FIREBASE symbols were disabled.

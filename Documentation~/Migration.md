@@ -14,7 +14,7 @@ Install the tagged Git package. Create new project configurations from the TOOL 
 6. For a legacy wallet, construct CurrencyWallet with a PlayerPrefsBalanceStore using that game's EXACT existing balance key. Adapt the old TryAddCoins API in game code if necessary; no automatic save migration runs.
 7. Compile and test scene/prefab bindings, saves, popup actions and SDK flows in that project before discarding its backup.
 
-The source TOOL project used to extract this package has intentionally not been rewritten during publication. It remains a comparison project. Do not install the new package alongside its imported old implementations without performing the migration above.
+Do not install the package alongside imported old implementations without performing the migration above. From 0.2.0 the TOOL sample runs on this package, so its Snake scripts show a complete migration.
 
 ## Update or roll back a Git installation
 
