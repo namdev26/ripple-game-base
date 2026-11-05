@@ -7,6 +7,8 @@
 - Level progression, and wallet and progress stores on a save file.
 - Scene loader with loading progress, and a safe area component.
 - TOOL Hub Save page: create a game's key and inspect encrypted save files.
+- TOOL Hub Update page: finds new release tags, opens the changes and installs the new version on request. The Editor logs a notice once per launch when one is available.
+- Developer guide in Vietnamese covering every module.
 - API from 0.1.0 is unchanged.
 
 ## 0.1.0

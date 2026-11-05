@@ -4,13 +4,15 @@ Unity Editor: 6000.0.71f1 on Windows.
 
 ## Completed
 
-- EditMode suite: 171 passed, 0 failed. PlayMode suite: 24 passed, 0 failed. Both include every 0.1.0 test.
+- EditMode suite: 197 passed, 0 failed. PlayMode suite: 24 passed, 0 failed. Both include every 0.1.0 test.
 - Save writes were interrupted at each mutation, with partial files, and stayed readable. Tampering, truncation, wrong keys, restored keys, read errors, write errors and version migration are covered.
 - Git install from a local repository at the release candidate commit into an empty project without SDKs: source `git`, 14 RippleGame assemblies compiled, no errors.
 - Windows Mono player with managed stripping at High: save smoke test passed, covering encryption, reopen, wallet and level stores on a private type, and tamper recovery. `Flush` of a 10 KB document averaged 3.77 ms and peaked at 8.13 ms on the development PC.
 - Android IL2CPP APK built from the TOOL sample with ADS enabled and managed stripping at Low: `libil2cpp.so` present, no Mono runtime, and AesManaged, HMACSHA256, RNGCryptoServiceProvider and the Save types present in the metadata.
 - TOOL sample in Play Mode with Google test ads: loading, locked levels, win, double reward, next with interstitial, revive when earned, revive not earned, decline, retry, home, last level, persistence across runs and one-time coin import from PlayerPrefs.
 - TOOL Hub Save page opened without errors. Key file creation is covered by tests.
+- Update from a local Git repository in an empty project: `v0.2.0` found `v0.2.1` and ignored `v0.3.0-beta`, then the install step moved the manifest and lockfile to the `v0.2.1` commit. The project reopened on 0.2.1 with no compile errors and no further update offered. The page layout was checked with sample data in the Editor. The Update button's click and confirmation dialog were not exercised, because batch mode cancels dialogs.
+- Every C# example in the developer guide compiled in a project with the package and no SDKs.
 - An independent review found eight issues in save recovery, read errors, late rewards and documentation. All were fixed, with regression tests where the code can run without the ad SDK.
 
 ## Not run
