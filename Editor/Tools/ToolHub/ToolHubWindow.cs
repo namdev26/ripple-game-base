@@ -16,6 +16,7 @@ internal sealed class ToolHubWindow : EditorWindow
     [SerializeField] private AnalyticsHubPage analytics = new AnalyticsHubPage();
     [SerializeField] private SaveHubPage save = new SaveHubPage();
     [SerializeField] private BuildReportsHubPage reports = new BuildReportsHubPage();
+    [SerializeField] private UpdateHubPage update = new UpdateHubPage();
     private ToolHubNavigation navigation;
     private VisualElement body;
     private Label pageTitle;
@@ -30,7 +31,7 @@ internal sealed class ToolHubWindow : EditorWindow
         window.Show();
     }
 
-    private ToolHubPage[] Pages => new ToolHubPage[] { scenes, build, textures, ads, analytics, save, reports };
+    private ToolHubPage[] Pages => new ToolHubPage[] { scenes, build, textures, ads, analytics, save, reports, update };
 
     private void OnEnable()
     {
@@ -128,6 +129,7 @@ internal sealed class ToolHubWindow : EditorWindow
             case "ads": return ads;
             case "analytics": return analytics;
             case "save": return save;
+            case "update": return update;
             default: return reports;
         }
     }

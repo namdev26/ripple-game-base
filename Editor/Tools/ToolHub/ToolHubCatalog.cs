@@ -27,7 +27,8 @@ internal static class ToolHubCatalog
         new ToolHubSection("ads", "ADS", "Edit ad configuration, scene setup and Android build profiles.", "SettingsIcon"),
         new ToolHubSection("analytics", "Analytics", "Edit event collection settings and enable Firebase integration.", "Profiler.NetworkMessages"),
         new ToolHubSection("save", "Save", "Create the game's save key and inspect encrypted save files.", "SaveAs"),
-        new ToolHubSection("reports", "Build Reports", "Inspect the latest build result, size, duration and output.", "UnityEditor.ConsoleWindow")
+        new ToolHubSection("reports", "Build Reports", "Inspect the latest build result, size, duration and output.", "UnityEditor.ConsoleWindow"),
+        new ToolHubSection("update", "Update", "Check for a new package version and install it.", "Refresh")
     };
 
     internal static IEnumerable<ToolHubSection> Search(string query)
