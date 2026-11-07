@@ -31,13 +31,13 @@ internal sealed class AnalyticsHubPage : ToolHubPage
             {
                 using (new EditorGUI.DisabledScope(!installed))
                     if (GUILayout.Button("Enable Firebase", GUILayout.Height(28)))
-                        ToolHubCommands.Run("TOOL/ANALYTICS/Enable Firebase");
+                        ToolHubCommands.Run("RIPPLE Game/ANALYTICS/Enable Firebase");
                 if (GUILayout.Button("Disable Firebase", GUILayout.Height(28)))
-                    ToolHubCommands.Run("TOOL/ANALYTICS/Disable Firebase");
+                    ToolHubCommands.Run("RIPPLE Game/ANALYTICS/Disable Firebase");
             }
             GUILayout.Space(18);
             EditorGUILayout.LabelField("Analytics settings", EditorStyles.boldLabel);
-            configuration.Draw("RippleGame.Analytics.AnalyticsSettings", "TOOL/ANALYTICS/Create Analytics Settings");
+            configuration.Draw("RippleGame.Analytics.AnalyticsSettings", "RIPPLE Game/ANALYTICS/Create Analytics Settings");
         }
     }
 

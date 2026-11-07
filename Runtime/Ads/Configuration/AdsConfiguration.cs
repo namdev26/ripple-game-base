@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace RippleGame.Ads
 {
-    [CreateAssetMenu(fileName = "AdsConfiguration", menuName = "TOOL/ADS/Ads Configuration")]
+    [CreateAssetMenu(fileName = "AdsConfiguration", menuName = "RIPPLE Game/ADS/Ads Configuration")]
     public sealed class AdsConfiguration : ScriptableObject
     {
         [SerializeField] private string providerId = "admob";

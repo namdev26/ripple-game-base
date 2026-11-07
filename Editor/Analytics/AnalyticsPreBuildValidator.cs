@@ -30,7 +30,7 @@ namespace RippleGame.Analytics.Editor
             if (fileName == null || configExists(fileName)) return null;
 
             return $"FIREBASE is enabled but {fileName} was not found under Assets/. Download it from the Firebase console, " +
-                   "or use TOOL/ANALYTICS/Disable Firebase.";
+                   "or use RIPPLE Game/ANALYTICS/Disable Firebase.";
         }
 
         private static bool ConfigExists(string fileName) =>

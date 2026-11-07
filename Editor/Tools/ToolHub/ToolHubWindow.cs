@@ -23,7 +23,7 @@ internal sealed class ToolHubWindow : EditorWindow
     private Label pageTitle;
     private Label pageDescription;
 
-    [MenuItem("TOOL/Open Hub", false, -1000)]
+    [MenuItem("RIPPLE Game/Open Hub", false, 999)]
     internal static void Open()
     {
         var window = GetWindow<ToolHubWindow>();

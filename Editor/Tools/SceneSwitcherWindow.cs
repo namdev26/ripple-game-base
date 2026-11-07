@@ -4,7 +4,7 @@ using UnityEngine;
 public class SceneSwitcherWindow : EditorWindow
 {
     [SerializeField] private SceneSwitcherPanel panel = new SceneSwitcherPanel();
-    [MenuItem("TOOL/Scene Switch")]
+    [MenuItem("RIPPLE Game/Scene Switch")]
     private static void Open() => GetWindow<SceneSwitcherWindow>("Scene Switch");
     private void OnEnable()
     {

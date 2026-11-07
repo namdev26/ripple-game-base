@@ -35,7 +35,7 @@ Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm t
 | Popup | Mỗi lúc hiện một popup, popup mới thay popup cũ | Làm prefab |
 | Scene | Chuyển scene, màn hình loading có thanh tiến trình | Thêm scene vào Build Settings |
 | Safe area | Tránh tai thỏ và thanh home | Gắn component |
-| TOOL Hub | Gom các công cụ Editor vào một cửa sổ, kiểm tra bản mới | Mở **TOOL > Open Hub** |
+| TOOL Hub | Gom các công cụ Editor vào một cửa sổ, kiểm tra bản mới | Mở **RIPPLE Game > Open Hub** |
 
 Package không chứa luật chơi, level, art, prefab hay scene của game nào. Những thứ đó thuộc về game của bạn.
 
@@ -90,7 +90,7 @@ Sau đó commit cả `Packages/manifest.json` và `Packages/packages-lock.json` 
 
 ### Bước 1: Tạo key save
 
-Mở **TOOL > Open Hub > Save**, giữ thư mục `Assets` hoặc chọn thư mục khác, rồi bấm **Create GameSaveKey.cs**. Commit file này cùng game.
+Mở **RIPPLE Game > Open Hub > Save**, giữ thư mục `Assets` hoặc chọn thư mục khác, rồi bấm **Create GameSaveKey.cs**. Commit file này cùng game.
 
 > Mỗi game một key. Sau khi phát hành **không được đổi key**, vì đổi hoặc mất key thì người chơi mất save.
 
@@ -222,7 +222,7 @@ Mọi sự cố đều được ghi log và báo qua `ProblemRaised`, đã đăn
 
 ### Xem và xóa save khi debug
 
-- **Xem nội dung:** mở **TOOL > Open Hub > Save**, chọn file, dán key rồi bấm **Decrypt**.
+- **Xem nội dung:** mở **RIPPLE Game > Open Hub > Save**, chọn file, dán key rồi bấm **Decrypt**.
 - **Vị trí file:** thư mục `Application.persistentDataPath`, tên `main.sav` nếu đặt tên `main`.
 - **Chơi lại từ đầu:** xóa các file `main.*` trong thư mục đó khi không chạy game.
 
@@ -536,17 +536,17 @@ Nhớ gọi `flow.Dispose()` khi rời scene, để quảng cáo đóng muộn k
 
 1. Cài [Google Mobile Ads Unity plugin](https://developers.google.com/admob/unity/quick-start) vào project.
 2. Mở menu Settings của plugin một lần để nó tạo file cấu hình.
-3. Chọn **TOOL > ADS > Create Ads Configuration**. File tạo ra đã có sẵn ID test của Google cho Android.
-4. Mở scene khởi động của game, chọn **TOOL > ADS > Scene Setup > Add Ads Object to Active Scene**, rồi lưu scene.
-5. Chọn **TOOL > ADS > Configure Android > Ads Test** và build thử lên máy.
+3. Chọn **RIPPLE Game > ADS > Create Ads Configuration**. File tạo ra đã có sẵn ID test của Google cho Android.
+4. Mở scene khởi động của game, chọn **RIPPLE Game > ADS > Scene Setup > Add Ads Object to Active Scene**, rồi lưu scene.
+5. Chọn **RIPPLE Game > ADS > Configure Android > Ads Test** và build thử lên máy.
 
 Khi sắp phát hành, điền ID thật vào mục `Production` trong file cấu hình, rồi dùng **Ads Production**.
 
-Các lệnh này cũng có trong **TOOL > Open Hub > ADS**.
+Các lệnh này cũng có trong **RIPPLE Game > Open Hub > ADS**.
 
 ### Chọn chế độ build
 
-Đừng tự sửa define symbol, hãy dùng menu **TOOL > ADS > Configure Android** để cấu hình hoặc **TOOL > ADS > Build Android** để build luôn:
+Đừng tự sửa define symbol, hãy dùng menu **RIPPLE Game > ADS > Configure Android** để cấu hình hoặc **RIPPLE Game > ADS > Build Android** để build luôn:
 
 | Chế độ | Kết quả |
 |---|---|
@@ -665,14 +665,14 @@ GameEvents.LevelFail(5, reason: "hit_wall");
 1. Tạo project trên [Firebase Console](https://console.firebase.google.com) và thêm app Android có package name trùng với game.
 2. Tải `google-services.json` vào `Assets/`.
 3. Tải [Firebase Unity SDK](https://firebase.google.com/download/unity) và import **chỉ** `FirebaseAnalytics.unitypackage`.
-4. Chọn **TOOL > ANALYTICS > Enable Firebase**.
+4. Chọn **RIPPLE Game > ANALYTICS > Enable Firebase**.
 
 Muốn quay về chỉ in Console thì chọn **Disable Firebase**.
 
 ### Cần nhớ
 
 - **Tên event và param:** tối đa 40 ký tự, chỉ gồm chữ, số và `_`, bắt đầu bằng chữ. Sai luật thì event bị bỏ và có cảnh báo trong Editor.
-- **Doanh thu quảng cáo:** nếu đã link AdMob với Firebase, hãy tắt `Log Ad Revenue` trong **TOOL > ANALYTICS > Create Analytics Settings**, nếu không doanh thu bị đếm hai lần.
+- **Doanh thu quảng cáo:** nếu đã link AdMob với Firebase, hãy tắt `Log Ad Revenue` trong **RIPPLE Game > ANALYTICS > Create Analytics Settings**, nếu không doanh thu bị đếm hai lần.
 - **Kiểm tra trên máy:** chạy `adb shell setprop debug.firebase.analytics.app <package.name>` rồi xem Firebase Console > DebugView. Báo cáo thường thì chờ khoảng 24 giờ.
 
 Danh sách đầy đủ event và cách chờ người dùng đồng ý (consent) nằm ở [analytics/Setup.md](analytics/Setup.md).
@@ -736,7 +736,7 @@ Thêm component `RippleGame.UI.SafeArea` vào một RectTransform phủ toàn m�
 
 ## 14. TOOL Hub
 
-Mở **TOOL > Open Hub**:
+Mở **RIPPLE Game > Open Hub**:
 
 | Trang | Dùng để |
 |---|---|
@@ -756,7 +756,7 @@ Ngoài ra, chuột phải một ScriptableObject trong Inspector rồi chọn **
 Unity không tự cập nhật package. Package chỉ thông báo, còn bạn quyết định khi nào nâng:
 
 1. Khi mở Editor, nếu có bản mới thì Console hiện dòng `RIPPLE Game Base v0.3.0 is available`.
-2. Mở **TOOL > Open Hub > Update**. Trang này hiện bản đang dùng và bản mới nhất.
+2. Mở **RIPPLE Game > Open Hub > Update**. Trang này hiện bản đang dùng và bản mới nhất.
 3. Bấm **View changes** để đọc thay đổi. Commit công việc đang làm.
 4. Bấm **Update to v0.3.0** rồi xác nhận. Unity tự tải bản mới và compile lại.
 5. Commit `Packages/manifest.json` và `Packages/packages-lock.json`.

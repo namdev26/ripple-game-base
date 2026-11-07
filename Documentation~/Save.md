@@ -4,7 +4,7 @@ Module `RippleGame.Save` lưu dữ liệu game vào một file mã hóa. Package
 
 ## Bắt đầu trong 3 bước
 
-**1. Tạo key.** Mở **TOOL > Open Hub > Save**, chọn thư mục trong `Assets`, bấm **Create GameSaveKey.cs**. Commit file này cùng game.
+**1. Tạo key.** Mở **RIPPLE Game > Open Hub > Save**, chọn thư mục trong `Assets`, bấm **Create GameSaveKey.cs**. Commit file này cùng game.
 
 **2. Khai báo dữ liệu.** Một class `[Serializable]` có constructor mặc định. Giá trị khởi tạo chính là giá trị mặc định khi chưa có save.
 
@@ -108,7 +108,7 @@ Mọi lỗi đều được ghi log cảnh báo sẵn. Nếu muốn tự xử l�
 
 ## Xem nội dung save khi debug
 
-Mở **TOOL > Open Hub > Save**, chọn file, dán key rồi bấm **Decrypt**. File nằm trong `Application.persistentDataPath`, tên `main.sav` nếu bạn đặt tên `main`.
+Mở **RIPPLE Game > Open Hub > Save**, chọn file, dán key rồi bấm **Decrypt**. File nằm trong `Application.persistentDataPath`, tên `main.sav` nếu bạn đặt tên `main`.
 
 Trong khi chơi trên Editor, muốn xóa save để chơi lại từ đầu thì xóa các file `main.*` trong thư mục đó.
 

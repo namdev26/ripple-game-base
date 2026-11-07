@@ -18,8 +18,8 @@ internal static class ConsumerProof
         var proofPath = Path.Combine(Directory.GetCurrentDirectory(), "ConsumerProof.json");
         if (!File.Exists(proofPath))
         {
-            HubProof.Require(EditorApplication.ExecuteMenuItem("TOOL/ADS/Create Ads Configuration"), "create local ads configuration");
-            HubProof.Require(EditorApplication.ExecuteMenuItem("TOOL/ANALYTICS/Create Analytics Settings"), "create local analytics configuration");
+            HubProof.Require(EditorApplication.ExecuteMenuItem("RIPPLE Game/ADS/Create Ads Configuration"), "create local ads configuration");
+            HubProof.Require(EditorApplication.ExecuteMenuItem("RIPPLE Game/ANALYTICS/Create Analytics Settings"), "create local analytics configuration");
             var ads = AssetDatabase.LoadAssetAtPath<AdsConfiguration>(AdsPath);
             var analytics = AssetDatabase.LoadAssetAtPath<AnalyticsSettings>(AnalyticsPath);
             var serialized = new SerializedObject(ads);

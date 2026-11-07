@@ -3,7 +3,7 @@ using UnityEngine;
 namespace RippleGame.Analytics
 {
     /// <summary>Optional settings asset. Place it at Resources/RippleGameAnalytics/AnalyticsSettings.</summary>
-    [CreateAssetMenu(fileName = "AnalyticsSettings", menuName = "TOOL/ANALYTICS/Analytics Settings")]
+    [CreateAssetMenu(fileName = "AnalyticsSettings", menuName = "RIPPLE Game/ANALYTICS/Analytics Settings")]
     public sealed class AnalyticsSettings : ScriptableObject
     {
         public const string ResourcesPath = "RippleGameAnalytics/AnalyticsSettings";

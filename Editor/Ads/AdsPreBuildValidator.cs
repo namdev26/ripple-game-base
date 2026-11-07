@@ -42,13 +42,13 @@ namespace RippleGame.Ads.Editor
             var configuration = FindConfiguration();
             if (configuration == null)
             {
-                throw new BuildFailedException("ADS is enabled but Assets/Settings/RippleGameAds/AdsConfiguration.asset is missing. Use TOOL/ADS/Create Ads Configuration.");
+                throw new BuildFailedException("ADS is enabled but Assets/Settings/RippleGameAds/AdsConfiguration.asset is missing. Use RIPPLE Game/ADS/Create Ads Configuration.");
             }
 
             var runtimeReference = AssetDatabase.LoadAssetAtPath<AdsConfigurationReference>("Assets/Resources/RippleGameAds/AdsConfigurationReference.asset");
             if (runtimeReference == null || runtimeReference.Configuration != configuration)
             {
-                throw new BuildFailedException("The AdsConfiguration runtime reference is missing or out of date. Run TOOL/ADS/Create Ads Configuration again.");
+                throw new BuildFailedException("The AdsConfiguration runtime reference is missing or out of date. Run RIPPLE Game/ADS/Create Ads Configuration again.");
             }
 
             var active = testEnabled ? configuration.Test : configuration.Production;

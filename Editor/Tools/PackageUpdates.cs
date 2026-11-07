@@ -78,6 +78,6 @@ internal static class PackageUpdates
         var status = await CheckAsync();
         // Being offline at launch is normal, so a failed check stays quiet here. The Update page shows it.
         if (status.UpdateAvailable)
-            Debug.Log("RIPPLE Game Base " + status.Latest.Tag + " is available (installed " + status.InstalledVersion + "). Open TOOL > Open Hub > Update.");
+            Debug.Log("RIPPLE Game Base " + status.Latest.Tag + " is available (installed " + status.InstalledVersion + "). Open RIPPLE Game > Open Hub > Update.");
     }
 }

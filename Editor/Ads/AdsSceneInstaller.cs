@@ -6,7 +6,7 @@ namespace RippleGame.Ads.Editor
 {
     internal static class AdsSceneInstaller
     {
-        [MenuItem("TOOL/ADS/Scene Setup/Add Ads Object to Active Scene")]
+        [MenuItem("RIPPLE Game/ADS/Scene Setup/Add Ads Object to Active Scene")]
         private static void AddAdsObjectToActiveScene()
         {
             if (Application.isPlaying)

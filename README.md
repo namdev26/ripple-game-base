@@ -37,10 +37,10 @@ Use Unity 6000.0 or newer. Remove or migrate previous copies of these tools and 
 | Runtime/Ads | Existing `RippleGame.Ads.Runtime` API and optional AdMob provider |
 | Runtime/Analytics | Existing `RippleGame.Analytics.Runtime` API with Console fallback |
 | Runtime/AnalyticsAdsBridge | Optional bridge between the included Ads and Analytics modules |
-| Editor/Tools | `TOOL > Open Hub`, Scene Switch, Android Build, Texture, Save, package update and JSON export tools |
+| Editor/Tools | `RIPPLE Game > Open Hub`, Scene Switch, Android Build, Texture, Save, package update and JSON export tools |
 | Editor/Ads, Editor/Analytics | Project configuration and build validation |
 
-Open **TOOL > Open Hub** for settings and actions in one window. Install the official Google Mobile Ads and Firebase SDKs separately before enabling their integrations. SDK-disabled imports compile and the Analytics Console fallback works without those SDKs.
+Open **RIPPLE Game > Open Hub** for settings and actions in one window. Install the official Google Mobile Ads and Firebase SDKs separately before enabling their integrations. SDK-disabled imports compile and the Analytics Console fallback works without those SDKs.
 
 ## Project-owned configuration
 
@@ -50,7 +50,7 @@ The base does not impose a reward formula, game flow, level schema or scene name
 
 ## Update and edit
 
-When a new version is released, the Editor logs a notice and **TOOL > Open Hub > Update** offers it. You can also replace the Git revision suffix by hand and let Package Manager resolve it. Commit the consuming project's manifest and lockfile afterwards. Tags pin versions; upstream pushes do not silently change a tagged install.
+When a new version is released, the Editor logs a notice and **RIPPLE Game > Open Hub > Update** offers it. You can also replace the Git revision suffix by hand and let Package Manager resolve it. Commit the consuming project's manifest and lockfile afterwards. Tags pin versions; upstream pushes do not silently change a tagged install.
 
 Shared source is edited in this repository's normal writable clone. Unity's Git package cache is a consumer copy. For development, use **Install package from disk** and select this clone's package.json, or make an embedded development copy. After editing and testing, increment package.json, update CHANGELOG.md, commit and create a new tag. Return consumers to a Git dependency to receive future releases.
 

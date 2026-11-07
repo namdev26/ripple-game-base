@@ -6,8 +6,8 @@ Use the three build menu commands rather than editing symbols manually. The pre-
 
 | Command | Result |
 | --- | --- |
-| `TOOL/ADS/Build Android/No Ads` | Removes `ADS` and `ADS_TEST`. Rewarded reports `Disabled` and never grants a reward. |
-| `TOOL/ADS/Build Android/Ads Test` | Adds `ADS;ADS_TEST`; validates the Test profile. |
-| `TOOL/ADS/Build Android/Ads Production` | Adds `ADS`, removes `ADS_TEST`; rejects known Google demo IDs. |
+| `RIPPLE Game/ADS/Build Android/No Ads` | Removes `ADS` and `ADS_TEST`. Rewarded reports `Disabled` and never grants a reward. |
+| `RIPPLE Game/ADS/Build Android/Ads Test` | Adds `ADS;ADS_TEST`; validates the Test profile. |
+| `RIPPLE Game/ADS/Build Android/Ads Production` | Adds `ADS`, removes `ADS_TEST`; rejects known Google demo IDs. |
 
 Do a clean device test for every format before shipping a new production configuration. Banner uses one persistent native view across Home and Gameplay: it hides in Loading and is shown again after a full-screen ad closes. Test App Open behavior by backgrounding and foregrounding the app; it has a configurable cooldown and never shows while a different full-screen ad is active.

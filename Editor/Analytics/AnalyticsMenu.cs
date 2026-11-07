@@ -12,7 +12,7 @@ namespace RippleGame.Analytics.Editor
         private const string SettingsPath = SettingsDirectory + "/AnalyticsSettings.asset";
         private static readonly NamedBuildTarget[] FirebaseTargets = { NamedBuildTarget.Android, NamedBuildTarget.iOS };
 
-        [MenuItem("TOOL/ANALYTICS/Enable Firebase")]
+        [MenuItem("RIPPLE Game/ANALYTICS/Enable Firebase")]
         private static void EnableFirebase()
         {
             if (!FirebaseDefineUtility.IsFirebaseInstalled())
@@ -28,7 +28,7 @@ namespace RippleGame.Analytics.Editor
             Debug.Log(Analytics.LogPrefix + "FIREBASE enabled for Android and iOS.");
         }
 
-        [MenuItem("TOOL/ANALYTICS/Disable Firebase")]
+        [MenuItem("RIPPLE Game/ANALYTICS/Disable Firebase")]
         private static void DisableFirebase()
         {
             foreach (var target in FirebaseTargets)
@@ -39,7 +39,7 @@ namespace RippleGame.Analytics.Editor
             Debug.Log(Analytics.LogPrefix + "FIREBASE disabled for Android and iOS. Events now print to the Console only.");
         }
 
-        [MenuItem("TOOL/ANALYTICS/Create Analytics Settings")]
+        [MenuItem("RIPPLE Game/ANALYTICS/Create Analytics Settings")]
         private static void CreateSettings()
         {
             var settings = AssetDatabase.LoadAssetAtPath<AnalyticsSettings>(SettingsPath);

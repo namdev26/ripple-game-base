@@ -25,7 +25,7 @@ namespace RippleGame.Ads.Editor
         private const string ReferenceDirectoryPath = "Assets/Resources/RippleGameAds";
         private const string ReferenceAssetPath = ReferenceDirectoryPath + "/AdsConfigurationReference.asset";
 
-        [MenuItem("TOOL/ADS/Create Ads Configuration")]
+        [MenuItem("RIPPLE Game/ADS/Create Ads Configuration")]
         private static void Create()
         {
             var existing = AssetDatabase.LoadAssetAtPath<AdsConfiguration>(AssetPath);

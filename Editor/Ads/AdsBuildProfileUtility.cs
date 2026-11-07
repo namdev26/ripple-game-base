@@ -25,22 +25,22 @@ namespace RippleGame.Ads.Editor
             EditorApplication.delayCall += TryRunPendingBuild;
         }
 
-        [MenuItem("TOOL/ADS/Build Android/No Ads")]
+        [MenuItem("RIPPLE Game/ADS/Build Android/No Ads")]
         private static void BuildNoAds() => Build(AndroidAdsBuildProfile.NoAds);
 
-        [MenuItem("TOOL/ADS/Build Android/Ads Test")]
+        [MenuItem("RIPPLE Game/ADS/Build Android/Ads Test")]
         private static void BuildAdsTest() => Build(AndroidAdsBuildProfile.AdsTest);
 
-        [MenuItem("TOOL/ADS/Build Android/Ads Production")]
+        [MenuItem("RIPPLE Game/ADS/Build Android/Ads Production")]
         private static void BuildAdsProduction() => Build(AndroidAdsBuildProfile.AdsProduction);
 
-        [MenuItem("TOOL/ADS/Configure Android/No Ads")]
+        [MenuItem("RIPPLE Game/ADS/Configure Android/No Ads")]
         private static void ConfigureNoAds() => ApplyProfile(AndroidAdsBuildProfile.NoAds);
 
-        [MenuItem("TOOL/ADS/Configure Android/Ads Test")]
+        [MenuItem("RIPPLE Game/ADS/Configure Android/Ads Test")]
         private static void ConfigureAdsTest() => ApplyProfile(AndroidAdsBuildProfile.AdsTest);
 
-        [MenuItem("TOOL/ADS/Configure Android/Ads Production")]
+        [MenuItem("RIPPLE Game/ADS/Configure Android/Ads Production")]
         private static void ConfigureAdsProduction() => ApplyProfile(AndroidAdsBuildProfile.AdsProduction);
 
         internal static void ApplyProfile(AndroidAdsBuildProfile profile)

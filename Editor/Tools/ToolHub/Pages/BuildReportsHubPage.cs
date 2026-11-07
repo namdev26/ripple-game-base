@@ -35,7 +35,7 @@ internal sealed class BuildReportsHubPage : ToolHubPage
             if (ToolHubCommands.HasType("BuildReportTool.ReportGenerator"))
             {
                 EditorGUILayout.HelpBox("The optional Build Report Tool provides its own detailed report window.", MessageType.None);
-                if (GUILayout.Button("Open Detailed Build Report")) ToolHubCommands.Run("TOOL/Show Build Report");
+                if (GUILayout.Button("Open Detailed Build Report")) ToolHubCommands.Run("RIPPLE Game/Show Build Report");
             }
         }
     }

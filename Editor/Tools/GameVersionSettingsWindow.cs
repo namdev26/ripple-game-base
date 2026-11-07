@@ -4,8 +4,8 @@ using UnityEngine;
 internal sealed partial class GameVersionSettingsWindow : EditorWindow
 {
     [SerializeField] private AndroidBuildPanel panel = new AndroidBuildPanel();
-    [MenuItem("TOOL/Build/Version Settings")]
-    [MenuItem("TOOL/Build/Android Settings")]
+    [MenuItem("RIPPLE Game/Build/Version Settings")]
+    [MenuItem("RIPPLE Game/Build/Android Settings")]
     private static void Open() => GetWindow<GameVersionSettingsWindow>("Android Build Settings");
     private void OnEnable()
     {

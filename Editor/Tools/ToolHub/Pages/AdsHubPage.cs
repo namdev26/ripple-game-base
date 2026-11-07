@@ -33,11 +33,11 @@ internal sealed class AdsHubPage : ToolHubPage
                 DrawProfile("Ads Production");
                 GUILayout.Space(8);
                 if (GUILayout.Button("Add Ads Object to Active Scene", GUILayout.Height(28)))
-                    ToolHubCommands.Run("TOOL/ADS/Scene Setup/Add Ads Object to Active Scene");
+                    ToolHubCommands.Run("RIPPLE Game/ADS/Scene Setup/Add Ads Object to Active Scene");
             }
             GUILayout.Space(18);
             EditorGUILayout.LabelField("Ad configuration", EditorStyles.boldLabel);
-            configuration.Draw("RippleGame.Ads.AdsConfiguration", "TOOL/ADS/Create Ads Configuration");
+            configuration.Draw("RippleGame.Ads.AdsConfiguration", "RIPPLE Game/ADS/Create Ads Configuration");
         }
     }
 
@@ -50,9 +50,9 @@ internal sealed class AdsHubPage : ToolHubPage
             using (new EditorGUI.DisabledScope(!available))
             {
                 if (GUILayout.Button("Configure", GUILayout.Width(100)))
-                    ToolHubCommands.Run("TOOL/ADS/Configure Android/" + name);
+                    ToolHubCommands.Run("RIPPLE Game/ADS/Configure Android/" + name);
                 if (GUILayout.Button("Build", GUILayout.Width(80)))
-                    ToolHubCommands.Run("TOOL/ADS/Build Android/" + name);
+                    ToolHubCommands.Run("RIPPLE Game/ADS/Build Android/" + name);
             }
         }
         if (!available) EditorGUILayout.LabelField("Google Mobile Ads SDK is required for " + name + ".", EditorStyles.miniLabel);
