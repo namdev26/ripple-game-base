@@ -67,6 +67,8 @@ internal static class LocalizationSheet
             foreach (var column in columns)
             {
                 var value = Cell(rows[r], column.Value);
+                if (ShowsFormulaProblem(value, english))
+                    result.Errors.Add("Cell of " + key + " in " + column.Key + " shows " + value + ". Fix the formula or wait for it to finish, then sync again.");
                 if (string.IsNullOrWhiteSpace(value))
                     value = english;
                 if (!placeholders.SetEquals(Placeholders(value)))
@@ -107,6 +109,12 @@ internal static class LocalizationSheet
     }
 
     private static string Cell(string[] row, int column) => column < row.Length ? row[column] : string.Empty;
+
+    private static bool ShowsFormulaProblem(string value, string english)
+    {
+        return Regex.IsMatch(value, @"^#(ERROR!|N/A|VALUE!|REF!|NAME\?|DIV/0!|NUM!|NULL!)$")
+               || (value == "Loading..." && english != value);
+    }
 
     private static HashSet<string> Placeholders(string value)
     {

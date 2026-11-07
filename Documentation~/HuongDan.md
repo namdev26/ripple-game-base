@@ -811,6 +811,14 @@ Mỗi ngôn ngữ là một file trong `Assets/Resources`: `Localization.txt` ch
 
 Dòng đầu là tên cột, cột `English` là bắt buộc, thêm ngôn ngữ chỉ cần thêm cột. Mẫu Sheet cũ của studio (hai ô đầu của dòng 1 để trống) vẫn dùng được. Ô để trống sẽ lấy tiếng Anh.
 
+**Tự dịch bằng Google Translate:** dòng `country_code` chứa mã ngôn ngữ của từng cột (`vi`, `ja`, `zh-CN`...). Dán công thức này vào ô tiếng Việt của dòng key đầu tiên rồi kéo sang các cột khác và xuống các dòng dưới, ví dụ với dòng mã ngôn ngữ là dòng 2 và key đầu ở dòng 4:
+
+```text
+=IF($B4="";"";GOOGLETRANSLATE($B4;"en";C$2))
+```
+
+Sheet dùng locale Anh thì đổi dấu `;` thành `,`. Từ đó chỉ cần điền cột `English`. Muốn sửa một bản dịch thì gõ đè lên ô đó. Bản dịch máy của từ đơn thường chưa chuẩn (`Home` có thể thành "nhà"), nên hãy xem lại trước khi phát hành. Nếu ô đang báo lỗi như `#ERROR!` thì công cụ sync dừng và không ghi file nào.
+
 ### Bước 2: Sync vào project
 
 1. Bật chia sẻ Sheet cho **bất kỳ ai có link**.

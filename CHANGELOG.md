@@ -3,6 +3,7 @@
 ## 0.2.1
 
 - Localization sync now writes every language column, including `Arabic` and `Unknown`. Arabic text is written as is, without letter shaping.
+- Localization sync stops when a cell shows a formula error such as `#ERROR!`, so translations made with `GOOGLETRANSLATE` cannot put error text in a game.
 
 ## 0.2.0
 

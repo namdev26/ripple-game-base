@@ -248,6 +248,34 @@ namespace RippleGame.Base.Tests
             AssertFailed(LocalizationSheet.Build("KEY_lang,English,Vietnamese\n,,\n"), "no keys");
         }
 
+        [TestCase("#ERROR!")]
+        [TestCase("#N/A")]
+        [TestCase("#VALUE!")]
+        [TestCase("#REF!")]
+        [TestCase("#NAME?")]
+        [TestCase("Loading...")]
+        public void Build_CellShowingFormulaProblem_Fails(string cell)
+        {
+            var result = LocalizationSheet.Build("KEY_lang,English,Vietnamese\ns_a,Hello," + cell);
+
+            AssertFailed(result, "s_a");
+            AssertFailed(result, "Vietnamese");
+        }
+
+        [Test]
+        public void Build_EnglishFormulaError_Fails()
+        {
+            AssertFailed(LocalizationSheet.Build("KEY_lang,English,Vietnamese\ns_a,#REF!,Chao"), "s_a");
+        }
+
+        [Test]
+        public void Build_LoadingAsEnglishText_IsAllowed()
+        {
+            var result = LocalizationSheet.Build("KEY_lang,English,Vietnamese\ns_a,Loading...,Loading...");
+
+            Assert.That(result.Ok, Is.True, string.Join("\n", result.Errors));
+        }
+
         [Test]
         public void Build_RoundTrip()
         {
