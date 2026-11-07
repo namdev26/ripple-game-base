@@ -63,7 +63,7 @@ internal sealed class SaveHubPage : ToolHubPage
             if (!keyFolder.Replace('\\', '/').StartsWith("Assets", StringComparison.Ordinal) || !AssetDatabase.IsValidFolder(keyFolder))
                 throw new IOException("Choose an existing folder inside Assets.");
 
-            var path = SaveKeyFile.Write(keyFolder, SaveInspector.GenerateKey());
+            var path = SaveKeyFile.WriteNew(Application.dataPath, keyFolder, SaveInspector.GenerateKey());
             AssetDatabase.ImportAsset(path.Replace('\\', '/'));
             message = "Created " + path + ". Use it with: new SaveFile(\"main\", GameSaveKey.Value)";
             messageType = MessageType.Info;

@@ -13,6 +13,16 @@ internal static class SaveKeyFile
         "    public const string Value = \"" + key + "\";\n" +
         "}\n";
 
+    /// <summary>Like Write, but also refuses when the game already has a key in any folder under assetsRoot.</summary>
+    internal static string WriteNew(string assetsRoot, string directory, string key)
+    {
+        var existing = Directory.GetFiles(assetsRoot, FileName, SearchOption.AllDirectories);
+        if (existing.Length > 0)
+            throw new IOException("This game already has a save key: " + existing[0].Replace('\\', '/'));
+
+        return Write(directory, key);
+    }
+
     /// <summary>Returns the created path. Throws IOException instead of replacing an existing key.</summary>
     internal static string Write(string directory, string key)
     {
