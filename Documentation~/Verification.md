@@ -4,7 +4,7 @@ Unity Editor: 6000.0.71f1 on Windows.
 
 ## Completed
 
-- EditMode suite: 258 passed, 0 failed. PlayMode suite: 31 passed, 0 failed. Both include every 0.2.0 test.
+- EditMode suite: 262 passed, 0 failed. PlayMode suite: 31 passed, 0 failed. Both include every 0.2.0 test.
 - Import into a project whose manifest has only this package and no `com.unity.ugui`: no compile errors, and `RippleGame.Base.Localization.UI` is not built. `Tools~/Check-Package.ps1` passed. The new sample compiled in a project with `com.unity.ugui`.
 - Real sync from a studio Google Sheet: 15 language files written, Arabic and Unknown skipped. Compared with the previous files of 4 languages, differences were the dropped `KEY_lang` row, a trimmed `s_review` key and translations updated on the Sheet. A link to a Sheet that does not exist reported 404 and changed no files.
 - TOOL sample in Play Mode: the language button changes Home text at once, the choice survives a restart, Vietnamese text shows all diacritics on Home and in the gameplay score, and all 4 popups show their Vietnamese text with no missing glyphs or overflow. Win, Lose, Revive and Reward popups were instantiated directly, not reached by playing a level.

@@ -817,7 +817,7 @@ Dòng đầu là tên cột, cột `English` là bắt buộc, thêm ngôn ngữ
 2. Mở **RIPPLE Game > Open Hub > Localization**, dán link rồi bấm **Sync**.
 3. Đọc báo cáo, rồi commit các file dịch cùng `ProjectSettings/RippleGameLocalization.json`.
 
-Sheet là nguồn chính, nên key đã xóa trên Sheet cũng bị xóa khỏi file, và báo cáo sẽ liệt kê các key đó. Nếu Sheet có lỗi (key trùng, `{0}` của một ngôn ngữ khác tiếng Anh, chưa chia sẻ) thì không file nào bị ghi.
+Sheet là nguồn chính, nên key đã xóa trên Sheet cũng bị xóa khỏi file, và báo cáo sẽ liệt kê các key đó. Nếu Sheet có lỗi (key trùng, không có key nào, `{0}` của một ngôn ngữ khác tiếng Anh, chưa chia sẻ) thì không file nào bị ghi.
 
 ### Bước 3: Khởi tạo khi game chạy
 
