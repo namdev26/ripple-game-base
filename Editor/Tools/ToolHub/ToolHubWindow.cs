@@ -21,7 +21,6 @@ internal sealed class ToolHubWindow : EditorWindow
     private ToolHubNavigation navigation;
     private VisualElement body;
     private Label pageTitle;
-    private Label pageDescription;
 
     [MenuItem("RIPPLE Game/Open Hub", false, 999)]
     internal static void Open()
@@ -75,15 +74,6 @@ internal sealed class ToolHubWindow : EditorWindow
         var stylesheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylePath);
         if (stylesheet != null) root.styleSheets.Add(stylesheet);
 
-        var header = new VisualElement();
-        header.AddToClassList("hub-header");
-        var heading = new Label("TOOL Hub");
-        heading.AddToClassList("hub-heading");
-        header.Add(heading);
-        var project = new Label(Application.productName + "  /  Unity " + Application.unityVersion);
-        project.AddToClassList("hub-project");
-        header.Add(project);
-        root.Add(header);
         var workspace = new VisualElement();
         workspace.AddToClassList("hub-workspace");
         root.Add(workspace);
@@ -107,10 +97,7 @@ internal sealed class ToolHubWindow : EditorWindow
         pageHeader.AddToClassList("hub-page-header");
         pageTitle = new Label();
         pageTitle.AddToClassList("hub-page-title");
-        pageDescription = new Label();
-        pageDescription.AddToClassList("hub-description");
         pageHeader.Add(pageTitle);
-        pageHeader.Add(pageDescription);
         main.Add(pageHeader);
         body = new VisualElement { name = "tool-content" };
         body.AddToClassList("hub-body");
@@ -130,7 +117,7 @@ internal sealed class ToolHubWindow : EditorWindow
         selected = section == null ? "overview" : id;
         navigation.Update(selected, query);
         pageTitle.text = section?.Title ?? "Overview";
-        pageDescription.text = section?.Description ?? "Every workspace, one place to manage your project.";
+        pageTitle.tooltip = section?.Description ?? string.Empty;
         body.Clear();
         if (section == null)
         {

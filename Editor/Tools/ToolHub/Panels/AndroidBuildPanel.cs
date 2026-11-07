@@ -34,11 +34,8 @@ internal sealed partial class AndroidBuildPanel : ToolHubPage
 
     private void DrawSettings()
     {
-        EditorGUILayout.LabelField("Android Build Settings", EditorStyles.boldLabel);
         EditorGUILayout.LabelField("Current Version", PlayerSettings.bundleVersion);
         if (!string.IsNullOrEmpty(status)) EditorGUILayout.HelpBox(status, MessageType.Info);
-        EditorGUILayout.HelpBox("Changes are staged until Apply. Recommended Defaults preserves your names, icons, " +
-            "Color Space, Input Handling, signing and existing Gradle template selections.", MessageType.Info);
         EditorGUILayout.Space();
         scroll = EditorGUILayout.BeginScrollView(scroll);
         using (new EditorGUILayout.HorizontalScope())
@@ -47,30 +44,25 @@ internal sealed partial class AndroidBuildPanel : ToolHubPage
             var canIncrement = GameVersionSettings.TryIncrementVersion(version, out var nextVersion);
             using (new EditorGUI.DisabledScope(!canIncrement))
             {
-                if (GUILayout.Button("+1 Version", GUILayout.Width(100))) version = nextVersion;
+                if (GUILayout.Button(new GUIContent("+1 Version", "1.0 -> 1.0.1 -> 1.0.2. Needs a numeric version."), GUILayout.Width(100))) version = nextVersion;
             }
         }
         buildAppBundle = EditorGUILayout.ToggleLeft("Build App Bundle (AAB)", buildAppBundle);
-        EditorGUILayout.HelpBox("+1 Version: 1.0 -> 1.0.1 -> 1.0.2. Click Apply to save the version for your next build.",
-            MessageType.Info);
 
         DrawPanels();
         EditorGUILayout.EndScrollView();
 
         var valid = ValidateAll(out var error);
         if (!valid) EditorGUILayout.HelpBox(error, MessageType.Error);
-        else if (!GameVersionSettings.TryIncrementVersion(version, out _))
-            EditorGUILayout.HelpBox("+1 Version needs a numeric version such as 1.0 or 1.0.1 with room to increment.",
-                MessageType.Info);
 
         using (new EditorGUI.DisabledScope(!valid || EditorApplication.isCompiling ||
                                            EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer))
         {
-            if (GUILayout.Button("Apply", GUILayout.Height(36))) Apply();
+            if (GUILayout.Button(new GUIContent("Apply", "Changes here are saved only when you press Apply."), GUILayout.Height(36))) Apply();
         }
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Recommended Defaults")) RecommendedDefaults();
+            if (GUILayout.Button(new GUIContent("Recommended Defaults", "Keeps your names, icons, Color Space, Input Handling, signing and Gradle templates."))) RecommendedDefaults();
             if (GUILayout.Button("Reload Current Settings"))
             {
                 ReadCurrentSettings();

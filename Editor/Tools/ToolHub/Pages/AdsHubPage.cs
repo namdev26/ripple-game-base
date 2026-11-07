@@ -24,7 +24,6 @@ internal sealed class AdsHubPage : ToolHubPage
             var profile = Array.IndexOf(symbols, "ADS") < 0 ? "No Ads" :
                 Array.IndexOf(symbols, "ADS_TEST") >= 0 ? "Ads Test" : "Ads Production";
             EditorGUILayout.LabelField("Current Android profile", profile);
-            EditorGUILayout.HelpBox("Configure changes the Android profile. Build opens the output picker and starts a build. Configuration assets are edited below.", MessageType.Info);
             using (new EditorGUI.DisabledScope(EditorApplication.isCompiling || EditorApplication.isUpdating ||
                 EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer))
             {
@@ -49,9 +48,9 @@ internal sealed class AdsHubPage : ToolHubPage
             EditorGUILayout.LabelField(name, GUILayout.MinWidth(100));
             using (new EditorGUI.DisabledScope(!available))
             {
-                if (GUILayout.Button("Configure", GUILayout.Width(100)))
+                if (GUILayout.Button(new GUIContent("Configure", "Change the Android profile."), GUILayout.Width(100)))
                     ToolHubCommands.Run("RIPPLE Game/ADS/Configure Android/" + name);
-                if (GUILayout.Button("Build", GUILayout.Width(80)))
+                if (GUILayout.Button(new GUIContent("Build", "Choose an output path and start a build."), GUILayout.Width(80)))
                     ToolHubCommands.Run("RIPPLE Game/ADS/Build Android/" + name);
             }
         }

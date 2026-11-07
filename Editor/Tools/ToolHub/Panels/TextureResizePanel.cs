@@ -9,9 +9,7 @@ internal sealed class TextureResizePanel
     internal void Draw()
     {
         EditorGUILayout.LabelField("Resize Canvas to Multiple of 4", EditorStyles.boldLabel);
-        folder = (DefaultAsset)EditorGUILayout.ObjectField("Folder", folder, typeof(DefaultAsset), false);
-        EditorGUILayout.HelpBox("Drag a folder from Project. PNG and JPG images in its subfolders are included.",
-            MessageType.Info);
+        folder = (DefaultAsset)EditorGUILayout.ObjectField(new GUIContent("Folder", "PNG and JPG images in its subfolders are included."), folder, typeof(DefaultAsset), false);
 
         var path = folder == null ? null : AssetDatabase.GetAssetPath(folder);
         var validFolder = !string.IsNullOrEmpty(path) && AssetDatabase.IsValidFolder(path) &&

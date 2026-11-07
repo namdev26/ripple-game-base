@@ -39,16 +39,10 @@ internal sealed class LocalizationHubPage : ToolHubPage
 
     private void DrawSync()
     {
-        EditorGUILayout.LabelField("Sync from Google Sheet", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox(
-            "The Sheet is the source of truth: Assets/Resources/Localization*.txt are replaced with its content. " +
-            "Share the Sheet with anyone who has the link, then commit the updated files.",
-            MessageType.Info);
-
         using (new EditorGUI.DisabledScope(request != null))
         {
             sheetUrl = EditorGUILayout.TextField("Sheet link", sheetUrl);
-            if (GUILayout.Button(request != null ? "Syncing..." : "Sync", GUILayout.Height(28)))
+            if (GUILayout.Button(new GUIContent(request != null ? "Syncing..." : "Sync", "Replaces Assets/Resources/Localization*.txt with the Sheet. Share the Sheet with anyone who has the link."), GUILayout.Height(28)))
                 StartSync();
         }
 

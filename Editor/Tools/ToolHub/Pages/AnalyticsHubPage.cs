@@ -23,8 +23,8 @@ internal sealed class AnalyticsHubPage : ToolHubPage
             DrawTarget("Android", NamedBuildTarget.Android);
             DrawTarget("iOS", NamedBuildTarget.iOS);
             var installed = ToolHubCommands.HasType("Firebase.Analytics.FirebaseAnalytics");
-            EditorGUILayout.HelpBox(installed ? "Firebase SDK is installed. Enable or disable integration for Android and iOS." :
-                "Import the Firebase Analytics SDK before enabling integration. Without it, events can still print to the Console.", MessageType.Info);
+            if (!installed)
+                EditorGUILayout.HelpBox("Firebase SDK is not installed. Events print to the Console.", MessageType.Info);
             using (new EditorGUI.DisabledScope(EditorApplication.isCompiling || EditorApplication.isUpdating ||
                 EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer))
             using (new EditorGUILayout.HorizontalScope())
