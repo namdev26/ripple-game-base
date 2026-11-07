@@ -6,6 +6,7 @@
 - The `RIPPLE Game` menu now has only **Open Hub**, and every tool opens from TOOL Hub. The separate Scene Switch, Texture and Android build windows are removed. Scripts calling the old menu paths must change.
 - TOOL Hub is simpler: less text, compact overview, help moved to tooltips. Every action works as before.
 - Every TOOL Hub page has a **Pop out** button that opens it in its own dockable tab.
+- The TOOL Hub Save page refuses to create a second save key anywhere under `Assets`, which used to break compilation with a duplicate class.
 
 ## 0.2.1
 
