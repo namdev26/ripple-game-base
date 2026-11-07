@@ -1,3 +1,11 @@
+# Verification - 0.3.1, 2026-11-07
+
+Unity Editor: 6000.0.71f1 on Windows.
+
+- EditMode suite: 236 passed, 5 skipped without a graphics device, 0 failed. PlayMode suite: 31 passed, 0 failed. `Tools~/Check-Package.ps1` passed.
+- The sheet that failed in 0.3.0 (blank key cell, `English` in the next cell) built all its language files when passed through the fixed code.
+- Not run: Android device.
+
 # Verification - 0.3.0, 2026-11-07
 
 Unity Editor: 6000.0.71f1 on Windows.
