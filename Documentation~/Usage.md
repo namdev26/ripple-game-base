@@ -46,6 +46,6 @@ Attach PopupHost to your Canvas/container and drag your own prefab into the call
 
 ## ADS and Analytics
 
-Use the existing `RippleGame.Ads` and `RippleGame.Analytics` APIs. The combined package keeps their assembly and public type names. Project settings are created through RIPPLE Game > ADS and RIPPLE Game > ANALYTICS. Do not distribute generated project assets as shared source. SDK setup and event conventions are described in [ADS](ads/Setup.md) and [Analytics](analytics/Setup.md).
+Use the existing `RippleGame.Ads` and `RippleGame.Analytics` APIs. The combined package keeps their assembly and public type names. Project settings are created in RIPPLE Game > Open Hub, on the ADS and Analytics pages. Do not distribute generated project assets as shared source. SDK setup and event conventions are described in [ADS](ads/Setup.md) and [Analytics](analytics/Setup.md).
 
 Install the combined package instead of separately copying the original modules. Their source is under Runtime/Ads, Runtime/Analytics and their Editor folders here.

@@ -2,7 +2,7 @@
 
 ## New consuming project
 
-Install the tagged Git package. Create new project configurations from the RIPPLE Game menus. Assign this project's own popup prefabs, identifiers, scenes and save keys. Install vendor SDKs only when needed; do not enable ADS or FIREBASE before their SDKs are present.
+Install the tagged Git package. Create new project configurations from RIPPLE Game > Open Hub. Assign this project's own popup prefabs, identifiers, scenes and save keys. Install vendor SDKs only when needed; do not enable ADS or FIREBASE before their SDKs are present.
 
 ## Project already containing old TOOL code
 

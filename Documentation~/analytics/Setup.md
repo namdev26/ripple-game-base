@@ -17,13 +17,13 @@ Tải Firebase Unity SDK tại https://firebase.google.com/download/unity, sau �
 
 ## 4. Bật Firebase
 
-Chọn menu `RIPPLE Game/ANALYTICS/Enable Firebase` để thêm define `FIREBASE` cho Android và iOS. Nếu thiếu `google-services.json` (Android) hoặc `GoogleService-Info.plist` (iOS), lúc build sẽ báo lỗi.
+Mở **RIPPLE Game > Open Hub > Analytics** rồi bấm **Enable Firebase** để thêm define `FIREBASE` cho Android và iOS. Nếu thiếu `google-services.json` (Android) hoặc `GoogleService-Info.plist` (iOS), lúc build sẽ báo lỗi.
 
-Muốn quay lại chế độ chỉ log Console thì dùng `RIPPLE Game/ANALYTICS/Disable Firebase`.
+Muốn quay lại chế độ chỉ log Console thì bấm **Disable Firebase** trong trang đó.
 
 ## 5. Settings (không bắt buộc)
 
-`RIPPLE Game/ANALYTICS/Create Analytics Settings` tạo file `Assets/Resources/RippleGameAnalytics/AnalyticsSettings.asset`:
+Nút **Create Configuration** trong trang Analytics tạo file `Assets/Resources/RippleGameAnalytics/AnalyticsSettings.asset`:
 
 | Ô | Mặc định | Ý nghĩa |
 |---|---|---|

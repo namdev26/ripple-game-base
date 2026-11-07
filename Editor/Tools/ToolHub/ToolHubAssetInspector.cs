@@ -9,7 +9,7 @@ internal sealed class ToolHubAssetInspector : IDisposable
     [NonSerialized] private UnityEditor.Editor inspector;
     [NonSerialized] private bool searched;
 
-    internal bool Draw(string typeName, string createMenu)
+    internal bool Draw(string typeName, string createType, string createMethod)
     {
         var type = FindType(typeName);
         if (type == null)
@@ -34,7 +34,7 @@ internal sealed class ToolHubAssetInspector : IDisposable
             {
                 if (asset == null)
                 {
-                    ToolHubCommands.Run(createMenu);
+                    ToolHubCommands.Run(createType, createMethod);
                     searched = false;
                 }
                 else EditorGUIUtility.PingObject(asset);

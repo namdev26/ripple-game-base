@@ -242,17 +242,15 @@ Chi tiết hơn nằm ở [Save.md](Save.md).
 
 1. Cài [Google Mobile Ads Unity plugin](https://developers.google.com/admob/unity/quick-start) vào project.
 2. Mở menu Settings của plugin một lần để nó tạo file cấu hình.
-3. Chọn **RIPPLE Game > ADS > Create Ads Configuration**. File tạo ra đã có sẵn ID test của Google cho Android.
-4. Mở scene khởi động của game, chọn **RIPPLE Game > ADS > Scene Setup > Add Ads Object to Active Scene**, rồi lưu scene.
-5. Chọn **RIPPLE Game > ADS > Configure Android > Ads Test** và build thử lên máy.
+3. Mở **RIPPLE Game > Open Hub > ADS** rồi bấm **Create Configuration**. File tạo ra đã có sẵn ID test của Google cho Android.
+4. Mở scene khởi động của game, bấm **Add Ads Object to Active Scene** trong trang ADS, rồi lưu scene.
+5. Bấm **Configure** ở dòng **Ads Test** và build thử lên máy.
 
 Khi sắp phát hành, điền ID thật vào mục `Production` trong file cấu hình, rồi dùng **Ads Production**.
 
-Các lệnh này cũng có trong **RIPPLE Game > Open Hub > ADS**.
-
 ### Chọn chế độ build
 
-Đừng tự sửa define symbol, hãy dùng menu **RIPPLE Game > ADS > Configure Android** để cấu hình hoặc **RIPPLE Game > ADS > Build Android** để build luôn:
+Đừng tự sửa define symbol, hãy dùng nút **Configure** để cấu hình hoặc **Build** để build luôn trong trang ADS của Hub:
 
 | Chế độ | Kết quả |
 |---|---|
@@ -366,14 +364,14 @@ GameEvents.LevelFail(5, reason: "hit_wall");
 1. Tạo project trên [Firebase Console](https://console.firebase.google.com) và thêm app Android có package name trùng với game.
 2. Tải `google-services.json` vào `Assets/`.
 3. Tải [Firebase Unity SDK](https://firebase.google.com/download/unity) và import **chỉ** `FirebaseAnalytics.unitypackage`.
-4. Chọn **RIPPLE Game > ANALYTICS > Enable Firebase**.
+4. Mở **RIPPLE Game > Open Hub > Analytics** rồi bấm **Enable Firebase**.
 
 Muốn quay về chỉ in Console thì chọn **Disable Firebase**.
 
 ### Cần nhớ
 
 - **Tên event và param:** tối đa 40 ký tự, chỉ gồm chữ, số và `_`, bắt đầu bằng chữ. Sai luật thì event bị bỏ và có cảnh báo trong Editor.
-- **Doanh thu quảng cáo:** nếu đã link AdMob với Firebase, hãy tắt `Log Ad Revenue` trong **RIPPLE Game > ANALYTICS > Create Analytics Settings**, nếu không doanh thu bị đếm hai lần.
+- **Doanh thu quảng cáo:** nếu đã link AdMob với Firebase, hãy tắt `Log Ad Revenue` trong **RIPPLE Game > Open Hub > Analytics**, nếu không doanh thu bị đếm hai lần.
 - **Kiểm tra trên máy:** chạy `adb shell setprop debug.firebase.analytics.app <package.name>` rồi xem Firebase Console > DebugView. Báo cáo thường thì chờ khoảng 24 giờ.
 
 Danh sách đầy đủ event và cách chờ người dùng đồng ý (consent) nằm ở [analytics/Setup.md](analytics/Setup.md).
@@ -450,8 +448,6 @@ Mở **RIPPLE Game > Open Hub**:
 | Localization | Sync file dịch từ Google Sheet |
 | Build Reports | Xem kết quả, dung lượng và thời gian của lần build gần nhất |
 | Update | Kiểm tra và cài bản package mới |
-
-Các trang Localization, Save và Update cũng mở trực tiếp được từ menu **RIPPLE Game**.
 
 Ngoài ra, chuột phải một ScriptableObject trong Inspector rồi chọn **Export as Remote Config JSON** để xuất ra JSON.
 

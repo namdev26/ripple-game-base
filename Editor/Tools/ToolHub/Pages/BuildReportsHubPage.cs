@@ -34,7 +34,7 @@ internal sealed class BuildReportsHubPage : ToolHubPage
             GUILayout.Space(20);
             if (ToolHubCommands.HasType("BuildReportTool.ReportGenerator"))
             {
-                if (GUILayout.Button("Open Detailed Build Report")) ToolHubCommands.Run("RIPPLE Game/Show Build Report");
+                if (GUILayout.Button("Open Detailed Build Report")) ToolHubCommands.Run("BuildReportTool.ReportGenerator", "ShowBuildReport");
             }
         }
     }

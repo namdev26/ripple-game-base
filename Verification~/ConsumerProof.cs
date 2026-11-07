@@ -16,8 +16,8 @@ internal static class ConsumerProof
         var proofPath = Path.Combine(Directory.GetCurrentDirectory(), "ConsumerProof.json");
         if (!File.Exists(proofPath))
         {
-            HubProof.Require(EditorApplication.ExecuteMenuItem("RIPPLE Game/ADS/Create Ads Configuration"), "create local ads configuration");
-            HubProof.Require(EditorApplication.ExecuteMenuItem("RIPPLE Game/ANALYTICS/Create Analytics Settings"), "create local analytics configuration");
+            HubProof.Require(RunCommand("RippleGame.Ads.Editor.AdsConfigurationAssetMenu", "Create"), "create local ads configuration");
+            HubProof.Require(RunCommand("RippleGame.Analytics.Editor.AnalyticsMenu", "CreateSettings"), "create local analytics configuration");
             var ads = AssetDatabase.LoadAssetAtPath<AdsConfiguration>(AdsPath);
             var analytics = AssetDatabase.LoadAssetAtPath<AnalyticsSettings>(AnalyticsPath);
             var serialized = new SerializedObject(ads);
@@ -57,5 +57,19 @@ internal static class ConsumerProof
         public string analyticsHash;
         public string adsGuid;
         public string analyticsGuid;
+    }
+
+    private static bool RunCommand(string typeName, string methodName)
+    {
+        foreach (var assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+        {
+            var type = assembly.GetType(typeName, false);
+            if (type == null) continue;
+            var method = type.GetMethod(methodName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+            if (method == null) return false;
+            method.Invoke(null, null);
+            return true;
+        }
+        return false;
     }
 }

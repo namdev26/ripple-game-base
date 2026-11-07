@@ -6,6 +6,8 @@ using UnityEngine;
 [Serializable]
 internal sealed class AdsHubPage : ToolHubPage
 {
+    private const string ProfileCommands = "RippleGame.Ads.Editor.AdsBuildProfileUtility";
+
     [SerializeField] private ToolHubAssetInspector configuration = new ToolHubAssetInspector();
     [SerializeField] private Vector2 scroll;
 
@@ -32,11 +34,11 @@ internal sealed class AdsHubPage : ToolHubPage
                 DrawProfile("Ads Production");
                 GUILayout.Space(8);
                 if (GUILayout.Button("Add Ads Object to Active Scene", GUILayout.Height(28)))
-                    ToolHubCommands.Run("RIPPLE Game/ADS/Scene Setup/Add Ads Object to Active Scene");
+                    ToolHubCommands.Run("RippleGame.Ads.Editor.AdsSceneInstaller", "AddAdsObjectToActiveScene");
             }
             GUILayout.Space(18);
             EditorGUILayout.LabelField("Ad configuration", EditorStyles.boldLabel);
-            configuration.Draw("RippleGame.Ads.AdsConfiguration", "RIPPLE Game/ADS/Create Ads Configuration");
+            configuration.Draw("RippleGame.Ads.AdsConfiguration", "RippleGame.Ads.Editor.AdsConfigurationAssetMenu", "Create");
         }
     }
 
@@ -49,9 +51,9 @@ internal sealed class AdsHubPage : ToolHubPage
             using (new EditorGUI.DisabledScope(!available))
             {
                 if (GUILayout.Button(new GUIContent("Configure", "Change the Android profile."), GUILayout.Width(100)))
-                    ToolHubCommands.Run("RIPPLE Game/ADS/Configure Android/" + name);
+                    ToolHubCommands.Run(ProfileCommands, "Configure" + name.Replace(" ", string.Empty));
                 if (GUILayout.Button(new GUIContent("Build", "Choose an output path and start a build."), GUILayout.Width(80)))
-                    ToolHubCommands.Run("RIPPLE Game/ADS/Build Android/" + name);
+                    ToolHubCommands.Run(ProfileCommands, "Build" + name.Replace(" ", string.Empty));
             }
         }
         if (!available) EditorGUILayout.LabelField("Google Mobile Ads SDK is required for " + name + ".", EditorStyles.miniLabel);

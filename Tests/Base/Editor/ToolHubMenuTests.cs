@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -7,58 +8,54 @@ namespace RippleGame.Base.Tests
 {
     public sealed class ToolHubMenuTests
     {
-        [TearDown]
-        public void TearDown()
+        private static Type[] TypesIn(Assembly assembly)
         {
-            if (UnityEngine.SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
-                return;
-
-            foreach (var window in UnityEngine.Resources.FindObjectsOfTypeAll<ToolHubWindow>())
-                window.Close();
-        }
-
-        private static void RequireGraphics()
-        {
-            if (UnityEngine.SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
-                Assert.Ignore("Opening an editor window needs a graphics device.");
-        }
-
-        [TestCase("RIPPLE Game/Localization")]
-        [TestCase("RIPPLE Game/Save")]
-        [TestCase("RIPPLE Game/Update")]
-        public void Menu_HasPageItem(string path)
-        {
-            var items = typeof(ToolHubWindow)
-                .GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
-                .SelectMany(method => method.GetCustomAttributes<MenuItem>())
-                .Select(item => item.menuItem);
-
-            Assert.That(items, Does.Contain(path));
-        }
-
-        [TestCase("localization")]
-        [TestCase("save")]
-        [TestCase("update")]
-        public void OpenPage_SelectsPage(string id)
-        {
-            RequireGraphics();
-
-            ToolHubWindow.OpenPage(id);
-
-            Assert.That(EditorWindow.GetWindow<ToolHubWindow>().SelectedPage, Is.EqualTo(id));
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException exception)
+            {
+                return exception.Types.Where(type => type != null).ToArray();
+            }
         }
 
         [Test]
-        public void OpenPage_WhenAlreadyOpen_SwitchesPage()
+        public void Menu_HasOnlyOpenHub()
         {
-            RequireGraphics();
+            const BindingFlags anyStatic = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+            var items = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => assembly.GetName().Name.StartsWith("RippleGame.", StringComparison.Ordinal))
+                .SelectMany(TypesIn)
+                .SelectMany(type => type.GetMethods(anyStatic))
+                .SelectMany(method => method.GetCustomAttributes<MenuItem>())
+                .Select(item => item.menuItem)
+                .Where(path => path.StartsWith("RIPPLE Game/", StringComparison.Ordinal));
 
-            ToolHubWindow.OpenPage("save");
+            Assert.That(items, Is.EqualTo(new[] { "RIPPLE Game/Open Hub" }));
+        }
 
-            ToolHubWindow.OpenPage("update");
+        [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "BuildNoAds")]
+        [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "BuildAdsTest")]
+        [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "BuildAdsProduction")]
+        [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "ConfigureNoAds")]
+        [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "ConfigureAdsTest")]
+        [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "ConfigureAdsProduction")]
+        [TestCase("RippleGame.Ads.Editor.AdsConfigurationAssetMenu", "Create")]
+        [TestCase("RippleGame.Ads.Editor.AdsSceneInstaller", "AddAdsObjectToActiveScene")]
+        [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "EnableFirebase")]
+        [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "DisableFirebase")]
+        [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "CreateSettings")]
+        public void HubCommand_FindsItsMethod(string typeName, string methodName)
+        {
+            Assert.That(ToolHubCommands.Find(typeName, methodName), Is.Not.Null);
+        }
 
-            Assert.That(UnityEngine.Resources.FindObjectsOfTypeAll<ToolHubWindow>().Length, Is.EqualTo(1));
-            Assert.That(EditorWindow.GetWindow<ToolHubWindow>().SelectedPage, Is.EqualTo("update"));
+        [Test]
+        public void HubCommand_UnknownMethod_IsNotFound()
+        {
+            Assert.That(ToolHubCommands.Find("RippleGame.Ads.Editor.AdsSceneInstaller", "NoSuchCommand"), Is.Null);
+            Assert.That(ToolHubCommands.Find("No.Such.Type", "Create"), Is.Null);
         }
     }
 }
