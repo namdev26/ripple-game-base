@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Localization: one translation file per language, language choice from the saved value or device, and switching while the game runs.
+- `LocalizedText` component for TextMeshPro, which follows language changes.
+- TOOL Hub Localization page: sync translation files from a Google Sheet. A Sheet with errors changes no files.
+- The `TOOL` menu is now `RIPPLE Game` and sits next to `Window`. Scripts calling `TOOL/...` menu paths must use the new name.
+- API from 0.2.0 is unchanged.
+
 ## 0.2.0
 
 - Encrypted save file with typed sections, batched writes, atomic replacement, backup recovery, version migration and app lifecycle writes.

@@ -33,6 +33,8 @@ Use Unity 6000.0 or newer. Remove or migrate previous copies of these tools and 
 | Runtime/Scenes | `RippleGame.Base.Scenes`: load scenes by a caller-supplied name, with loading progress |
 | Runtime/Economy | `RippleGame.Base.Economy`: pure C# currency operations; no Unity dependency |
 | Runtime/Persistence | `RippleGame.Base.Persistence`: wallet and progress stores on a save file, plus a PlayerPrefs adapter with a caller-owned key |
+| Runtime/Localization | `RippleGame.Base.Localization`: translation files, language choice and runtime switching |
+| Runtime/LocalizationUI | `RippleGame.Base.Localization.UI`: `LocalizedText` for TextMeshPro, compiled only when `com.unity.ugui` is installed |
 | Runtime/UI | `RippleGame.Base.UI`: caller-supplied popup prefabs, one active view, safe area |
 | Runtime/Ads | Existing `RippleGame.Ads.Runtime` API and optional AdMob provider |
 | Runtime/Analytics | Existing `RippleGame.Analytics.Runtime` API with Console fallback |

@@ -21,6 +21,7 @@ Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm t
 15. [Nâng cấp package](#15-nâng-cấp-package)
 16. [Lỗi hay gặp](#16-lỗi-hay-gặp)
 17. [Giới hạn cần biết](#17-giới-hạn-cần-biết)
+18. [Đa ngôn ngữ](#18-đa-ngôn-ngữ)
 
 ## 1. Package có gì
 
@@ -35,6 +36,7 @@ Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm t
 | Popup | Mỗi lúc hiện một popup, popup mới thay popup cũ | Làm prefab |
 | Scene | Chuyển scene, màn hình loading có thanh tiến trình | Thêm scene vào Build Settings |
 | Safe area | Tránh tai thỏ và thanh home | Gắn component |
+| Đa ngôn ngữ | Đọc file dịch, đổi ngôn ngữ ngay khi đang chạy, sync từ Google Sheet | Làm Sheet, chọn ngôn ngữ, lo font |
 | TOOL Hub | Gom các công cụ Editor vào một cửa sổ, kiểm tra bản mới | Mở **RIPPLE Game > Open Hub** |
 
 Package không chứa luật chơi, level, art, prefab hay scene của game nào. Những thứ đó thuộc về game của bạn.
@@ -61,6 +63,8 @@ Các ví dụ dưới đây dùng class `GameData` ở [mục 4](#bước-2-tạ
 | Gửi event | `Analytics.LogEvent("shop_open")` |
 | Hiện popup | `popups.Show(settingsPrefab)` |
 | Chuyển scene | `SceneLoader.Load("Home")` |
+| Lấy chữ đã dịch | `Localizer.Get("s_home")` |
+| Đổi ngôn ngữ | `Localizer.SetLanguage("Vietnamese")` |
 
 ## 3. Cài đặt
 
@@ -746,6 +750,7 @@ Mở **RIPPLE Game > Open Hub**:
 | ADS | Sửa cấu hình quảng cáo, thêm Ads object vào scene, chọn chế độ build |
 | Analytics | Bật hoặc tắt Firebase, sửa cài đặt analytics |
 | Save | Tạo key save, giải mã file save để xem |
+| Localization | Sync file dịch từ Google Sheet |
 | Build Reports | Xem kết quả, dung lượng và thời gian của lần build gần nhất |
 | Update | Kiểm tra và cài bản package mới |
 
@@ -792,3 +797,54 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 - **Save không lưu trực tiếp `Dictionary`.** Dùng `List` của một class `[Serializable]`. Class dữ liệu không được là `MonoBehaviour` hay `ScriptableObject`.
 - **Quảng cáo hiện chỉ có cấu hình ID cho Android.** Save nhắm tới Android và iOS, WebGL chưa làm, chưa có cloud save.
 - **Quảng cáo mạng thật và chạy trên điện thoại chưa được kiểm tra đầy đủ trong bản này.** Hãy test trên máy thật trước khi phát hành. Xem [Verification.md](Verification.md).
+
+## 18. Đa ngôn ngữ
+
+Mỗi ngôn ngữ là một file trong `Assets/Resources`: `Localization.txt` cho tiếng Anh và `Localization-<Ngôn ngữ>.txt` cho ngôn ngữ khác. Game tự giữ các file này.
+
+### Bước 1: Tạo Google Sheet
+
+| KEY_lang | English | Vietnamese |
+|---|---|---|
+| s_home | HOME | TRANG CHỦ |
+| s_coin_value | COIN: {0} | XU: {0} |
+
+Dòng đầu là tên cột, cột `English` là bắt buộc, thêm ngôn ngữ chỉ cần thêm cột. Mẫu Sheet cũ của studio (hai ô đầu của dòng 1 để trống) vẫn dùng được. Ô để trống sẽ lấy tiếng Anh.
+
+### Bước 2: Sync vào project
+
+1. Bật chia sẻ Sheet cho **bất kỳ ai có link**.
+2. Mở **RIPPLE Game > Open Hub > Localization**, dán link rồi bấm **Sync**.
+3. Đọc báo cáo, rồi commit các file dịch cùng `ProjectSettings/RippleGameLocalization.json`.
+
+Sheet là nguồn chính, nên key đã xóa trên Sheet cũng bị xóa khỏi file, và báo cáo sẽ liệt kê các key đó. Nếu Sheet có lỗi (key trùng, `{0}` của một ngôn ngữ khác tiếng Anh, chưa chia sẻ) thì không file nào bị ghi.
+
+### Bước 3: Khởi tạo khi game chạy
+
+```csharp
+[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+private static void InitLanguages() => Localizer.Init(new[] { "English", "Vietnamese" });
+```
+
+Chỉ khai báo ngôn ngữ mà font của game hiển thị được. Game chọn ngôn ngữ theo thứ tự: lựa chọn đã lưu, ngôn ngữ máy nếu có trong danh sách, rồi tiếng Anh.
+
+### Bước 4: Gắn vào UI
+
+- **Chữ cố định:** thêm component `LocalizedText` vào object TextMeshPro rồi nhập key. Chữ tự đổi theo ngôn ngữ, kể cả popup đang ẩn.
+- **Chữ có số:** dùng `Localizer.Format` và cập nhật lại khi đổi ngôn ngữ:
+
+```csharp
+private void OnEnable() { Localizer.Changed += Refresh; Refresh(); }
+private void OnDisable() => Localizer.Changed -= Refresh;
+private void Refresh() => coinLabel.text = Localizer.Format("s_coin_value", coins);
+```
+
+- **Nút chọn ngôn ngữ:** game tự làm, rồi gọi `Localizer.SetLanguage("Vietnamese")`. Chỉ lựa chọn này mới được lưu.
+
+### Giới hạn
+
+- **Game tự lo font.** Tiếng Trung, Nhật, Hàn, Thái và tiếng Việt thường cần thêm fallback font. Thiếu font thì chữ hiện thành ô vuông.
+- **Chưa hỗ trợ tiếng Ả Rập.** TextMeshPro không tự nối chữ và đảo chiều, nên công cụ sync bỏ qua cột `Arabic`. Cột `Unknown` cũng bị bỏ qua.
+- **Hindi cần kiểm tra thực tế,** vì TextMeshPro có thể không ghép đúng chữ Devanagari.
+- **`LocalizedText` chỉ dùng được với TextMeshPro,** không dùng được với `Text` cũ.
+- **Nội dung quảng cáo và tên app trên điện thoại** không đổi theo ngôn ngữ.
