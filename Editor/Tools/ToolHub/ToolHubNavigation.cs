@@ -12,7 +12,7 @@ internal sealed class ToolHubNavigation
         this.select = select;
         var rail = new VisualElement { name = "navigation" };
         rail.AddToClassList("hub-navigation");
-        var brand = new Label("RIPPLE by namdev26");
+        var brand = new Label("RIPPLE Game base by Namdev26");
         brand.AddToClassList("hub-brand");
         rail.Add(brand);
         var scroll = new ScrollView(ScrollViewMode.Vertical);

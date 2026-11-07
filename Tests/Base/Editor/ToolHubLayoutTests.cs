@@ -42,7 +42,7 @@ namespace RippleGame.Base.Tests
             navigation.Update("overview", string.Empty);
 
             var labels = LabelsIn(parent);
-            Assert.That(labels, Does.Contain("RIPPLE by namdev26"));
+            Assert.That(labels, Does.Contain("RIPPLE Game base by Namdev26"));
             Assert.That(labels, Does.Contain("Overview"));
             Assert.That(labels, Has.None.Contains("WORKSPACE").And.None.Contains("Portable").And.None.EqualTo("TOOLS"));
         }

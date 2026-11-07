@@ -14,7 +14,7 @@
     border-right-width: 1px;
     border-right-color: #353a43;
 }
-.hub-brand { padding-left: 12px; font-size: 16px; -unity-font-style: bold; color: #70d9c4; }
+.hub-brand { padding-left: 12px; margin-bottom: 8px; white-space: normal; font-size: 14px; -unity-font-style: bold; color: #70d9c4; }
 .hub-navigation-scroll { flex-grow: 1; margin-top: 8px; }
 .hub-nav-item {
     flex-direction: row;
