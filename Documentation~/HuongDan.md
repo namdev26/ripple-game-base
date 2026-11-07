@@ -75,13 +75,13 @@ Máy cần có Unity 6000.0 trở lên và [Git](https://git-scm.com/).
 3. Dán địa chỉ sau rồi bấm **Install**:
 
 ```text
-https://github.com/namdev26/ripple-game-base.git#v0.2.1
+https://github.com/namdev26/ripple-game-base.git#v0.2.2
 ```
 
 Hoặc thêm một dòng vào `dependencies` trong `Packages/manifest.json`:
 
 ```json
-"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.1"
+"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.2"
 ```
 
 Sau đó commit cả `Packages/manifest.json` và `Packages/packages-lock.json` để cả team dùng cùng một bản.
@@ -753,6 +753,8 @@ Mở **RIPPLE Game > Open Hub**:
 | Localization | Sync file dịch từ Google Sheet |
 | Build Reports | Xem kết quả, dung lượng và thời gian của lần build gần nhất |
 | Update | Kiểm tra và cài bản package mới |
+
+Các trang Localization, Save và Update cũng mở trực tiếp được từ menu **RIPPLE Game**.
 
 Ngoài ra, chuột phải một ScriptableObject trong Inspector rồi chọn **Export as Remote Config JSON** để xuất ra JSON.
 

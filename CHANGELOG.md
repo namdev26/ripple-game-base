@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+- The `RIPPLE Game` menu opens the Localization, Save and Update pages of TOOL Hub directly.
+
 ## 0.2.1
 
 - Localization sync now writes every language column, including `Arabic` and `Unknown`. Arabic text is written as is, without letter shaping.

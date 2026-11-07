@@ -32,6 +32,23 @@ internal sealed class ToolHubWindow : EditorWindow
         window.Show();
     }
 
+    [MenuItem("RIPPLE Game/Localization", false, 1000)]
+    private static void OpenLocalization() => OpenPage("localization");
+
+    [MenuItem("RIPPLE Game/Save", false, 1000)]
+    private static void OpenSave() => OpenPage("save");
+
+    [MenuItem("RIPPLE Game/Update", false, 1000)]
+    private static void OpenUpdate() => OpenPage("update");
+
+    internal static void OpenPage(string id)
+    {
+        Open();
+        GetWindow<ToolHubWindow>().ShowPage(id);
+    }
+
+    internal string SelectedPage => selected;
+
     private ToolHubPage[] Pages => new ToolHubPage[] { scenes, build, textures, ads, analytics, save, localization, reports, update };
 
     private void OnEnable()
@@ -99,6 +116,12 @@ internal sealed class ToolHubWindow : EditorWindow
         body.AddToClassList("hub-body");
         main.Add(body);
         Select(selected);
+    }
+
+    private void ShowPage(string id)
+    {
+        selected = id;
+        if (navigation != null) Select(id);
     }
 
     private void Select(string id)

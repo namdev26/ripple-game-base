@@ -1,6 +1,6 @@
 {
   "name": "com.ripplegame.base",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "displayName": "RIPPLE Game Base",
   "description": "Reusable Unity game foundation: encrypted save, level flow, progression, ads, analytics, localization, popup UI, currency and editor tooling. RIPPLE Game by Namdev26.",
   "unity": "6000.0",
