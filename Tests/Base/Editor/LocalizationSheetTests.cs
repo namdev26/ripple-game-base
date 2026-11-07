@@ -220,6 +220,36 @@ namespace RippleGame.Base.Tests
         }
 
         [Test]
+        public void Build_BlankFirstRow_UsesNextRowAsHeader()
+        {
+            var result = LocalizationSheet.Build(",,,\nKEY_lang,English,Vietnamese\ns_a,Hi,Chao");
+
+            Assert.That(result.Ok, Is.True, string.Join("\n", result.Errors));
+            Assert.That(result.Files["Vietnamese"], Is.EqualTo("KEY_lang,Vietnamese\ns_a,Chao\n"));
+        }
+
+        [Test]
+        public void Build_BlankFirstRow_KeepsColumnOrder()
+        {
+            var result = LocalizationSheet.Build(",,,\nKEY_lang,Vietnamese,English\ns_a,Chao,Hi");
+
+            Assert.That(result.Files["English"], Is.EqualTo("KEY_lang,English\ns_a,Hi\n"));
+            Assert.That(result.Files["Vietnamese"], Is.EqualTo("KEY_lang,Vietnamese\ns_a,Chao\n"));
+        }
+
+        [Test]
+        public void Build_BlankSheet_Fails()
+        {
+            AssertFailed(LocalizationSheet.Build(",,,\n,,,\n"), "KEY_lang");
+        }
+
+        [Test]
+        public void Build_NoKeys_Fails()
+        {
+            AssertFailed(LocalizationSheet.Build("KEY_lang,English,Vietnamese\n,,\n"), "no keys");
+        }
+
+        [Test]
         public void Build_RoundTrip()
         {
             const string original = "say \"hi\", a\nb";

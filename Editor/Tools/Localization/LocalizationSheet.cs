@@ -30,6 +30,8 @@ internal static class LocalizationSheet
         }
 
         var rows = SheetCsv.Parse(text);
+        rows.RemoveRange(0, rows.TakeWhile(row => row.All(string.IsNullOrWhiteSpace)).Count());
+
         // The studio's sheet template leaves the key and English header cells blank.
         if (rows.Count > 0 && rows[0].Length >= 2 && rows[0][0].Trim().Length == 0 && rows[0][1].Trim().Length == 0)
         {
@@ -75,6 +77,9 @@ internal static class LocalizationSheet
                 contents[column.Key].Append(key).Append(',').Append(Render(value)).Append('\n');
             }
         }
+
+        if (seen.Count == 0)
+            result.Errors.Add("The Sheet has no keys. Check that the link points to the right tab.");
 
         if (result.Ok)
             foreach (var content in contents)
