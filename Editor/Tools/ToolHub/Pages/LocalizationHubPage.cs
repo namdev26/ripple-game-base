@@ -123,8 +123,6 @@ internal sealed class LocalizationHubPage : ToolHubPage
         var lines = new StringBuilder();
         lines.AppendLine("Updated: " + (written.Written.Count > 0 ? string.Join(", ", written.Written) : "none"));
         lines.AppendLine("Unchanged: " + (written.Unchanged.Count > 0 ? string.Join(", ", written.Unchanged) : "none"));
-        if (sheet.SkippedColumns.Count > 0)
-            lines.AppendLine("Skipped columns: " + string.Join(", ", sheet.SkippedColumns));
         foreach (var removed in written.RemovedKeys.OrderBy(entry => entry.Key))
             lines.AppendLine("Keys no longer on the Sheet (" + removed.Key + "): " + string.Join(", ", removed.Value));
 

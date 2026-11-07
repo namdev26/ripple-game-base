@@ -159,13 +159,13 @@ namespace RippleGame.Base.Tests
         }
 
         [Test]
-        public void Build_SkipsArabicAndUnknown()
+        public void Build_KeepsArabicAndUnknown()
         {
             var result = LocalizationSheet.Build("KEY_lang,English,Arabic,Unknown\ns_a,Hello,x,y");
 
             Assert.That(result.Ok, Is.True);
-            Assert.That(result.Files.Keys, Is.EquivalentTo(new[] { "English" }));
-            Assert.That(result.SkippedColumns, Is.EquivalentTo(new[] { "Arabic", "Unknown" }));
+            Assert.That(result.Files.Keys, Is.EquivalentTo(new[] { "English", "Arabic", "Unknown" }));
+            Assert.That(result.Files["Arabic"], Is.EqualTo("KEY_lang,Arabic\ns_a,x\n"));
         }
 
         [Test]
@@ -214,8 +214,7 @@ namespace RippleGame.Base.Tests
                 "s_home,HOME,TRANG CHỦ,HOGAR,x");
 
             Assert.That(result.Ok, Is.True, string.Join("\n", result.Errors));
-            Assert.That(result.Files.Keys, Is.EquivalentTo(new[] { "English", "Vietnamese", "Spanish" }));
-            Assert.That(result.SkippedColumns, Is.EqualTo(new[] { "Unknown" }));
+            Assert.That(result.Files.Keys, Is.EquivalentTo(new[] { "English", "Vietnamese", "Spanish", "Unknown" }));
             Assert.That(result.Files["Vietnamese"], Is.EqualTo("KEY_lang,Vietnamese\ncountry_code,vi\ns_home,TRANG CHỦ\n"));
         }
 

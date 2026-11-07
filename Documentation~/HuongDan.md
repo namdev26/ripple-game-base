@@ -75,13 +75,13 @@ Máy cần có Unity 6000.0 trở lên và [Git](https://git-scm.com/).
 3. Dán địa chỉ sau rồi bấm **Install**:
 
 ```text
-https://github.com/namdev26/ripple-game-base.git#v0.2.0
+https://github.com/namdev26/ripple-game-base.git#v0.2.1
 ```
 
 Hoặc thêm một dòng vào `dependencies` trong `Packages/manifest.json`:
 
 ```json
-"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.0"
+"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.1"
 ```
 
 Sau đó commit cả `Packages/manifest.json` và `Packages/packages-lock.json` để cả team dùng cùng một bản.
@@ -844,7 +844,7 @@ private void Refresh() => coinLabel.text = Localizer.Format("s_coin_value", coin
 ### Giới hạn
 
 - **Game tự lo font.** Tiếng Trung, Nhật, Hàn, Thái và tiếng Việt thường cần thêm fallback font. Thiếu font thì chữ hiện thành ô vuông.
-- **Chưa hỗ trợ tiếng Ả Rập.** TextMeshPro không tự nối chữ và đảo chiều, nên công cụ sync bỏ qua cột `Arabic`. Cột `Unknown` cũng bị bỏ qua.
+- **Tiếng Ả Rập chưa được xử lý chữ.** Công cụ sync ghi cột `Arabic` như mọi cột khác, nhưng TextMeshPro không tự nối chữ và đảo chiều, nên có font rồi chữ vẫn rời và ngược. Game cần thêm bước xử lý riêng nếu phát hành tiếng Ả Rập.
 - **Hindi cần kiểm tra thực tế,** vì TextMeshPro có thể không ghép đúng chữ Devanagari.
 - **`LocalizedText` chỉ dùng được với TextMeshPro,** không dùng được với `Text` cũ.
 - **Nội dung quảng cáo và tên app trên điện thoại** không đổi theo ngôn ngữ.

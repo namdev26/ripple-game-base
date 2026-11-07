@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- Localization sync now writes every language column, including `Arabic` and `Unknown`. Arabic text is written as is, without letter shaping.
+
 ## 0.2.0
 
 - Encrypted save file with typed sections, batched writes, atomic replacement, backup recovery, version migration and app lifecycle writes.

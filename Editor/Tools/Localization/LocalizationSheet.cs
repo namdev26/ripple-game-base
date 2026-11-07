@@ -8,7 +8,6 @@ internal sealed class LocalizationSheetResult
 {
     internal bool Ok => Errors.Count == 0;
     internal readonly List<string> Errors = new List<string>();
-    internal readonly List<string> SkippedColumns = new List<string>();
     internal readonly Dictionary<string, string> Files = new Dictionary<string, string>();
 }
 
@@ -17,7 +16,6 @@ internal static class LocalizationSheet
 {
     private const string KeyColumn = "KEY_lang";
     private const string English = "English";
-    private static readonly string[] Unsupported = { "Arabic", "Unknown" };
 
     internal static LocalizationSheetResult Build(string downloadedText)
     {
@@ -97,9 +95,7 @@ internal static class LocalizationSheet
             if (name.Length == 0)
                 continue;
 
-            if (Array.IndexOf(Unsupported, name) >= 0)
-                result.SkippedColumns.Add(name);
-            else if (!Regex.IsMatch(name, "^[A-Za-z]+$"))
+            if (!Regex.IsMatch(name, "^[A-Za-z]+$"))
                 result.Errors.Add("Invalid language column: " + name);
             else if (columns.ContainsKey(name))
                 result.Errors.Add("Duplicate language column: " + name);

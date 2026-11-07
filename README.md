@@ -9,7 +9,7 @@ A reusable Unity 6 UPM package. Runtime modules and editor tools are isolated by
 In Unity, open **Window > Package Manager > + > Install package from Git URL**, then enter:
 
 ```text
-https://github.com/namdev26/ripple-game-base.git#v0.2.0
+https://github.com/namdev26/ripple-game-base.git#v0.2.1
 ```
 
 Git must be installed on the machine. Never put passwords or tokens in the URL or project manifest.
@@ -17,7 +17,7 @@ Git must be installed on the machine. Never put passwords or tokens in the URL o
 You can also add this entry to the consuming project's existing `Packages/manifest.json` dependencies, preserving its other entries:
 
 ```json
-"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.0"
+"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.1"
 ```
 
 Use Unity 6000.0 or newer. Remove or migrate previous copies of these tools and the separate RippleGame Ads/Analytics packages before installing; duplicate assembly names cannot coexist. See [Migration](Documentation~/Migration.md).
