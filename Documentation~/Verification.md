@@ -1,3 +1,13 @@
+# Verification - 0.3.0, 2026-11-07
+
+Unity Editor: 6000.0.71f1 on Windows.
+
+- EditMode suite: 218 passed, 4 skipped without a graphics device, 0 failed. The 7 TOOL Hub menu tests passed in a run with a graphics device. PlayMode suite: 31 passed, 0 failed. `Tools~/Check-Package.ps1` passed.
+- Import from a local path into an empty project with Unity's default packages and into one whose manifest has only this package: no compile errors. Without `com.unity.ugui`, `RippleGame.Base.Localization.UI` is not built.
+- TOOL sample without the removed modules: 51 EditMode tests passed. In Play Mode with Google test ads: a real wall collision opened revive, decline, retry, a watched revive continued the level, the next collision went to lose, a win saved coins and level at once, x2 added the reward once and moved to the next level, next on the last level returned home, lose home returned home, and coins and levels survived a restart. The win itself was triggered from a script instead of by eating fruit.
+- TOOL Hub: all pages opened with no console errors. The Localization, Save and Update menu items open their pages.
+- Not run: Android device, and an install of this version from its Git tag before release.
+
 # Verification - 0.2.1, 2026-11-07
 
 Unity Editor: 6000.0.71f1 on Windows.
