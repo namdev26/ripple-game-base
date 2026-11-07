@@ -11,10 +11,13 @@ Install the tagged Git package. Create new project configurations from the RIPPL
 3. Keep all project-owned configuration assets, original game scripts, levels, prefabs, scenes and assets in place. Preserve their GUIDs. Never edit scene/prefab YAML to repair a migration.
 4. Install the combined Git package. Its existing shared scripts retain their source GUIDs and Ads/Analytics assembly names. The included bridge detects com.ripplegame.base.
 5. For a legacy game popup base, a compatibility adapter can inherit RippleGame.UI.PopupView. Keep game-specific routing/reward rules in game code and supply prefabs to PopupHost. This package does not ship the original game's popup subclasses or prefabs.
-6. For a legacy wallet, construct CurrencyWallet with a PlayerPrefsBalanceStore using that game's EXACT existing balance key. Adapt the old TryAddCoins API in game code if necessary; no automatic save migration runs.
-7. Compile and test scene/prefab bindings, saves, popup actions and SDK flows in that project before discarding its backup.
+6. Compile and test scene/prefab bindings, saves, popup actions and SDK flows in that project before discarding its backup.
 
 Do not install the package alongside imported old implementations without performing the migration above. From 0.2.0 the TOOL sample runs on this package, so its Snake scripts show a complete migration.
+
+## Moving to 0.3.0
+
+0.3.0 removes `Flow`, `FlowIntegration`, `Progression`, `Economy` and `Persistence`. A game using them keeps tag `v0.2.1` or moves that code into the game first. Keep the same save section names and data so players keep their progress: the removed stores wrote `{ "value": N }`.
 
 ## Update or roll back a Git installation
 

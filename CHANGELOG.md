@@ -1,8 +1,10 @@
 # Changelog
 
-## 0.2.2
+## 0.3.0
 
+- **Breaking:** removed `Flow`, `FlowIntegration`, `Progression`, `Economy` and `Persistence`. Rules, results, rewards, coins and levels now belong to each game. A game using them keeps tag `v0.2.1` or moves that code into the game. See [Migration](Documentation~/Migration.md).
 - The `RIPPLE Game` menu opens the Localization, Save and Update pages of TOOL Hub directly.
+- TOOL Hub is simpler: less text, compact overview, help moved to tooltips. Every action works as before.
 
 ## 0.2.1
 

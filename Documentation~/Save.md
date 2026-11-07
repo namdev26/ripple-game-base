@@ -57,27 +57,6 @@ Chỉ vậy là đủ. Dữ liệu được tự ghi xuống file, bạn không 
 
 Nhiều lần `Update` liên tiếp chỉ gây một lần ghi. Nếu nội dung không đổi thì không ghi.
 
-## Ví tiền và tiến trình level
-
-Hai loại này cắm thẳng vào cùng một file, nên coin và level luôn được ghi cùng lúc:
-
-```csharp
-using RippleGame.Economy;
-using RippleGame.Persistence;
-using RippleGame.Progression;
-
-var wallet   = new CurrencyWallet(GameData.Save.BalanceStore("coins"));
-var progress = new LevelProgress(GameData.Save.LevelStore("levels"));
-
-wallet.TryAdd(50);
-if (wallet.TrySpend(10)) UnlockItem();
-
-progress.MarkCompleted(3);
-var canPlay = progress.IsUnlocked(4);
-```
-
-`LevelFlow` tự cộng thưởng, lưu tiến trình và gọi `Flush` khi thắng. Bạn chỉ cần truyền `Commit = () => GameData.Save.Flush()`.
-
 ## Đổi cấu trúc dữ liệu giữa các bản game
 
 Thêm field mới thì không cần làm gì: save cũ chưa có field đó sẽ nhận giá trị khởi tạo.
@@ -122,7 +101,7 @@ Chép một lần, dùng một section làm dấu đã chép:
 var import = save.Section<LegacyImport>("legacy_import");
 if (!import.Value.done)
 {
-    wallet.TryAdd(PlayerPrefs.GetInt("old.coin.key", 0));
+    GameData.Player.Update(data => data.bestScore = PlayerPrefs.GetInt("old.score.key", 0));
     import.Update(data => data.done = true);
     save.Flush();
 }

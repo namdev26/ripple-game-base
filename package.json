@@ -1,8 +1,8 @@
 {
   "name": "com.ripplegame.base",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "displayName": "RIPPLE Game Base",
-  "description": "Reusable Unity game foundation: encrypted save, level flow, progression, ads, analytics, localization, popup UI, currency and editor tooling. RIPPLE Game by Namdev26.",
+  "description": "Reusable Unity game foundation: encrypted save, ads, analytics, localization, popup UI, scene loading and editor tooling. RIPPLE Game by Namdev26.",
   "unity": "6000.0",
   "license": "UNLICENSED",
   "keywords": ["ripplegame", "base", "tools", "ads", "analytics", "localization"],
@@ -15,5 +15,5 @@
     "com.unity.modules.jsonserialize": "1.0.0",
     "com.unity.modules.unitywebrequest": "1.0.0"
   },
-  "samples": [{ "displayName": "Basic Integration", "description": "Source-only examples of save, level flow, popups, currency and localization. Assign your own prefabs and save key.", "path": "Samples~/Basic Integration" }]
+  "samples": [{ "displayName": "Basic Integration", "description": "Source-only examples of save, popups and localization. Assign your own prefabs and save key.", "path": "Samples~/Basic Integration" }]
 }

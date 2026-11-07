@@ -1,6 +1,6 @@
 # Hướng dẫn dùng RIPPLE Game Base
 
-Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm theo các bước và chép ví dụ, không cần đọc code bên trong package. Toàn bộ ví dụ đều đã được compile thử với bản 0.2.0.
+Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm theo các bước và chép ví dụ, không cần đọc code bên trong package. Toàn bộ ví dụ đều đã được compile thử với bản 0.3.0.
 
 ## Mục lục
 
@@ -9,28 +9,22 @@ Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm t
 3. [Cài đặt](#3-cài-đặt)
 4. [Dựng game mới từng bước](#4-dựng-game-mới-từng-bước)
 5. [Save](#5-save)
-6. [Coin](#6-coin)
-7. [Mở khóa level](#7-mở-khóa-level)
-8. [Level flow: thắng, thua, hồi sinh, thưởng](#8-level-flow-thắng-thua-hồi-sinh-thưởng)
-9. [Quảng cáo](#9-quảng-cáo)
-10. [Analytics](#10-analytics)
-11. [Popup](#11-popup)
-12. [Chuyển scene và màn hình loading](#12-chuyển-scene-và-màn-hình-loading)
-13. [Safe area](#13-safe-area)
-14. [TOOL Hub](#14-tool-hub)
-15. [Nâng cấp package](#15-nâng-cấp-package)
-16. [Lỗi hay gặp](#16-lỗi-hay-gặp)
-17. [Giới hạn cần biết](#17-giới-hạn-cần-biết)
-18. [Đa ngôn ngữ](#18-đa-ngôn-ngữ)
+6. [Quảng cáo](#6-quảng-cáo)
+7. [Analytics](#7-analytics)
+8. [Popup](#8-popup)
+9. [Chuyển scene và màn hình loading](#9-chuyển-scene-và-màn-hình-loading)
+10. [Safe area](#10-safe-area)
+11. [TOOL Hub](#11-tool-hub)
+12. [Nâng cấp package](#12-nâng-cấp-package)
+13. [Lỗi hay gặp](#13-lỗi-hay-gặp)
+14. [Giới hạn cần biết](#14-giới-hạn-cần-biết)
+15. [Đa ngôn ngữ](#15-đa-ngôn-ngữ)
 
 ## 1. Package có gì
 
 | Phần | Làm được gì | Bạn phải làm |
 |---|---|---|
 | Save | Lưu dữ liệu vào file mã hóa, tự ghi, tự khôi phục khi file hỏng | Tạo key, khai báo class dữ liệu |
-| Coin | Cộng, trừ coin và báo khi số dư đổi | Chọn tên lưu |
-| Mở khóa level | Biết level nào đã mở, đã qua | Chọn tên lưu |
-| Level flow | Xử lý thắng, thua, hồi sinh, x2 thưởng, thứ tự quảng cáo và analytics | Viết luật chơi và popup |
 | Quảng cáo | Banner, interstitial, rewarded, app open qua AdMob | Cài SDK, điền ID |
 | Analytics | Gửi event lên Firebase, chưa có Firebase thì in ra Console | Cài SDK nếu muốn gửi thật |
 | Popup | Mỗi lúc hiện một popup, popup mới thay popup cũ | Làm prefab |
@@ -39,7 +33,7 @@ Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm t
 | Đa ngôn ngữ | Đọc file dịch, đổi ngôn ngữ ngay khi đang chạy, sync từ Google Sheet | Làm Sheet, chọn ngôn ngữ, lo font |
 | TOOL Hub | Gom các công cụ Editor vào một cửa sổ, kiểm tra bản mới | Mở **RIPPLE Game > Open Hub** |
 
-Package không chứa luật chơi, level, art, prefab hay scene của game nào. Những thứ đó thuộc về game của bạn.
+Package chỉ có phần nền. Luật chơi, thắng thua, hồi sinh, thưởng, coin, level, art, prefab và scene đều do game tự viết.
 
 ## 2. Muốn làm gì thì gọi gì
 
@@ -50,13 +44,6 @@ Các ví dụ dưới đây dùng class `GameData` ở [mục 4](#bước-2-tạ
 | Đọc dữ liệu đã lưu | `GameData.Player.Value.bestScore` |
 | Lưu dữ liệu | `GameData.Player.Update(d => d.bestScore = 120)` |
 | Ghi xuống file ngay | `GameData.Save.Flush()` |
-| Cộng coin | `GameData.Coins.TryAdd(50)` |
-| Trừ coin | `if (GameData.Coins.TrySpend(10)) { ... }` |
-| Xem số coin | `GameData.Coins.Balance` |
-| Hiện coin lên UI khi đổi | `GameData.Coins.BalanceChanged += value => ...` |
-| Kiểm tra level đã mở chưa | `GameData.Levels.IsUnlocked(3)` |
-| Đánh dấu qua level | `GameData.Levels.MarkCompleted(3)` (dùng level flow thì nó tự làm) |
-| Bắt đầu một level | `flow.Start(level)` |
 | Hiện quảng cáo có thưởng | `Ads.ShowRewarded(AdPlacement.Default, () => { ... })` |
 | Hiện quảng cáo xen kẽ | `Ads.ShowInterstitial(AdPlacement.Home)` |
 | Ẩn hoặc hiện banner | `Ads.HideBanner()`, `Ads.ShowBanner()` |
@@ -75,13 +62,13 @@ Máy cần có Unity 6000.0 trở lên và [Git](https://git-scm.com/).
 3. Dán địa chỉ sau rồi bấm **Install**:
 
 ```text
-https://github.com/namdev26/ripple-game-base.git#v0.2.2
+https://github.com/namdev26/ripple-game-base.git#v0.3.0
 ```
 
 Hoặc thêm một dòng vào `dependencies` trong `Packages/manifest.json`:
 
 ```json
-"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.2"
+"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.3.0"
 ```
 
 Sau đó commit cả `Packages/manifest.json` và `Packages/packages-lock.json` để cả team dùng cùng một bản.
@@ -116,9 +103,6 @@ public sealed class PlayerData
 ```
 
 ```csharp
-using RippleGame.Economy;
-using RippleGame.Persistence;
-using RippleGame.Progression;
 using RippleGame.Save;
 using UnityEngine;
 
@@ -126,10 +110,6 @@ public static class GameData
 {
     public static readonly SaveFile Save = OpenSave();
     public static readonly SaveSection<PlayerData> Player = Save.Section<PlayerData>("player");
-    public static readonly CurrencyWallet Coins = new CurrencyWallet(Save.BalanceStore("coins"));
-    public static readonly LevelProgress Levels = new LevelProgress(Save.LevelStore("levels"));
-
-    public static int SelectedLevel = 1;
 
     private static SaveFile OpenSave()
     {
@@ -140,13 +120,13 @@ public static class GameData
 }
 ```
 
-### Bước 3: Viết luật chơi, popup và nối vào level flow
+### Bước 3: Viết game
 
-Làm theo [mục 8](#8-level-flow-thắng-thua-hồi-sinh-thưởng). Game không theo level thì bỏ qua bước này, các phần khác vẫn dùng bình thường.
+Luật chơi, thắng thua, thưởng, coin và level do game tự viết theo cách phù hợp, rồi lưu vào Save. Base không bắt game implement interface nào cho các phần này. Dự án TOOL có ví dụ: `SnakeProgress` và `SnakeLevelFlow`.
 
 ### Bước 4: Bật quảng cáo và analytics khi cần
 
-Làm theo [mục 9](#9-quảng-cáo) và [mục 10](#10-analytics). Chưa cài thì game vẫn chạy: quảng cáo báo không sẵn sàng, event in ra Console.
+Làm theo [mục 6](#6-quảng-cáo) và [mục 7](#7-analytics). Chưa cài thì game vẫn chạy: quảng cáo báo không sẵn sàng, event in ra Console.
 
 ## 5. Save
 
@@ -176,7 +156,7 @@ Bạn không cần tự gọi lệnh lưu. Dữ liệu được ghi vào các l�
 | App xuống nền, mất focus hoặc thoát | Tự động |
 | Khi gọi `GameData.Save.Flush()` | Dùng ngay sau việc quan trọng như mua hàng |
 
-Nhiều lần `Update` liên tiếp chỉ ghi một lần. Level flow tự gọi `Flush` khi thắng.
+Nhiều lần `Update` liên tiếp chỉ ghi một lần.
 
 ### Thêm dữ liệu mới
 
@@ -248,7 +228,7 @@ public sealed class LegacyImport
 var import = GameData.Save.Section<LegacyImport>("legacy_import");
 if (!import.Value.done)
 {
-    GameData.Coins.TryAdd(PlayerPrefs.GetInt("old.coin.key", 0));
+    GameData.Player.Update(data => data.bestScore = PlayerPrefs.GetInt("old.score.key", 0));
     import.Update(data => data.done = true);
     GameData.Save.Flush();
 }
@@ -256,285 +236,7 @@ if (!import.Value.done)
 
 Chi tiết hơn nằm ở [Save.md](Save.md).
 
-## 6. Coin
-
-```csharp
-GameData.Coins.TryAdd(50);
-
-if (GameData.Coins.TrySpend(10))
-{
-    UnlockItem();
-}
-
-var balance = GameData.Coins.Balance;
-```
-
-Cập nhật UI khi số dư đổi, và nhớ hủy đăng ký khi object bị hủy:
-
-```csharp
-using UnityEngine;
-using UnityEngine.UI;
-
-public sealed class CoinLabel : MonoBehaviour
-{
-    [SerializeField] private Text label;
-
-    private void OnEnable()
-    {
-        GameData.Coins.BalanceChanged += Show;
-        Show(GameData.Coins.Balance);
-    }
-
-    private void OnDisable() => GameData.Coins.BalanceChanged -= Show;
-
-    private void Show(int balance) => label.text = balance.ToString();
-}
-```
-
-- `TrySpend` trả về `false` và không trừ gì nếu không đủ coin.
-- Số âm hoặc `0` đều bị từ chối.
-- Muốn thêm loại tiền khác, ví dụ gem, tạo thêm một ví với tên lưu khác: `new CurrencyWallet(GameData.Save.BalanceStore("gems"))`.
-
-## 7. Mở khóa level
-
-Level đánh số từ 1 và mở theo thứ tự. Tiến trình không bao giờ giảm.
-
-```csharp
-var open = GameData.Levels.IsUnlocked(3);
-var highest = GameData.Levels.HighestCompleted;
-var nextLevel = highest + 1;
-```
-
-Ví dụ màn Home khóa các nút level chưa mở:
-
-```csharp
-using RippleGame.Scenes;
-using UnityEngine;
-using UnityEngine.UI;
-
-public sealed class HomeScreen : MonoBehaviour
-{
-    [SerializeField] private Button[] levelButtons;
-
-    private void Start()
-    {
-        for (var index = 0; index < levelButtons.Length; index++)
-        {
-            var level = index + 1;
-            levelButtons[index].interactable = GameData.Levels.IsUnlocked(level);
-            levelButtons[index].onClick.AddListener(() =>
-            {
-                GameData.SelectedLevel = level;
-                SceneLoader.Load("Gameplay");
-            });
-        }
-    }
-}
-```
-
-## 8. Level flow: thắng, thua, hồi sinh, thưởng
-
-Level flow tự làm các việc sau:
-
-| Khi | Level flow tự làm |
-|---|---|
-| Bắt đầu level | Gửi `level_start`, gọi `Begin(level)` của game |
-| Thắng | Lưu tiến trình, cộng coin, ghi file, gửi `level_complete`, **rồi mới** hiện popup thắng |
-| Bấm Next | Ẩn popup, hiện interstitial nếu được, sang level sau. Hết level thì về Home |
-| Bấm x2 | Hiện rewarded. Xem xong thì cộng thêm đúng số coin đã thưởng, rồi sang level sau |
-| Thua lần đầu, có rewarded sẵn sàng | Hiện popup hồi sinh |
-| Xem quảng cáo hồi sinh | Gọi `TryRevive()`. Trả về `false` thì chơi lại level. Mỗi lượt chơi hồi sinh một lần |
-| Thua, không hồi sinh được hoặc từ chối | Gửi `level_fail`, hiện popup thua |
-| Bấm Retry hoặc Home | Chơi lại level hoặc về Home |
-
-Vì vậy đừng tự cộng coin, tự lưu tiến trình, tự gọi quảng cáo hay tự gửi event level khi đã dùng level flow, nếu không sẽ bị tính hai lần.
-
-Bạn viết bốn phần sau.
-
-### 1. Luật chơi
-
-Gọi `Finished` khi lượt chơi kết thúc.
-
-```csharp
-using System;
-using RippleGame.Flow;
-using UnityEngine;
-
-public sealed class MyGameplay : MonoBehaviour, ILevelGameplay
-{
-    public event Action<LevelOutcome> Finished;
-
-    public void Begin(int level)
-    {
-        // Dựng level, đặt lại điểm và bắt đầu chơi.
-    }
-
-    public bool TryRevive()
-    {
-        // Cho chơi tiếp từ chỗ vừa thua. Không làm được thì trả về false để chơi lại level.
-        return true;
-    }
-
-    private void OnPlayerWon(int score) => Finished?.Invoke(LevelOutcome.Win(score));
-    private void OnPlayerDied(int score) => Finished?.Invoke(LevelOutcome.Lose(score, "hit_wall"));
-}
-```
-
-### 2. Popup thắng, hồi sinh, thua
-
-Mỗi popup kế thừa `PopupView` và nhận một "offer". Nút bấm chỉ cần gọi hàm của offer. Gắn các hàm `On...` vào nút trong prefab.
-
-```csharp
-using RippleGame.Flow;
-using RippleGame.UI;
-using UnityEngine;
-using UnityEngine.UI;
-
-public sealed class WinPopup : PopupView
-{
-    [SerializeField] private Text rewardLabel;
-    [SerializeField] private Button nextButton;
-    [SerializeField] private Button doubleButton;
-
-    private WinOffer offer;
-
-    public void Initialize(WinOffer winOffer)
-    {
-        offer = winOffer;
-        rewardLabel.text = "+" + offer.Reward;
-        SetButtons(true);
-    }
-
-    public void OnNextClicked() => offer.Next();
-
-    public void OnDoubleClicked()
-    {
-        SetButtons(false);
-        offer.Double(earned =>
-        {
-            // Không nhận được thưởng thì mở lại nút để người chơi chọn tiếp.
-            if (!earned && this != null) SetButtons(true);
-        });
-    }
-
-    private void SetButtons(bool enabled)
-    {
-        nextButton.interactable = enabled;
-        doubleButton.interactable = enabled && offer.CanDouble;
-    }
-}
-```
-
-```csharp
-using RippleGame.Flow;
-using RippleGame.UI;
-
-public sealed class RevivePopup : PopupView
-{
-    private ReviveOffer offer;
-
-    public void Initialize(ReviveOffer reviveOffer) => offer = reviveOffer;
-    public void OnWatchClicked() => offer.Watch();
-    public void OnDeclineClicked() => offer.Decline();
-}
-```
-
-```csharp
-using RippleGame.Flow;
-using RippleGame.UI;
-
-public sealed class LosePopup : PopupView
-{
-    private LoseOffer offer;
-
-    public void Initialize(LoseOffer loseOffer) => offer = loseOffer;
-    public void OnRetryClicked() => offer.Retry();
-    public void OnHomeClicked() => offer.Home();
-}
-```
-
-### 3. Nơi hiện popup
-
-Gắn class này cùng `PopupHost` vào Canvas, rồi kéo ba prefab vào các ô.
-
-```csharp
-using RippleGame.Flow;
-using RippleGame.UI;
-using UnityEngine;
-
-[RequireComponent(typeof(PopupHost))]
-public sealed class MyFlowView : MonoBehaviour, ILevelFlowView
-{
-    [SerializeField] private WinPopup winPrefab;
-    [SerializeField] private RevivePopup revivePrefab;
-    [SerializeField] private LosePopup losePrefab;
-
-    private PopupHost host;
-
-    private void Awake() => host = GetComponent<PopupHost>();
-
-    public void ShowWin(WinOffer offer) => host.Show(winPrefab).Initialize(offer);
-    public void ShowRevive(ReviveOffer offer) => host.Show(revivePrefab).Initialize(offer);
-    public void ShowLose(LoseOffer offer) => host.Show(losePrefab).Initialize(offer);
-    public void HideAll() => host.CloseActive();
-}
-```
-
-### 4. Nối tất cả trong scene gameplay
-
-```csharp
-using RippleGame.Flow;
-using RippleGame.FlowIntegration;
-using RippleGame.Scenes;
-using UnityEngine;
-
-public sealed class GameplayScene : MonoBehaviour
-{
-    [SerializeField] private MyGameplay gameplay;
-    [SerializeField] private MyFlowView view;
-    [SerializeField] private int levelCount = 20;
-
-    private LevelFlow flow;
-
-    private void Start()
-    {
-        flow = new LevelFlow(new LevelFlowConfig
-        {
-            Gameplay = gameplay,
-            View = view,
-            Progress = GameData.Levels,
-            LevelCount = levelCount,
-            Commit = () => GameData.Save.Flush(),
-            ExitToHome = () => SceneLoader.Load("Home"),
-
-            // Không bắt buộc, bỏ các dòng này thì tính năng tương ứng tắt.
-            Wallet = GameData.Coins,
-            RewardPolicy = outcome => outcome.Score * 10,
-            Ads = new AdsLevelFlowAds(),
-            Events = new AnalyticsLevelFlowEvents()
-        });
-
-        flow.Start(GameData.SelectedLevel);
-    }
-
-    private void OnDestroy() => flow?.Dispose();
-}
-```
-
-| Ô | Bắt buộc | Ý nghĩa |
-|---|---|---|
-| `Gameplay`, `View` | Có | Luật chơi và popup của bạn |
-| `Progress` | Có | Tiến trình level |
-| `LevelCount` | Có | Tổng số level, đánh số liên tục từ 1 |
-| `Commit` | Có | Hàm ghi file, gần như luôn là `GameData.Save.Flush()` |
-| `ExitToHome` | Có | Hàm về Home |
-| `Wallet`, `RewardPolicy` | Không, nhưng phải đi cùng nhau | Ví coin và công thức thưởng |
-| `Ads` | Không | Bỏ đi thì không có hồi sinh, x2 và interstitial |
-| `Events` | Không | Bỏ đi thì không gửi event level |
-
-Nhớ gọi `flow.Dispose()` khi rời scene, để quảng cáo đóng muộn không chạm vào object đã bị hủy.
-
-## 9. Quảng cáo
+## 6. Quảng cáo
 
 ### Cài đặt lần đầu
 
@@ -576,7 +278,7 @@ Hàm thứ nhất chỉ chạy khi người chơi **thực sự nhận thưởng
 ```csharp
 Ads.ShowRewarded(
     AdPlacement.Default,
-    rewarded: () => GameData.Coins.TryAdd(100),
+    rewarded: () => GiveReward(),
     completed: result => ResumeGame());
 ```
 
@@ -623,11 +325,7 @@ Hiếm khi cần, vì analytics đã tự ghi các event này:
 Ads.EventRaised += adsEvent => Debug.Log(adsEvent.Type + " " + adsEvent.Format);
 ```
 
-### Dùng cùng level flow
-
-Truyền `Ads = new AdsLevelFlowAds()` là đủ. Level flow tự hiện interstitial khi bấm Next và rewarded khi bấm x2 hoặc hồi sinh.
-
-## 10. Analytics
+## 7. Analytics
 
 Không cần đặt object nào vào scene. Chưa có Firebase thì event in ra Console, nên bạn dùng được ngay.
 
@@ -651,12 +349,11 @@ Analytics.SetUserProperty("ab_group", "B");
 
 | Event | Tự gửi khi |
 |---|---|
-| `level_start`, `level_complete`, `level_fail` | Dùng level flow với `Events = new AnalyticsLevelFlowEvents()` |
 | `ad_impression`, `ad_show`, `ad_show_fail`, `ad_reward_earned` | Dùng module quảng cáo |
 
-Coin **không** tự gửi event. Muốn thống kê thì tự gọi `GameEvents.EarnCurrency` và `GameEvents.SpendCurrency`.
+Muốn thống kê tiền trong game thì tự gọi `GameEvents.EarnCurrency` và `GameEvents.SpendCurrency`.
 
-Không dùng level flow thì tự gọi event level:
+Event level do game tự gọi:
 
 ```csharp
 GameEvents.LevelStart(5);
@@ -681,7 +378,7 @@ Muốn quay về chỉ in Console thì chọn **Disable Firebase**.
 
 Danh sách đầy đủ event và cách chờ người dùng đồng ý (consent) nằm ở [analytics/Setup.md](analytics/Setup.md).
 
-## 11. Popup
+## 8. Popup
 
 1. Gắn `PopupHost` vào Canvas.
 2. Làm prefab popup có component kế thừa `PopupView`, hoặc dùng luôn `PopupView`.
@@ -702,11 +399,11 @@ public sealed class SettingsButton : MonoBehaviour
 ```
 
 - Mỗi lúc chỉ có một popup, popup mới tự đóng popup cũ.
-- `Show` trả về bản vừa tạo, dùng nó để truyền dữ liệu: `host.Show(winPrefab).Initialize(offer)`.
+- `Show` trả về bản vừa tạo, dùng nó để truyền dữ liệu: `host.Show(winPrefab).Initialize(score)`.
 - Nút đóng trong prefab có thể gắn thẳng vào hàm `Close()` của `PopupView`.
 - Muốn popup nằm dưới một object khác, kéo object đó vào ô `Container` của `PopupHost`.
 
-## 12. Chuyển scene và màn hình loading
+## 9. Chuyển scene và màn hình loading
 
 Scene phải có trong **Build Settings**, nếu không sẽ báo lỗi kèm tên scene.
 
@@ -734,11 +431,11 @@ public sealed class LoadingScreen : MonoBehaviour
 
 `minSeconds` là thời gian tối thiểu màn hình loading được giữ lại.
 
-## 13. Safe area
+## 10. Safe area
 
 Thêm component `RippleGame.UI.SafeArea` vào một RectTransform phủ toàn màn hình nằm dưới Canvas, rồi đặt nội dung vào bên trong. Nội dung sẽ tránh tai thỏ và thanh home.
 
-## 14. TOOL Hub
+## 11. TOOL Hub
 
 Mở **RIPPLE Game > Open Hub**:
 
@@ -758,7 +455,7 @@ Các trang Localization, Save và Update cũng mở trực tiếp được từ 
 
 Ngoài ra, chuột phải một ScriptableObject trong Inspector rồi chọn **Export as Remote Config JSON** để xuất ra JSON.
 
-## 15. Nâng cấp package
+## 12. Nâng cấp package
 
 Unity không tự cập nhật package. Package chỉ thông báo, còn bạn quyết định khi nào nâng:
 
@@ -776,7 +473,7 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 
 **Người phát hành bản mới:** sửa `version` trong `package.json` để khớp với tag, ghi vào `CHANGELOG.md`, rồi tạo tag dạng `vX.Y.Z` và push. Trang Update chỉ coi các tag dạng này là bản mới, nên tag kiểu `v0.3.0-beta` không được báo cho project khác.
 
-## 16. Lỗi hay gặp
+## 13. Lỗi hay gặp
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |
 |---|---|---|
@@ -792,7 +489,7 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 | Không thấy event trên Firebase | Chưa bật Firebase, hoặc báo cáo chưa kịp cập nhật | Chọn **Enable Firebase**, xem DebugView |
 | Trang Update báo `Could not check for updates` | Mất mạng, máy chưa có Git, hoặc không có quyền đọc repo | Kiểm tra mạng và lệnh `git` trong terminal |
 
-## 17. Giới hạn cần biết
+## 14. Giới hạn cần biết
 
 - **Đổi hoặc mất key là mất save.** Lỡ phát hành nhầm key thì trả lại key cũ sẽ khôi phục được, nhưng mất hẳn key thì không.
 - **Mã hóa chỉ chặn việc sửa file thông thường.** Người có kinh nghiệm vẫn lấy được key từ bản build. IAP và bảng xếp hạng thật vẫn cần server xác thực.
@@ -800,7 +497,7 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 - **Quảng cáo hiện chỉ có cấu hình ID cho Android.** Save nhắm tới Android và iOS, WebGL chưa làm, chưa có cloud save.
 - **Quảng cáo mạng thật và chạy trên điện thoại chưa được kiểm tra đầy đủ trong bản này.** Hãy test trên máy thật trước khi phát hành. Xem [Verification.md](Verification.md).
 
-## 18. Đa ngôn ngữ
+## 15. Đa ngôn ngữ
 
 Mỗi ngôn ngữ là một file trong `Assets/Resources`: `Localization.txt` cho tiếng Anh và `Localization-<Ngôn ngữ>.txt` cho ngôn ngữ khác. Game tự giữ các file này.
 

@@ -9,7 +9,7 @@ A reusable Unity 6 UPM package. Runtime modules and editor tools are isolated by
 In Unity, open **Window > Package Manager > + > Install package from Git URL**, then enter:
 
 ```text
-https://github.com/namdev26/ripple-game-base.git#v0.2.2
+https://github.com/namdev26/ripple-game-base.git#v0.3.0
 ```
 
 Git must be installed on the machine. Never put passwords or tokens in the URL or project manifest.
@@ -17,7 +17,7 @@ Git must be installed on the machine. Never put passwords or tokens in the URL o
 You can also add this entry to the consuming project's existing `Packages/manifest.json` dependencies, preserving its other entries:
 
 ```json
-"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.2.2"
+"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.3.0"
 ```
 
 Use Unity 6000.0 or newer. Remove or migrate previous copies of these tools and the separate RippleGame Ads/Analytics packages before installing; duplicate assembly names cannot coexist. See [Migration](Documentation~/Migration.md).
@@ -27,12 +27,7 @@ Use Unity 6000.0 or newer. Remove or migrate previous copies of these tools and 
 | Folder | Assembly / purpose |
 | --- | --- |
 | Runtime/Save | `RippleGame.Base.Save`: encrypted save file with typed sections, atomic writes and recovery. See [Save](Documentation~/Save.md) |
-| Runtime/Flow | `RippleGame.Base.Flow`: level state machine for win, lose, revive and rewards; no Unity dependency |
-| Runtime/FlowIntegration | `RippleGame.Base.FlowIntegration`: connects Flow to the Ads and Analytics modules |
-| Runtime/Progression | `RippleGame.Base.Progression`: unlocked and completed levels; no Unity dependency |
 | Runtime/Scenes | `RippleGame.Base.Scenes`: load scenes by a caller-supplied name, with loading progress |
-| Runtime/Economy | `RippleGame.Base.Economy`: pure C# currency operations; no Unity dependency |
-| Runtime/Persistence | `RippleGame.Base.Persistence`: wallet and progress stores on a save file, plus a PlayerPrefs adapter with a caller-owned key |
 | Runtime/Localization | `RippleGame.Base.Localization`: translation files, language choice and runtime switching |
 | Runtime/LocalizationUI | `RippleGame.Base.Localization.UI`: `LocalizedText` for TextMeshPro, compiled only when `com.unity.ugui` is installed |
 | Runtime/UI | `RippleGame.Base.UI`: caller-supplied popup prefabs, one active view, safe area |
@@ -56,6 +51,6 @@ When a new version is released, the Editor logs a notice and **RIPPLE Game > Ope
 
 Shared source is edited in this repository's normal writable clone. Unity's Git package cache is a consumer copy. For development, use **Install package from disk** and select this clone's package.json, or make an embedded development copy. After editing and testing, increment package.json, update CHANGELOG.md, commit and create a new tag. Return consumers to a Git dependency to receive future releases.
 
-Source-only ZIP fallback: run `Tools~/Export-Source.ps1`; the result is under ignored `Artifacts~`. Verification: `Tools~/Check-Wallet.ps1` runs SDK-free wallet checks with the .NET SDK. Add `com.ripplegame.base` to the consuming project's `testables` and install Unity Test Framework to run the included EditMode/PlayMode tests.
+Source-only ZIP fallback: run `Tools~/Export-Source.ps1`; the result is under ignored `Artifacts~`. Add `com.ripplegame.base` to the consuming project's `testables` and install Unity Test Framework to run the included EditMode/PlayMode tests.
 
 See the [developer guide in Vietnamese](Documentation~/HuongDan.md), [Save](Documentation~/Save.md), [Usage](Documentation~/Usage.md), [Migration](Documentation~/Migration.md), [Verification](Documentation~/Verification.md) and [Changelog](CHANGELOG.md).
