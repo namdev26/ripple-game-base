@@ -1,0 +1,6 @@
+{
+  "name": "RippleGame.Base.Localization",
+  "rootNamespace": "RippleGame.Localization",
+  "references": [],
+  "autoReferenced": true
+}
