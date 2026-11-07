@@ -1,0 +1,28 @@
+{
+  "name": "RippleGame.Base.LocalizationUI.Tests",
+  "references": [
+    "RippleGame.Base.Localization",
+    "RippleGame.Base.Localization.UI",
+    "Unity.TextMeshPro"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "RIPPLEGAME_TEST_FRAMEWORK",
+    "RIPPLEGAME_UGUI"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.test-framework",
+      "expression": "1.1.0",
+      "define": "RIPPLEGAME_TEST_FRAMEWORK"
+    },
+    {
+      "name": "com.unity.ugui",
+      "expression": "2.0.0",
+      "define": "RIPPLEGAME_UGUI"
+    }
+  ]
+}

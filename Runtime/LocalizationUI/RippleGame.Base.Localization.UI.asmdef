@@ -1,0 +1,19 @@
+{
+  "name": "RippleGame.Base.Localization.UI",
+  "rootNamespace": "RippleGame.Localization.UI",
+  "references": [
+    "RippleGame.Base.Localization",
+    "Unity.TextMeshPro"
+  ],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_UGUI"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.ugui",
+      "expression": "2.0.0",
+      "define": "RIPPLEGAME_UGUI"
+    }
+  ]
+}
