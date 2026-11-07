@@ -449,6 +449,8 @@ Mở **RIPPLE Game > Open Hub**:
 | Build Reports | Xem kết quả, dung lượng và thời gian của lần build gần nhất |
 | Update | Kiểm tra và cài bản package mới |
 
+Bấm **Pop out** ở đầu mỗi trang để tách công cụ đó thành tab riêng, rồi kéo gắn cạnh Inspector hay Console. Unity tự nhớ vị trí trong layout.
+
 Ngoài ra, chuột phải một ScriptableObject trong Inspector rồi chọn **Export as Remote Config JSON** để xuất ra JSON.
 
 ## 12. Nâng cấp package

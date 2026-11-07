@@ -21,6 +21,7 @@ internal sealed class ToolHubWindow : EditorWindow
     private ToolHubNavigation navigation;
     private VisualElement body;
     private Label pageTitle;
+    private Button popOut;
 
     [MenuItem("RIPPLE Game/Open Hub", false, 100000)]
     internal static void Open()
@@ -81,6 +82,14 @@ internal sealed class ToolHubWindow : EditorWindow
         pageTitle = new Label();
         pageTitle.AddToClassList("hub-page-title");
         pageHeader.Add(pageTitle);
+        popOut = new Button(() => ToolHubPageWindow.Open(selected))
+        {
+            name = "pop-out",
+            text = "Pop out",
+            tooltip = "Open this tool in its own tab, which you can dock anywhere."
+        };
+        popOut.AddToClassList("hub-pop-out");
+        pageHeader.Add(popOut);
         main.Add(pageHeader);
         body = new VisualElement { name = "tool-content" };
         body.AddToClassList("hub-body");
@@ -95,6 +104,7 @@ internal sealed class ToolHubWindow : EditorWindow
         navigation.Update(selected, query);
         pageTitle.text = section?.Title ?? "Overview";
         pageTitle.tooltip = section?.Description ?? string.Empty;
+        popOut.style.display = section == null ? DisplayStyle.None : DisplayStyle.Flex;
         body.Clear();
         if (section == null)
         {
@@ -106,6 +116,8 @@ internal sealed class ToolHubWindow : EditorWindow
         content.AddToClassList("hub-inline-content");
         body.Add(content);
     }
+
+    internal void ShowPage(string id) => Select(id);
 
     private ToolHubPage GetPage(string id)
     {
@@ -123,7 +135,7 @@ internal sealed class ToolHubWindow : EditorWindow
         }
     }
 
-    private static void DrawPage(ToolHubPage page)
+    internal static void DrawPage(ToolHubPage page)
     {
         var previousWidth = EditorGUIUtility.labelWidth;
         var previousEnabled = GUI.enabled;

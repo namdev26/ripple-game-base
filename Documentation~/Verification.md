@@ -2,10 +2,10 @@
 
 Unity Editor: 6000.0.71f1 on Windows.
 
-- EditMode suite: 228 passed, 0 failed. PlayMode suite: 31 passed, 0 failed. `Tools~/Check-Package.ps1` passed.
+- EditMode suite: 231 passed, 5 skipped without a graphics device, 0 failed. The 8 pop-out tests passed in a run with a graphics device. PlayMode suite: 31 passed, 0 failed. `Tools~/Check-Package.ps1` passed.
 - Import from a local path into an empty project with Unity's default packages and into one whose manifest has only this package: no compile errors. Without `com.unity.ugui`, `RippleGame.Base.Localization.UI` is not built.
 - TOOL sample without the removed modules: 51 EditMode tests passed. In Play Mode with Google test ads: a real wall collision opened revive, decline, retry, a watched revive continued the level, the next collision went to lose, a win saved coins and level at once, x2 added the reward once and moved to the next level, next on the last level returned home, lose home returned home, and coins and levels survived a restart. The win itself was triggered from a script instead of by eating fruit.
-- TOOL Hub: all pages opened with no console errors. The `RIPPLE Game` menu has only Open Hub, and the Hub commands were checked to resolve their methods.
+- TOOL Hub: all pages opened with no console errors. All 9 pages popped out into their own windows and stayed open across a script reload. Docking them by hand was not run. The `RIPPLE Game` menu has only Open Hub, and the Hub commands were checked to resolve their methods.
 - Not run: Android device, and an install of this version from its Git tag before release.
 
 # Verification - 0.2.1, 2026-11-07

@@ -32,6 +32,23 @@ internal static class ToolHubCatalog
         new ToolHubSection("update", "Update", "Check for a new package version and install it.", "Refresh")
     };
 
+    internal static ToolHubPage CreatePage(string id)
+    {
+        switch (id)
+        {
+            case "scenes": return new SceneSwitcherPanel();
+            case "build": return new AndroidBuildPanel();
+            case "textures": return new TextureHubPage();
+            case "ads": return new AdsHubPage();
+            case "analytics": return new AnalyticsHubPage();
+            case "save": return new SaveHubPage();
+            case "localization": return new LocalizationHubPage();
+            case "reports": return new BuildReportsHubPage();
+            case "update": return new UpdateHubPage();
+            default: return null;
+        }
+    }
+
     internal static IEnumerable<ToolHubSection> Search(string query)
     {
         query = (query ?? string.Empty).Trim();

@@ -34,7 +34,8 @@
 .hub-main { flex-grow: 1; min-width: 0; }
 .hub-toolbar { height: 54px; padding: 14px 24px 6px 24px; flex-shrink: 0; }
 .hub-search { max-width: 460px; flex-grow: 1; }
-.hub-page-header { padding: 6px 24px 12px 24px; flex-shrink: 0; }
+.hub-page-header { flex-direction: row; align-items: center; padding: 6px 24px 12px 24px; flex-shrink: 0; }
+.hub-pop-out { margin-left: auto; height: 26px; padding-left: 12px; padding-right: 12px; }
 .hub-page-title { font-size: 20px; -unity-font-style: bold; }
 .hub-body { flex-grow: 1; min-height: 0; padding: 0 24px 20px 24px; }
 .hub-overview { flex-grow: 1; }
