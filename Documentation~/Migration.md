@@ -17,7 +17,14 @@ Do not install the package alongside imported old implementations without perfor
 
 ## Moving to 0.3.0
 
-0.3.0 removes `Flow`, `FlowIntegration`, `Progression`, `Economy` and `Persistence`. A game using them keeps tag `v0.2.1` or moves that code into the game first. Keep the same save section names and data so players keep their progress: the removed stores wrote `{ "value": N }`.
+0.3.0 removes `Flow`, `FlowIntegration`, `Progression`, `Economy` and `Persistence`, and the `RIPPLE Game` menu keeps only **Open Hub**. A game using those modules stays on tag `v0.2.1` until it has done the steps below.
+
+1. Move the code into the game. Copy it from tag `v0.2.1`, or write less, as `SnakeProgress` and `SnakeLevelFlow` do in the TOOL project.
+2. Remove `RippleGame.Base.Flow`, `RippleGame.Base.FlowIntegration`, `RippleGame.Base.Progression`, `RippleGame.Base.Economy` and `RippleGame.Base.Persistence` from the game's asmdefs.
+3. Keep player data readable. Which rule applies depends on how the game stored it:
+   - **`save.BalanceStore(key)` or `save.LevelStore(key)`:** read the same section key at version 1, with a `[Serializable]` class that has an `int` field named exactly `value`.
+   - **`PlayerPrefsBalanceStore(key)`:** this is a plain int in PlayerPrefs, not a save section. Keep reading it with `PlayerPrefs.GetInt(key)`, or copy it once into your save. Reading a new save section instead shows players 0 coins.
+4. Test with a save from the current release before publishing.
 
 ## Update or roll back a Git installation
 

@@ -18,8 +18,8 @@ internal static class HubProof
         {
             type.GetMethod("CreateGUI").Invoke(window, null);
             Require(window.rootVisualElement.styleSheets.count > 0, "Hub stylesheet");
-            Require(window.rootVisualElement.Query<Button>(className: "hub-card").ToList().Count == 6, "Hub cards");
-            Require(window.rootVisualElement.Query<Label>().ToList().Any(label => label.text.Contains("RIPPLE Game by Namdev26")), "author credit");
+            Require(window.rootVisualElement.Query<Button>(className: "hub-card").ToList().Count == 9, "Hub cards");
+            Require(window.rootVisualElement.Query<Label>().ToList().Any(label => label.text.Contains("RIPPLE Game base by Namdev26")), "author credit");
             var panel = type.GetField("build", Private).GetValue(window);
             var field = panel.GetType().GetField("version", Private);
             field.SetValue(panel, "8.7.6");

@@ -46,6 +46,7 @@ internal sealed class LocalizationHubPage : ToolHubPage
                 StartSync();
         }
 
+        EditorGUILayout.LabelField("Sync replaces the local translation files. Commit hand edits first.", EditorStyles.miniLabel);
         if (!string.IsNullOrEmpty(report))
             EditorGUILayout.HelpBox(report, reportType);
     }

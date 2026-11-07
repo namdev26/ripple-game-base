@@ -1,6 +1,6 @@
 # Hướng dẫn dùng RIPPLE Game Base
 
-Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm theo các bước và chép ví dụ, không cần đọc code bên trong package. Toàn bộ ví dụ đều đã được compile thử với bản 0.3.0.
+Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm theo các bước và chép ví dụ, không cần đọc code bên trong package.
 
 ## Mục lục
 
@@ -463,6 +463,8 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 
 **Quay lại bản cũ:** revert hai file đó bằng git.
 
+**Lên 0.3.0 từ bản cũ hơn:** bản này bỏ Coin, Mở khóa level và Level flow. Game đang dùng các phần đó phải làm theo [Migration.md](Migration.md) trước khi cập nhật.
+
 **Nút Update bị mờ:** đang chạy game hoặc đang compile, hoặc project dùng package từ ổ đĩa. Khi đó sửa tay `Packages/manifest.json` thành Git URL có tag mới.
 
 **Cập nhật không ảnh hưởng dữ liệu của game:** file cấu hình quảng cáo, key save, prefab và keystore nằm trong project của bạn, nên không bị ghi đè.
@@ -473,8 +475,8 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |
 |---|---|---|
-| Nút x2 mờ, không có popup hồi sinh | Rewarded chưa tải xong, đang ở chế độ No Ads, hoặc scene khởi động thiếu Ads object | Chọn **Ads Test**, chạy [cài đặt quảng cáo](#cài-đặt-lần-đầu) lại, đợi quảng cáo tải |
-| Bấm Next mà không có interstitial | Đang trong thời gian chờ 45 giây hoặc đã đủ 4 lần | Bình thường, đổi trong file cấu hình nếu cần |
+| Quảng cáo có thưởng báo chưa sẵn sàng | Rewarded chưa tải xong, đang ở chế độ No Ads, hoặc scene khởi động thiếu Ads object | Chọn **Ads Test**, chạy [cài đặt quảng cáo](#cài-đặt-lần-đầu) lại, đợi quảng cáo tải |
+| Gọi interstitial mà không thấy hiện | Đang trong thời gian chờ 45 giây hoặc đã đủ 4 lần | Bình thường, đổi trong file cấu hình nếu cần |
 | Banner không hiện | Scene không có trong Build Settings, hoặc nằm trong danh sách loại trừ | Kiểm tra hai chỗ đó |
 | Build Production bị từ chối | Còn ID demo của Google hoặc thiếu ID | Điền ID thật trong mục `Production` |
 | Lỗi trùng assembly khi cài | Project còn bản copy cũ của Ads, Analytics hoặc tool | Xóa bản cũ, xem [Migration.md](Migration.md) |

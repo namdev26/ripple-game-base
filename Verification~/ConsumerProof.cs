@@ -28,6 +28,7 @@ internal static class ConsumerProof
             serialized.ApplyModifiedPropertiesWithoutUndo();
             AssetDatabase.SaveAssets();
             PlayerPrefs.SetInt(SaveKey, 37);
+            PlayerPrefs.Save();
             File.WriteAllText(proofPath, JsonUtility.ToJson(new Snapshot
             {
                 adsHash = Hash(AdsPath), analyticsHash = Hash(AnalyticsPath),

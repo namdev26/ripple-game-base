@@ -30,7 +30,7 @@ internal sealed class SaveHubPage : ToolHubPage
     private void DrawKeyCreation()
     {
         EditorGUILayout.LabelField("Save key", EditorStyles.boldLabel);
-        EditorGUILayout.HelpBox("Never change this key after release, or players lose their saves.", MessageType.Warning);
+        EditorGUILayout.HelpBox("Commit this file with the game. Never change the key after release, or players lose their saves.", MessageType.Warning);
         keyFolder = EditorGUILayout.TextField("Folder", keyFolder);
         if (GUILayout.Button("Create " + SaveKeyFile.FileName, GUILayout.Height(28))) CreateKey();
         if (!string.IsNullOrEmpty(message)) EditorGUILayout.HelpBox(message, messageType);

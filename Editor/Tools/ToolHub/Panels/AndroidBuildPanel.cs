@@ -55,6 +55,7 @@ internal sealed partial class AndroidBuildPanel : ToolHubPage
         var valid = ValidateAll(out var error);
         if (!valid) EditorGUILayout.HelpBox(error, MessageType.Error);
 
+        EditorGUILayout.LabelField("Changes are saved only when you press Apply.", EditorStyles.miniLabel);
         using (new EditorGUI.DisabledScope(!valid || EditorApplication.isCompiling ||
                                            EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer))
         {
