@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using RippleGame.Economy;
+using RippleGame.Save;
 using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
@@ -11,7 +11,7 @@ public static class RippleBaseSmoke
     {
         try
         {
-            var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(CurrencyWallet).Assembly);
+            var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(typeof(SaveFile).Assembly);
             HubProof.Require(package != null && package.name == "com.ripplegame.base", "combined package identity");
             var expectationPath = Path.Combine(Directory.GetCurrentDirectory(), "ExpectedVersion.txt");
             var expected = File.ReadAllText(expectationPath).Trim();

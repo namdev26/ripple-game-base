@@ -1,7 +1,4 @@
 using System;
-using RippleGame.Economy;
-using RippleGame.Persistence;
-using RippleGame.Progression;
 using RippleGame.Save;
 using UnityEngine;
 
@@ -21,8 +18,6 @@ namespace RippleGame.Base.Samples
         private SaveFile save;
 
         public SaveSection<PlayerSaveData> Player { get; private set; }
-        public CurrencyWallet Wallet { get; private set; }
-        public LevelProgress Progress { get; private set; }
 
         private void Awake()
         {
@@ -30,8 +25,6 @@ namespace RippleGame.Base.Samples
             save.ProblemRaised += problem => Debug.LogWarning("Save problem: " + problem);
 
             Player = save.Section<PlayerSaveData>("player");
-            Wallet = new CurrencyWallet(save.BalanceStore("coins"));
-            Progress = new LevelProgress(save.LevelStore("levels"));
         }
 
         public void RecordScore(int score)

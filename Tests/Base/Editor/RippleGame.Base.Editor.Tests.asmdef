@@ -1,12 +1,7 @@
 {
   "name": "RippleGame.Base.Editor.Tests",
   "references": [
-    "RippleGame.Base.Economy",
-    "RippleGame.Base.Persistence",
     "RippleGame.Base.Save",
-    "RippleGame.Base.Progression",
-    "RippleGame.Base.Flow",
-    "RippleGame.Base.FlowIntegration",
     "RippleGame.Base.Localization",
     "RippleGame.Tools.Editor"
   ],

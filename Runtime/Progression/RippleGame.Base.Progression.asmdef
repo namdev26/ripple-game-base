@@ -1,7 +1,0 @@
-{
-  "name": "RippleGame.Base.Progression",
-  "rootNamespace": "RippleGame.Progression",
-  "references": [],
-  "autoReferenced": true,
-  "noEngineReferences": true
-}
