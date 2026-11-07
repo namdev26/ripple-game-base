@@ -205,6 +205,21 @@ namespace RippleGame.Base.Tests
         }
 
         [Test]
+        public void Build_TemplateWithBlankHeaderCells()
+        {
+            var result = LocalizationSheet.Build(
+                ",,Vietnamese,Spanish,Unknown\n" +
+                "country_code,en,vi,es,hi\n" +
+                "KEY_lang,English,Vietnamese,Español,INDIA\n" +
+                "s_home,HOME,TRANG CHỦ,HOGAR,x");
+
+            Assert.That(result.Ok, Is.True, string.Join("\n", result.Errors));
+            Assert.That(result.Files.Keys, Is.EquivalentTo(new[] { "English", "Vietnamese", "Spanish" }));
+            Assert.That(result.SkippedColumns, Is.EqualTo(new[] { "Unknown" }));
+            Assert.That(result.Files["Vietnamese"], Is.EqualTo("KEY_lang,Vietnamese\ncountry_code,vi\ns_home,TRANG CHỦ\n"));
+        }
+
+        [Test]
         public void Build_RoundTrip()
         {
             const string original = "say \"hi\", a\nb";

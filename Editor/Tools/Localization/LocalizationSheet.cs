@@ -30,6 +30,13 @@ internal static class LocalizationSheet
         }
 
         var rows = SheetCsv.Parse(text);
+        // The studio's sheet template leaves the key and English header cells blank.
+        if (rows.Count > 0 && rows[0].Length >= 2 && rows[0][0].Trim().Length == 0 && rows[0][1].Trim().Length == 0)
+        {
+            rows[0][0] = KeyColumn;
+            rows[0][1] = English;
+        }
+
         if (rows.Count == 0 || rows[0][0].Trim() != KeyColumn)
         {
             result.Errors.Add("The first column of the Sheet must be " + KeyColumn + ".");
