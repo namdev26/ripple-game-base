@@ -1,3 +1,12 @@
+# Verification - 0.2.1, 2026-11-07
+
+Unity Editor: 6000.0.71f1 on Windows.
+
+- EditMode suite: 270 passed, 0 failed. PlayMode suite: 31 passed, 0 failed. `Tools~/Check-Package.ps1` passed.
+- Real sync from a Google Sheet with 17 languages and `GOOGLETRANSLATE` formulas: all files written, with no broken placeholders or line breaks. Sheet formulas showing `#ERROR!` were observed in that Sheet, and sync now stops on them (covered by tests).
+- TOOL sample in Play Mode: all 17 languages selected, no raw keys, no game errors in the console. Fonts for Japanese, Korean, Thai, Arabic, Chinese and Hindi are not installed there, and Arabic has no letter shaping.
+- Not run: Android device, and a new clone on another machine.
+
 # Verification - 0.2.0 localization, 2026-11-07
 
 Unity Editor: 6000.0.71f1 on Windows.
