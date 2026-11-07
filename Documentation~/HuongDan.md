@@ -62,13 +62,13 @@ Máy cần có Unity 6000.0 trở lên và [Git](https://git-scm.com/).
 3. Dán địa chỉ sau rồi bấm **Install**:
 
 ```text
-https://github.com/namdev26/ripple-game-base.git#v0.3.0
+https://github.com/namdev26/ripple-game-base.git#v0.3.1
 ```
 
 Hoặc thêm một dòng vào `dependencies` trong `Packages/manifest.json`:
 
 ```json
-"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.3.0"
+"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.3.1"
 ```
 
 Sau đó commit cả `Packages/manifest.json` và `Packages/packages-lock.json` để cả team dùng cùng một bản.
@@ -508,7 +508,7 @@ Mỗi ngôn ngữ là một file trong `Assets/Resources`: `Localization.txt` ch
 | s_home | HOME | TRANG CHỦ |
 | s_coin_value | COIN: {0} | XU: {0} |
 
-Dòng đầu là tên cột, cột `English` là bắt buộc, thêm ngôn ngữ chỉ cần thêm cột. Mẫu Sheet cũ của studio (hai ô đầu của dòng 1 để trống) vẫn dùng được. Ô để trống sẽ lấy tiếng Anh.
+Dòng đầu là tên cột, cột `English` là bắt buộc, thêm ngôn ngữ chỉ cần thêm cột. Mẫu Sheet cũ của studio vẫn dùng được: ô đầu của dòng 1 để trống, ô thứ hai để trống hoặc ghi `English`. Ô để trống sẽ lấy tiếng Anh.
 
 **Tự dịch bằng Google Translate:** dòng `country_code` chứa mã ngôn ngữ của từng cột (`vi`, `ja`, `zh-CN`...). Dán công thức này vào ô tiếng Việt của dòng key đầu tiên rồi kéo sang các cột khác và xuống các dòng dưới, ví dụ với dòng mã ngôn ngữ là dòng 2 và key đầu ở dòng 4:
 

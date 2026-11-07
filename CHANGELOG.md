@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Localization sync accepts a Sheet whose first header row has a blank key cell and `English` in the next cell.
+
 ## 0.3.0
 
 - **Breaking:** removed `Flow`, `FlowIntegration`, `Progression`, `Economy` and `Persistence`. Rules, results, rewards, coins and levels now belong to each game. A game using them keeps tag `v0.2.1` or moves that code into the game. See [Migration](Documentation~/Migration.md).

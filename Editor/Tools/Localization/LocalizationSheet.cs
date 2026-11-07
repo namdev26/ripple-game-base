@@ -30,8 +30,8 @@ internal static class LocalizationSheet
         var rows = SheetCsv.Parse(text);
         rows.RemoveRange(0, rows.TakeWhile(row => row.All(string.IsNullOrWhiteSpace)).Count());
 
-        // The studio's sheet template leaves the key and English header cells blank.
-        if (rows.Count > 0 && rows[0].Length >= 2 && rows[0][0].Trim().Length == 0 && rows[0][1].Trim().Length == 0)
+        // The studio's sheet template leaves the key cell blank, and the English cell blank or filled in.
+        if (rows.Count > 0 && rows[0].Length >= 2 && rows[0][0].Trim().Length == 0 && (rows[0][1].Trim().Length == 0 || rows[0][1].Trim() == English))
         {
             rows[0][0] = KeyColumn;
             rows[0][1] = English;
@@ -39,7 +39,7 @@ internal static class LocalizationSheet
 
         if (rows.Count == 0 || rows[0][0].Trim() != KeyColumn)
         {
-            result.Errors.Add("The first column of the Sheet must be " + KeyColumn + ".");
+            result.Errors.Add("The first cell of the header row must be " + KeyColumn + ".");
             return result;
         }
 
