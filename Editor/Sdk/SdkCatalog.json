@@ -1,0 +1,148 @@
+{
+  "entries": [
+    {
+      "id": "edm",
+      "displayName": "External Dependency Manager",
+      "packageName": "com.google.external-dependency-manager",
+      "version": "1.2.186",
+      "fileName": "com.google.external-dependency-manager-1.2.186.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/com.google.external-dependency-manager-1.2.186.tgz",
+      "sha256": "46684b475c2a39844c44c07945b5aee02895c41a9bff97d5cd4b5d9e85e021d8",
+      "dependsOn": [],
+      "legacyPaths": [
+        "Assets/ExternalDependencyManager"
+      ],
+      "asmdefName": ""
+    },
+    {
+      "id": "firebase-app",
+      "displayName": "Firebase App",
+      "packageName": "com.google.firebase.app",
+      "version": "13.1.0",
+      "fileName": "com.google.firebase.app-13.1.0.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/com.google.firebase.app-13.1.0.tgz",
+      "sha256": "be45afee313736ff0d0e71cecdc95377fc1e9e0b11399ce1154a4a2595a0f33b",
+      "dependsOn": [
+        "edm"
+      ],
+      "legacyPaths": [
+        "Assets/Firebase"
+      ],
+      "asmdefName": ""
+    },
+    {
+      "id": "firebase-analytics",
+      "displayName": "Firebase Analytics",
+      "packageName": "com.google.firebase.analytics",
+      "version": "13.1.0",
+      "fileName": "com.google.firebase.analytics-13.1.0.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/com.google.firebase.analytics-13.1.0.tgz",
+      "sha256": "6dc2de48be540b736c54476c0f07a10969f96d3a4ce2e9cebd8fcc285ca99a50",
+      "dependsOn": [
+        "firebase-app",
+        "edm"
+      ],
+      "legacyPaths": [
+        "Assets/Firebase"
+      ],
+      "asmdefName": ""
+    },
+    {
+      "id": "firebase-remote-config",
+      "displayName": "Firebase Remote Config",
+      "packageName": "com.google.firebase.remote-config",
+      "version": "13.1.0",
+      "fileName": "com.google.firebase.remote-config-13.1.0.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/com.google.firebase.remote-config-13.1.0.tgz",
+      "sha256": "293dd1c076fc8a1befb601d609bd66604b3fb2bc541ff4c44aa384fc740b6b54",
+      "dependsOn": [
+        "firebase-app",
+        "edm"
+      ],
+      "legacyPaths": [
+        "Assets/Firebase"
+      ],
+      "asmdefName": ""
+    },
+    {
+      "id": "firebase-crashlytics",
+      "displayName": "Firebase Crashlytics",
+      "packageName": "com.google.firebase.crashlytics",
+      "version": "13.1.0",
+      "fileName": "com.google.firebase.crashlytics-13.1.0.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/com.google.firebase.crashlytics-13.1.0.tgz",
+      "sha256": "505800d82098de62ecbfe14989990c607f498daf6d56447ee15de24b1e27e963",
+      "dependsOn": [
+        "firebase-app",
+        "edm"
+      ],
+      "legacyPaths": [
+        "Assets/Firebase"
+      ],
+      "asmdefName": ""
+    },
+    {
+      "id": "firebase-messaging",
+      "displayName": "Firebase Cloud Messaging",
+      "packageName": "com.google.firebase.messaging",
+      "version": "13.1.0",
+      "fileName": "com.google.firebase.messaging-13.1.0.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/com.google.firebase.messaging-13.1.0.tgz",
+      "sha256": "8c9d0a1b4a43f71794a9f80cc675deb3c08bd73e70ecd6cfa845c6a13df04de2",
+      "dependsOn": [
+        "firebase-app",
+        "edm"
+      ],
+      "legacyPaths": [
+        "Assets/Firebase"
+      ],
+      "asmdefName": ""
+    },
+    {
+      "id": "admob",
+      "displayName": "Google Mobile Ads",
+      "packageName": "com.google.ads.mobile",
+      "version": "11.0.0",
+      "fileName": "com.google.ads.mobile-11.0.0.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/com.google.ads.mobile-11.0.0.tgz",
+      "sha256": "05d2ff0c38bd4e26417fddbc006b5084c66b6c408ce187cf83ee2ff00e8131b5",
+      "dependsOn": [
+        "edm"
+      ],
+      "legacyPaths": [
+        "Assets/GoogleMobileAds"
+      ],
+      "asmdefName": ""
+    },
+    {
+      "id": "max",
+      "displayName": "AppLovin MAX",
+      "packageName": "com.applovin.mediation.ads",
+      "version": "8.5.1",
+      "fileName": "com.applovin.mediation.ads-8.5.1.tgz",
+      "url": "https://unity.packages.applovin.com/com.applovin.mediation.ads/-/com.applovin.mediation.ads-8.5.1.tgz",
+      "sha256": "96e041523bdb773fd44d382f70fb8da3b77feeb32fa3112f55b539d7b5940990",
+      "dependsOn": [
+        "edm"
+      ],
+      "legacyPaths": [
+        "Assets/MaxSdk"
+      ],
+      "asmdefName": "MaxSdk.Scripts"
+    },
+    {
+      "id": "appsflyer",
+      "displayName": "AppsFlyer",
+      "packageName": "appsflyer-unity-plugin",
+      "version": "6.17.900",
+      "fileName": "appsflyer-unity-plugin-6.17.900.tgz",
+      "url": "https://github.com/namdev26/ripple-game-sdks/releases/download/sdks-0.4.0/appsflyer-unity-plugin-6.17.900.tgz",
+      "sha256": "f354f607d1edc69b4ab14e05416541e1b2982803e1d79b627884eb1e1372b76a",
+      "dependsOn": [],
+      "legacyPaths": [
+        "Assets/AppsFlyer"
+      ],
+      "asmdefName": "AppsFlyer"
+    }
+  ]
+}

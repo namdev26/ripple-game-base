@@ -31,8 +31,8 @@ Không đưa vào ripple: Odin Inspector, DOTween Pro (gói trả phí, không �
 | com.google.firebase.crashlytics | 13.1.0 |
 | com.google.firebase.messaging | 13.1.0 |
 | com.applovin.mediation.ads (AppLovin MAX) | 8.5.1 |
-| appsflyer-unity-plugin (AppsFlyer) | 6.17.9 |
-| com.google.ads.mobile (Google Mobile Ads) | bản ổn định mới nhất chạy được với EDM 1.2.186 và Unity 6000.0. Chọn ở bước đầu của plan và ghi vào bảng này. |
+| appsflyer-unity-plugin (AppsFlyer) | 6.17.900 |
+| com.google.ads.mobile (Google Mobile Ads) | 11.0.0. Lấy từ OpenUPM (`https://package.openupm.com`), là đường cài UPM mà hướng dẫn AdMob Unity của Google ghi. Đây là bản ổn định mới nhất có `package.json` phụ thuộc đúng EDM 1.2.186 và hỗ trợ Unity 2019.4 trở lên. Bản 11.1.0 đến 11.5.0 cần EDM 1.2.187, bản 11.6.0 chuyển sang gói `com.unity.external-dependency-manager` 2.1.0. |
 
 Mọi SDK đều cài dưới dạng gói UPM (.tgz), không import `.unitypackage` vào `Assets`. Chỉ dùng một bản EDM cho tất cả SDK.
 

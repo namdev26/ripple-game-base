@@ -16,7 +16,7 @@
 - Add the dependency `"com.unity.nuget.newtonsoft-json": "3.2.2"` to `package.json`.
 - Remove the scripting defines `ADS` and `FIREBASE` from all code. Keep `ADS_TEST` (selects the Test profile and the Remote Config test fetch interval). Add `ADS_DISABLED`, which the No Ads build profile sets to force `NoAdsService`.
 - No SDK keys, ad unit IDs or dev keys in code. Only Google's published AdMob demo IDs (`ca-app-pub-3940256099942544`) are allowed.
-- Pinned SDKs (copied from the spec): EDM `1.2.186`; Firebase app, analytics, remote-config, crashlytics and messaging `13.1.0`; AppLovin MAX `8.5.1`; AppsFlyer `6.17.9`; Google Mobile Ads version chosen in Task 1.
+- Pinned SDKs (copied from the spec): EDM `1.2.186`; Firebase app, analytics, remote-config, crashlytics and messaging `13.1.0`; AppLovin MAX `8.5.1`; AppsFlyer `6.17.900`; Google Mobile Ads `11.0.0` (chosen in Task 1).
 - Every provider asmdef's `versionDefines` expression is exactly `[<catalog version>]`.
 - Do not add Odin, DOTween Pro, UniRx or UniTask.
 - Every new `.cs` and `.asmdef` file needs a `.meta` with a unique GUID (`Tools~/Check-Package.ps1` enforces this). Generate metas by letting Unity import the file in the verification project, then copy them into the repo.
@@ -79,7 +79,7 @@ Get each pinned SDK as a UPM tarball from its official source, and record facts 
 
 - [ ] **Step 1:** Firebase and EDM: download the official 13.1.0 and 1.2.186 `.tgz` from Google's Unity archive. Compute SHA-256 and compare it with the old project's copies in `E:\_NamGame\_somia-source\GooglePackages`. A mismatch is reported to the user, not silently accepted.
 - [ ] **Step 2:** AppLovin MAX 8.5.1: get the official UPM package (AppLovin's UPM distribution or the Integration Manager's UPM migration) and pack it to `.tgz`. Record `packageName`, which is expected to be `com.applovin.mediation.ads`, and the asmdef name of its scripts.
-- [ ] **Step 3:** AppsFlyer 6.17.9: get the official `#upm` distribution at the `6.17.9` tag and pack it to `.tgz`. Record the package name and asmdef name. Make sure its `package.json` does not depend on EDM.
+- [ ] **Step 3:** AppsFlyer 6.17.900: get the official `#upm` distribution at the `v6.17.900` tag and pack it to `.tgz`. Record the package name and asmdef name. Make sure its `package.json` does not depend on EDM.
 - [ ] **Step 4:** Google Mobile Ads: choose the newest stable release whose EDM requirement is satisfied by 1.2.186 and which supports Unity 6000.0. Get its official `.tgz`. Write the chosen version into the spec's table in section 2.1.
 - [ ] **Step 5:** Read each SDK's license. If a license forbids redistribution, set that entry's `url` to the vendor's official URL. Note the decision in `sdks.json`.
 - [ ] **Step 6:** Fill in the dependencies:
@@ -540,7 +540,7 @@ Rules the tests pin, all from spec 4.2 and 4.3:
 
 **Files:**
 - Create: `Runtime/Attribution/RippleGame.Attribution.asmdef`, `Attribution.cs`, `AttributionStatus.cs`, `IAttributionService.cs`, `AttributionAdRevenue.cs`, `AttributionSettings.cs`, `ConversionDataParser.cs`, `AttributionBootstrap.cs`, `AssemblyInfo.cs`
-- Create: `Runtime/Attribution.AppsFlyer/RippleGame.Attribution.AppsFlyer.asmdef` (versionDefines on the AppsFlyer package name from Task 1 `[6.17.9]` → `RIPPLEGAME_SDK_APPSFLYER`; references the AppsFlyer asmdef from Task 1), `AppsFlyerAttributionService.cs`, `AppsFlyerHost.cs`
+- Create: `Runtime/Attribution.AppsFlyer/RippleGame.Attribution.AppsFlyer.asmdef` (versionDefines on the AppsFlyer package name from Task 1 `[6.17.900]` → `RIPPLEGAME_SDK_APPSFLYER`; references the AppsFlyer asmdef from Task 1), `AppsFlyerAttributionService.cs`, `AppsFlyerHost.cs`
 - Create: `Runtime/Ads.AttributionBridge/RippleGame.Ads.AttributionBridge.asmdef` (Ads runtime and Attribution; no SDK) and `AdsAttributionBridge.cs`
 - Create: `Editor/Attribution/AttributionMenu.cs` (Create Settings)
 - Modify: `Runtime/AnalyticsAdsBridge/AdsAnalyticsBridge.cs` (replace the `AdPlatform` constant with `adsEvent.Revenue.Value.Platform`)
