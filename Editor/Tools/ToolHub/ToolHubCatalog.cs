@@ -29,7 +29,8 @@ internal static class ToolHubCatalog
         new ToolHubSection("save", "Save", "Create the game's save key and inspect encrypted save files.", "SaveAs"),
         new ToolHubSection("localization", "Localization", "Sync the game's translations from a Google Sheet.", "FilterByLabel"),
         new ToolHubSection("reports", "Build Reports", "Inspect the latest build result, size, duration and output.", "UnityEditor.ConsoleWindow"),
-        new ToolHubSection("update", "Update", "Check for a new package version and install it.", "Refresh")
+        new ToolHubSection("update", "Update", "Check for a new package version and install it.", "Refresh"),
+        new ToolHubSection("sdk", "SDK", "Install, fix or remove the optional third-party SDKs.", "Package Manager")
     };
 
     internal static ToolHubPage CreatePage(string id)
@@ -45,6 +46,7 @@ internal static class ToolHubCatalog
             case "localization": return new LocalizationHubPage();
             case "reports": return new BuildReportsHubPage();
             case "update": return new UpdateHubPage();
+            case "sdk": return new SdkHubPage();
             default: return null;
         }
     }

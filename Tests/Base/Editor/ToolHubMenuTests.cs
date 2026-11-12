@@ -52,6 +52,12 @@ namespace RippleGame.Base.Tests
         }
 
         [Test]
+        public void Search_FindsSdkSection()
+        {
+            Assert.That(ToolHubCatalog.Search("sdk").Select(section => section.Id), Does.Contain("sdk"));
+        }
+
+        [Test]
         public void HubCommand_UnknownMethod_IsNotFound()
         {
             Assert.That(ToolHubCommands.Find("RippleGame.Ads.Editor.AdsSceneInstaller", "NoSuchCommand"), Is.Null);

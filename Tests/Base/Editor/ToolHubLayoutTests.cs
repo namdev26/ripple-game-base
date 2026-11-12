@@ -27,6 +27,25 @@ namespace RippleGame.Base.Tests
         }
 
         [Test]
+        public void Catalog_HasSdkSection_AndOverviewShowsItsCard()
+        {
+            Assert.That(ToolHubCatalog.Sections.Select(section => section.Id), Does.Contain("sdk"));
+
+            var overview = ToolHubOverview.Create(string.Empty, _ => { });
+
+            Assert.That(overview.Q<Button>("card-sdk"), Is.Not.Null);
+            Assert.That(LabelsIn(overview), Does.Contain("SDK"));
+        }
+
+        [Test]
+        public void SdkSection_IconExists()
+        {
+            var section = ToolHubCatalog.Sections.First(item => item.Id == "sdk");
+
+            Assert.That(UnityEditor.EditorGUIUtility.IconContent(section.Icon).image, Is.Not.Null);
+        }
+
+        [Test]
         public void Overview_NoMatch_SaysSo()
         {
             var overview = ToolHubOverview.Create("no tool has this name", _ => { });

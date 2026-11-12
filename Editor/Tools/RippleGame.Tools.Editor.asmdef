@@ -2,7 +2,8 @@
   "name": "RippleGame.Tools.Editor",
   "rootNamespace": "RippleGame.Tools",
   "references": [
-    "RippleGame.Base.Save"
+    "RippleGame.Base.Save",
+    "RippleGame.Sdk.Editor"
   ],
   "includePlatforms": [
     "Editor"
