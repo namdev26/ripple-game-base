@@ -11,7 +11,6 @@ namespace RippleGame.Analytics.AdsBridge
     /// </summary>
     internal static class AdsAnalyticsBridge
     {
-        private const string AdPlatform = "AdMob";
         private const double MicrosPerUnit = 1_000_000.0;
 
         internal static bool IsInstalled { get; private set; }
@@ -81,7 +80,7 @@ namespace RippleGame.Analytics.AdsBridge
             }
 
             Analytics.LogEvent(Names.Events.AdImpression, new AnalyticsParams()
-                .Add(Names.Params.AdPlatform, AdPlatform)
+                .Add(Names.Params.AdPlatform, revenue.Platform)
                 .Add(Names.Params.AdSource, revenue.AdSourceName)
                 .Add(Names.Params.AdFormat, ToSnakeCase(adsEvent.Format.ToString()))
                 .Add(Names.Params.AdUnitName, revenue.AdUnitId)

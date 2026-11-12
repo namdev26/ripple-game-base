@@ -52,6 +52,9 @@ namespace RippleGame.Ads
         /// <summary>The value last handed to <see cref="SetAdsEnabled"/>; null until something sets it.</summary>
         internal static bool? AdsEnabledValue => _adsEnabled;
 
+        /// <summary>The value last handed to <see cref="SetOrganic"/>; null until something sets it.</summary>
+        internal static bool? OrganicValue => _isOrganic;
+
         internal static void Configure(IAdsService service)
         {
             if (service == null)

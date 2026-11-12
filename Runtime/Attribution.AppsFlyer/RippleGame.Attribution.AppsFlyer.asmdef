@@ -1,0 +1,25 @@
+{
+  "name": "RippleGame.Attribution.AppsFlyer",
+  "rootNamespace": "RippleGame.Attribution.AppsFlyer",
+  "references": [
+    "RippleGame.Attribution",
+    "AppsFlyer"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_SDK_APPSFLYER"
+  ],
+  "versionDefines": [
+    {
+      "name": "appsflyer-unity-plugin",
+      "expression": "[6.17.900]",
+      "define": "RIPPLEGAME_SDK_APPSFLYER"
+    }
+  ],
+  "noEngineReferences": false
+}

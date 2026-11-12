@@ -1,0 +1,14 @@
+{
+  "name": "RippleGame.Attribution.Editor",
+  "rootNamespace": "RippleGame.Attribution.Editor",
+  "references": ["RippleGame.Attribution"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
