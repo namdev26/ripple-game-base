@@ -30,7 +30,8 @@ Device, Android version, build date and tester:
 | A12 | `ads_policy` override: in Firebase set `{"interstitial":{"cooldown_seconds":90}}` and publish | Current session keeps its rules. After a full app restart, the interstitial cooldown is 90 seconds | |
 | A13 | `ads_policy` cleared: publish `{}` and restart twice | Cooldown returns to the AdsConfiguration value | |
 | A14 | `ads_enabled` = false and restart | No ad shows; rewarded grants its reward at once with `Success` | |
-| A15 | `ads_unit_ids` override with a different valid interstitial ID, restart | Log or network shows the new unit loading | |
+| A15 | `ads_unit_ids` override with a different valid interstitial ID for `max`, publish, then restart twice | The new unit loads after the first restart if Remote Config answered within the fetch timeout, and always after the second restart (the IDs are cached) | |
+| A15b | `ads_policy` `{"banner":{"refresh_seconds":15}}`, publish, restart twice | After the second restart at the latest, the banner loads a new ad about every 15 seconds while visible | |
 | A16 | Revenue in the AppsFlyer debug view | An ad revenue event for each paid impression, mediation network AppLovin MAX | |
 | A17 | Revenue in Firebase DebugView | `ad_impression` with `ad_platform` = `AppLovin`, `value`, `currency` | |
 
@@ -49,6 +50,7 @@ Device, Android version, build date and tester:
 | B9 | Organic block with `organic.interstitial` false, on a user AppsFlyer has reported as Organic (status `Unknown` still shows ads) | Interstitial does not show for status `Organic`; it still shows for `NonOrganic` and `Unknown` | |
 | B10 | `ads_policy` override on the next session (as A12) | New value applies after a full restart, not before | |
 | B11 | `ads_enabled` = false | No ad; rewarded grants at once | |
+| B11b | `ads_unit_ids` override with a different valid interstitial ID for `admob`, publish, restart twice | The new unit loads after the second restart at the latest (as A15) | |
 | B12 | Revenue in the AppsFlyer debug view | Ad revenue event, mediation network Google AdMob | |
 | B13 | Revenue in Firebase DebugView | `ad_impression` with `ad_platform` = `AdMob`. If AdMob is linked to Firebase, `Log Ad Revenue` is off and none is expected | |
 

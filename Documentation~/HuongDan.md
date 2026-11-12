@@ -354,10 +354,12 @@ Mọi luật nằm trong lõi nên AdMob và MAX giống nhau. Chúng nằm ở 
 | App open | bật, chờ 20 giây, rời app ít nhất 5 giây |
 | Rewarded fallback | tắt |
 | Người chơi organic vẫn thấy banner, MREC, interstitial, app open | cả bốn đều bật |
-| Banner, MREC tự đổi quảng cáo sau | 0 giây (để mạng quảng cáo tự làm) |
+| Banner, MREC tự đổi quảng cáo sau | 0 giây (để mạng quảng cáo tự làm). Chỉ MAX dùng; AdMob bỏ qua vì SDK AdMob tự đổi banner |
 | Dừng thời gian và âm thanh khi quảng cáo toàn màn hình hiện | bật, trả lại như cũ khi đóng |
 
 Số phiên chơi tăng một lần mỗi lần mở app. Các luật được chốt một lần mỗi phiên, vào lúc cần dùng đầu tiên.
+
+Quảng cáo tải lỗi thì được tải lại: `Retry Max Attempts` lần đầu chờ tăng dần từ `Retry Initial Delay Seconds`, sau đó cứ `Retry Max Delay Seconds` giây thử lại một lần cho tới khi tải được, không dừng giữa phiên. Có mạng trở lại thì định dạng còn thiếu được tải lại ngay.
 
 **Rewarded fallback:** khi bật, người chơi bấm xem quảng cáo có thưởng mà rewarded chưa sẵn sàng nhưng interstitial đã sẵn sàng, thì hiện interstitial. Đóng bình thường thì người chơi nhận thưởng và kết quả là `Success`. Interstitial lỗi thì không thưởng và kết quả là `Failed`. Kiểu hiện này bỏ qua thời gian chờ và level tối thiểu.
 
@@ -424,7 +426,7 @@ GameEvents.LevelFail(5, reason: "hit_wall");
 
 1. Tạo project trên [Firebase Console](https://console.firebase.google.com) và thêm app Android có package name trùng với game.
 2. Tải `google-services.json` vào `Assets/`.
-3. Mở **RIPPLE Game > Open Hub > SDK** rồi bấm **Setup** ở dòng **Firebase Analytics**. Hub tải đúng bản (13.1.0), cài kèm Firebase App và External Dependency Manager. Nếu còn thư mục cũ `Assets/Firebase` thì xóa nó bằng tay trước.
+3. Mở **RIPPLE Game > Open Hub > SDK** rồi bấm **Setup** ở dòng **Firebase Analytics**. Hub tải đúng bản (13.1.0), cài kèm Firebase App và External Dependency Manager. Nếu còn bản import `.unitypackage` cũ của Firebase (thư mục `Assets/Firebase/Plugins` hoặc `Assets/Firebase/Editor`) thì xóa thư mục `Assets/Firebase` bằng tay trước, giữ lại `google-services.json`.
 4. Mở trang **Analytics**: dòng `Backend` phải hiện `Firebase`.
 
 Không còn define `FIREBASE` và không còn nút **Enable Firebase** hay **Disable Firebase**. Muốn quay về chỉ in Console thì bấm **Remove** ở dòng Firebase Analytics trên trang SDK. Trong Editor, event luôn chỉ in ra Console.
@@ -545,9 +547,9 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 | Gọi interstitial mà không thấy hiện | Đang trong thời gian chờ 45 giây hoặc đã đủ 4 lần | Bình thường, đổi trong file cấu hình nếu cần |
 | Banner không hiện | Scene không có trong Build Settings, hoặc nằm trong danh sách loại trừ | Kiểm tra hai chỗ đó |
 | Build Production bị từ chối | Còn ID demo của Google, hoặc thiếu ID, thiếu SDK key của MAX | Điền ID thật trong mục `Production` (hoặc `Max Production`) |
-| Build báo provider đã chọn nhưng chưa cài SDK đúng bản | SDK chưa cài, sai bản, hoặc còn thư mục cũ trong `Assets` | Mở trang SDK, xóa thư mục cũ bằng tay nếu Hub liệt kê, rồi bấm **Setup** hoặc **Fix**. Game không cần quảng cáo thì chọn **No Ads** hoặc `providerId` là `none` |
+| Build báo provider đã chọn nhưng chưa cài SDK đúng bản | SDK chưa cài, sai bản, hoặc còn bản import cũ trong `Assets` | Mở trang SDK, xóa bản import cũ bằng tay nếu Hub báo, rồi bấm **Setup** hoặc **Fix**. Game không cần quảng cáo thì chọn **No Ads** hoặc `providerId` là `none` |
 | Game cũ không có quảng cáo bỗng build ra AdMob | Bản 0.3.x dùng "không có define `ADS`" làm No Ads, nay đó là Production | Chọn **No Ads** (`ADS_DISABLED`) hoặc đặt `providerId` là `none` |
-| Hub không cho Setup SDK | Còn thư mục cũ như `Assets/MaxSdk`, `Assets/Firebase` | Xóa bằng tay các thư mục Hub liệt kê, cả file `.meta` |
+| Hub không cho Setup SDK | Còn bản import `.unitypackage` cũ, ví dụ `Assets/MaxSdk/Scripts`, `Assets/Firebase/Plugins` | Xóa bằng tay bản import cũ của plugin đó, cả file `.meta` (xem [mục SDK](#cách-dùng-trang-sdk)) |
 | Console báo lỗi Firebase trong Editor khi dùng Remote Config | Thiếu `google-services-desktop.json` cho Editor | Bỏ qua được: game vẫn chạy bằng giá trị mặc định |
 | Lỗi trùng assembly khi cài | Project còn bản copy cũ của Ads, Analytics hoặc tool | Xóa bản cũ, xem [Migration.md](Migration.md) |
 | Báo lỗi tên save đã mở | Tạo hai `SaveFile` trùng tên | Chỉ mở trong `GameData`. Nếu tạo trong scene thì phải `Dispose` khi rời scene |
@@ -649,12 +651,24 @@ Mở **RIPPLE Game > Open Hub > SDK**. Mỗi SDK có một dòng với một tro
 | Not installed | Chưa cài | **Setup** |
 | Installed | Đúng bản | **Remove** |
 | Wrong version | Sai bản, dòng chữ hiện bản đang cài và bản yêu cầu | **Fix** |
-| Old copy found in Assets | Còn bản cài kiểu cũ trong `Assets` | không có nút |
+| Old copy found in Assets | Còn bản import `.unitypackage` cũ của SDK này trong `Assets`; dòng này liệt kê các dấu hiệu tìm thấy | không có nút |
 
 - **Setup** tải file về `Packages/RippleSdks/`, kiểm tra SHA-256, ghi vào `Packages/manifest.json`, rồi tự cài các SDK phụ thuộc còn thiếu. SHA-256 sai thì file tải về bị xóa và manifest không bị đụng tới.
 - **Remove** gỡ khỏi manifest và xóa file. Nếu còn SDK khác đang cài và cần SDK này thì Remove bị từ chối, hãy gỡ SDK kia trước. Các gói phụ thuộc mà Setup đã thêm (External Dependency Manager, `com.unity.ugui`) vẫn được giữ lại.
 - AppLovin MAX được tải từ kho chính thức của AppLovin vì giấy phép của họ không cho phát lại. Các SDK còn lại tải từ bản phát hành của repo `ripple-game-sdks`. Mọi file đều được kiểm tra SHA-256.
-- **Bản cài kiểu cũ phải xóa bằng tay:** `Assets/MaxSdk`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, `Assets/AppsFlyer`, `Assets/GoogleMobileAds` (cả file `.meta`). Hub chỉ liệt kê đường dẫn và từ chối Setup của SDK nào còn thư mục cũ của chính nó hoặc của SDK mà nó phụ thuộc. Thư mục cũ của SDK không liên quan thì không cản.
+- **Bản import cũ phải xóa bằng tay** (cả file `.meta`). Hub chỉ liệt kê dấu hiệu tìm thấy, và từ chối Setup của SDK đang cài khi chính SDK đó hoặc một SDK trong chuỗi phụ thuộc của nó (ví dụ External Dependency Manager với MAX) còn bản import cũ. Bản import cũ của SDK không liên quan thì không cản.
+
+Hub nhận ra bản import cũ qua các đường dẫn mà chỉ `.unitypackage` mới tạo. Gói UPM cũng ghi vài file dưới cùng thư mục gốc, và chúng không bị coi là bản cũ: `Assets/MaxSdk/Resources/AppLovinSettings.asset`, `Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset`, `Assets/GoogleMobileAds/link.xml` (ghi lúc build), `Assets/GeneratedLocalRepo`, `Assets/Plugins/Android`. `google-services.json` để trong `Assets/Firebase` cũng không bị coi là bản cũ.
+
+| SDK | Dấu hiệu (chỉ cần một cái là coi như còn bản import cũ) |
+|---|---|
+| External Dependency Manager | `Assets/ExternalDependencyManager/Editor` |
+| Firebase (mọi dòng Firebase) | `Assets/Firebase/Plugins`, `Assets/Firebase/Editor` |
+| Google Mobile Ads | `Assets/GoogleMobileAds/Editor`, `Assets/GoogleMobileAds/GoogleMobileAds.dll`, `Assets/GoogleMobileAds/Api`, `Assets/GoogleMobileAds/Platforms` |
+| AppLovin MAX | `Assets/MaxSdk/Scripts`, `Assets/MaxSdk/AppLovin` |
+| AppsFlyer | `Assets/AppsFlyer/Editor`, `Assets/AppsFlyer/Plugins`, `Assets/AppsFlyer/AppsFlyer.cs` |
+
+Thấy dấu hiệu thì xóa cả bản import cũ của plugin đó: với MAX là mọi thứ trong `Assets/MaxSdk` trừ `Resources/AppLovinSettings.asset`; với Google Mobile Ads là mọi thứ trong `Assets/GoogleMobileAds` trừ `Resources/GoogleMobileAdsSettings.asset`; và các thư mục `Assets/Firebase`, `Assets/ExternalDependencyManager` (cùng `Assets/PlayServicesResolver`), `Assets/AppsFlyer`. Giữ lại `google-services.json` và `GoogleService-Info.plist`.
 
 ### Nếu cài sai bản
 
@@ -712,6 +726,7 @@ Ví dụ `ads_policy` (trường nào cũng không bắt buộc):
 
 - Trường số nguyên (`max_per_session`, `min_level`, `start_session`) chỉ nhận số nguyên, ghi `15.0` thì bị bỏ qua. Trường số thực (`cooldown_seconds`, `min_background_seconds`, `refresh_seconds`) nhận số nguyên hoặc số thập phân. Trường sai kiểu bị bỏ qua.
 - Tên vị trí là tên `AdPlacement` viết kiểu snake_case: `default`, `home`, `level_start`, `level_complete`, `retry`, `double_reward`, `extra_life`, `pause`, `replay`, `rewarded_fallback`.
+- `banner.refresh_seconds` và `mrec.refresh_seconds` chỉ có tác dụng với MAX và được đọc lúc MAX khởi tạo. AdMob bỏ qua hai trường này vì SDK AdMob tự đổi banner.
 - **Khi nào có hiệu lực:** luật được chốt một lần mỗi phiên, lúc có quyết định quảng cáo đầu tiên. `ads_policy` về muộn hơn lúc đó thì áp từ phiên sau. Bản hợp lệ gần nhất được lưu trên máy và dùng ngay từ đầu phiên kế tiếp.
 - **Key trống hoặc thiếu:** `ads_policy` thiếu hoặc để trống thì giữ nguyên bản đã lưu. Muốn xóa bản đã lưu, hãy đặt giá trị là `{}`.
 
@@ -721,7 +736,7 @@ Ví dụ `ads_policy` (trường nào cũng không bắt buộc):
 { "max": { "android": { "interstitial": "id-cua-ban" } }, "admob": { "android": { "banner": "id-cua-ban" } } }
 ```
 
-Chuỗi rỗng bị bỏ qua. ID được chốt lúc provider khởi tạo. Ads chờ Remote Config tối đa bằng `Fetch Timeout Seconds` rồi mới khởi tạo, nên ID về muộn hơn sẽ áp từ phiên sau.
+Chuỗi rỗng bị bỏ qua. Cả hai provider chốt ID lúc khởi tạo. Ads chờ Remote Config tối đa bằng `Fetch Timeout Seconds` rồi mới khởi tạo, nên ID tải về (hoặc giá trị mặc định trong settings khi tải lỗi hay quá giờ) luôn có trước. Bản `ads_unit_ids` hợp lệ gần nhất được lưu trên máy và áp ngay từ đầu phiên sau, nên ID về muộn hơn lúc provider khởi tạo sẽ có hiệu lực từ phiên sau. Key thiếu, để trống hoặc không phải JSON object thì giữ bản đã lưu; muốn xóa bản đã lưu thì đặt giá trị là `{}`.
 
 Key riêng của game thì game tự đọc bằng `RemoteConfig.Get`.
 
@@ -760,7 +775,7 @@ Bản 0.4.0 bỏ define `ADS` và `FIREBASE`, và SDK phải cài qua trang SDK.
 1. **Xử lý define.** Vào Player Settings > Scripting Define Symbols, xóa `ADS` và `FIREBASE` ở mọi nền tảng, hoặc bấm một chế độ ở trang ADS (chế độ nào cũng tự bỏ `ADS`).
    - **Game không quảng cáo (No Ads cũ):** ở 0.3.x "không có define `ADS`" nghĩa là No Ads. Ở 0.4.0 "không có define" nghĩa là **Production**, và file cấu hình cũ có `providerId` là `admob`, nên game sẽ build ra AdMob. Hãy bấm **No Ads** (đặt `ADS_DISABLED`) hoặc đặt `providerId` là `none`.
    - **Build iOS hoặc nền tảng khác của game dùng AdMob:** nút No Ads chỉ ghi define cho Android, nên tự thêm `ADS_DISABLED` cho nền tảng đó nếu không muốn quảng cáo.
-2. **Xóa SDK cũ trong `Assets`:** `Assets/GoogleMobileAds`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, và nếu có thì `Assets/MaxSdk`, `Assets/AppsFlyer` (cả file `.meta`). Giữ lại `google-services.json` và `GoogleService-Info.plist`. Hub từ chối Setup của SDK nào còn thư mục cũ của nó (hoặc của SDK nó phụ thuộc).
+2. **Xóa SDK cũ trong `Assets`** (bản import `.unitypackage`): `Assets/GoogleMobileAds`, `Assets/Firebase`, `Assets/ExternalDependencyManager` (cùng `Assets/PlayServicesResolver`), và nếu có thì `Assets/MaxSdk`, `Assets/AppsFlyer` (cả file `.meta`). Giữ lại `google-services.json` và `GoogleService-Info.plist`. Hub nhận ra bản cũ qua dấu hiệu như `Assets/MaxSdk/Scripts`, `Assets/GoogleMobileAds/Editor`, `Assets/Firebase/Plugins` (danh sách đủ ở [mục SDK](#cách-dùng-trang-sdk)) và từ chối Setup của SDK đang cài khi chính nó hoặc SDK trong chuỗi phụ thuộc của nó còn bản cũ. File do gói UPM tạo sau này, như `Assets/MaxSdk/Resources/AppLovinSettings.asset`, không tính.
 3. **Cài SDK game cần:** mở **RIPPLE Game > Open Hub > SDK**, bấm **Setup** từng SDK (Google Mobile Ads, AppLovin MAX, Firebase Analytics, Firebase Remote Config, AppsFlyer). Đợi Unity compile xong.
 4. **Đặt `providerId`** trong `AdsConfiguration`: `none`, `admob` hoặc `max`. Cấu hình cũ giữ nguyên `admob`. Với `max`, điền hai mục Max Test và Max Production. Trang ADS phải báo `Compiled`.
 5. **Thêm `Ads.SetPolicyContext`** vào code game như [mục 6](#báo-trạng-thái-game-cho-ads).

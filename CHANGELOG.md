@@ -4,7 +4,7 @@
 
 - **Breaking:** the `ADS` and `FIREBASE` define symbols are gone. Code, the Hub and the build guard no longer read them. Remove them from Player Settings. `ADS_TEST` still selects the Test profile, and `ADS_DISABLED` is the No Ads profile. The Analytics page no longer has **Enable Firebase** or **Disable Firebase**.
 - **Breaking:** a game that was on 0.3.x without the `ADS` symbol (the old No Ads setup) now builds as Production with `providerId` `admob`, because old configuration assets carry `admob`. Apply the **No Ads** build profile in RIPPLE Game > Open Hub > ADS (it sets `ADS_DISABLED`) or set `providerId` to `none`. A non-Android build of an AdMob game also needs `ADS_DISABLED` for that platform, because the profile writes Android symbols only.
-- **Breaking:** AdMob and Firebase Analytics need their SDK installed from RIPPLE Game > Open Hub > SDK. Imports of `Assets/GoogleMobileAds`, `Assets/Firebase` and `Assets/ExternalDependencyManager` must be removed by hand, and the Hub refuses Setup while they exist.
+- **Breaking:** AdMob and Firebase Analytics need their SDK installed from RIPPLE Game > Open Hub > SDK. Old `.unitypackage` imports (`Assets/GoogleMobileAds`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, `Assets/MaxSdk`, `Assets/AppsFlyer`) must be removed by hand. The Hub recognises them by marker paths only an import creates (such as `Assets/GoogleMobileAds/Editor`, `Assets/MaxSdk/Scripts`, `Assets/Firebase/Plugins`) and refuses Setup for the SDK being installed while that SDK or one in its dependency chain still has them. Settings files the UPM packages create (`Assets/MaxSdk/Resources/AppLovinSettings.asset`, `Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset`) are not old copies.
 - **Breaking:** `IAdsService` has two new members, `ShowMrec(MrecPosition)` and `HideMrec()`. A custom provider must implement them.
 - **Breaking:** `AdRevenue` has a new `Platform` property (`admob` or `applovin_max`).
 - **Breaking:** `AdPlacement` has three new values: `Pause`, `Replay` and `RewardedFallback`.
@@ -14,7 +14,10 @@
 - **MREC** format on MAX: `Ads.ShowMrec(MrecPosition)` and `Ads.HideMrec()`.
 - **Show rules** in the core, shared by both providers: interstitial cooldown, cap per session, `minLevel`, `startSession` and per-placement switches; app open rules; organic switches; banner and MREC refresh; time and audio pause. Games feed level, entitlement and consent through `Ads.SetPolicyContext`. Old 0.3.1 cooldown values move into the new rules by themselves.
 - **Rewarded fallback:** with the option on, a rewarded request shows a ready interstitial when no rewarded ad is ready.
-- **Remote Config** module (`RippleGame.RemoteConfig`) with a Firebase backend: `RemoteConfig.Get<T>`, `GetJson<T>`, `IsReady`, `Activated`. The keys `ads_enabled`, `ads_policy` and `ads_unit_ids` control Ads. See [SDK setup](Documentation~/sdk/Setup.md).
+- **Remote Config** module (`RippleGame.RemoteConfig`) with a Firebase backend: `RemoteConfig.Get<T>`, `GetJson<T>`, `IsReady`, `Activated`. The keys `ads_enabled`, `ads_policy` and `ads_unit_ids` control Ads. Both providers read unit IDs and banner/MREC refresh when they initialize, after Remote Config; the last good `ads_policy` and `ads_unit_ids` are cached for the next session. AdMob ignores `refresh_seconds`. See [SDK setup](Documentation~/sdk/Setup.md).
+- Ad loads that fail keep retrying at `Retry Max Delay Seconds` after the backoff ramp, instead of stopping after `Retry Max Attempts`.
+- A game callback (`rewarded` or `completed`) that throws is logged and no longer skips the completion or the reload of the next ad.
+- MAX revenue callbacks with no revenue (MAX reports -1) no longer raise a 0-micros `Paid` event.
 - **Attribution** module (`RippleGame.Attribution`) with an AppsFlyer provider: `Attribution.Status` (`Unknown`, `Organic`, `NonOrganic`), ad revenue reporting and an Ads bridge that feeds the organic rules.
 - `ad_impression` keeps `ad_platform` `AdMob` for AdMob and uses `AppLovin` for MAX.
 - Newtonsoft Json (`com.unity.nuget.newtonsoft-json` 3.2.2) is now a package dependency.

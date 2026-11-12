@@ -27,12 +27,24 @@ Each SDK has one row with one of these states:
 | Not installed | Nothing in `Packages/manifest.json` | **Setup** |
 | Installed | The pinned version is installed | **Remove** |
 | Wrong version | Shows the installed reference and the expected version | **Fix** |
-| Old copy found in Assets | Shows the folders found, for example `Assets/MaxSdk`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, `Assets/AppsFlyer`, `Assets/GoogleMobileAds` | none |
+| Old copy found in Assets | An old `.unitypackage` import of this SDK is still in `Assets`. Shows the marker paths found (see below) | none |
 
 - **Setup** downloads the tarball into `Packages/RippleSdks/`, checks its SHA-256, writes `"<package>": "file:RippleSdks/<file>.tgz"` into `Packages/manifest.json`, and sets up missing dependencies in the same step (for example External Dependency Manager, and `com.unity.ugui` 2.0.0 for MAX). When a checksum is wrong the download is deleted and the manifest is not touched.
 - **Fix** brings a wrong version to the pinned one.
 - **Remove** takes the entry out of the manifest and deletes the tarball. It is refused while another installed SDK needs this one (remove that SDK first). Dependencies that Setup added, such as External Dependency Manager and `com.unity.ugui`, stay in the project.
-- The Hub never deletes old copies under `Assets`. **Remove those folders by hand**, then press Setup. The Hub refuses Setup of an SDK while its own old folders, or those of the SDKs it depends on, still exist. Old folders of unrelated SDKs do not block it.
+- The Hub never deletes old copies under `Assets`. **Delete the old plugin files by hand** (with their `.meta` files), then press Setup. Setup is refused for the SDK being installed when that SDK, or an SDK in its dependency chain (for example External Dependency Manager for MAX), still has an old import. Old imports of unrelated SDKs do not block it.
+
+An old import is recognised by marker paths that only a `.unitypackage` import creates. The UPM packages write some files under the same roots, and those are not old copies: `Assets/MaxSdk/Resources/AppLovinSettings.asset`, `Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset`, `Assets/GoogleMobileAds/link.xml` (written at build), `Assets/GeneratedLocalRepo`, `Assets/Plugins/Android`. A `google-services.json` kept in `Assets/Firebase` is not an old copy either.
+
+| SDK | Markers (any one of them means an old import) |
+| --- | --- |
+| External Dependency Manager | `Assets/ExternalDependencyManager/Editor` |
+| Firebase (every Firebase row) | `Assets/Firebase/Plugins`, `Assets/Firebase/Editor` |
+| Google Mobile Ads | `Assets/GoogleMobileAds/Editor`, `Assets/GoogleMobileAds/GoogleMobileAds.dll`, `Assets/GoogleMobileAds/Api`, `Assets/GoogleMobileAds/Platforms` |
+| AppLovin MAX | `Assets/MaxSdk/Scripts`, `Assets/MaxSdk/AppLovin` |
+| AppsFlyer | `Assets/AppsFlyer/Editor`, `Assets/AppsFlyer/Plugins`, `Assets/AppsFlyer/AppsFlyer.cs` |
+
+When a marker is found, delete that plugin's whole old import: for MAX everything under `Assets/MaxSdk` except `Resources/AppLovinSettings.asset`, for Google Mobile Ads everything under `Assets/GoogleMobileAds` except `Resources/GoogleMobileAdsSettings.asset`, and the `Assets/Firebase`, `Assets/ExternalDependencyManager` (and `Assets/PlayServicesResolver`) and `Assets/AppsFlyer` folders. Keep `google-services.json` and `GoogleService-Info.plist`.
 
 ## Guards against a wrong version
 
@@ -114,6 +126,7 @@ RemoteConfig.Activated += () => Debug.Log("New values are active.");
 
 - Integer fields (`max_per_session`, `min_level`, `start_session`) accept integer tokens only; `15.0` is skipped. Float fields (`cooldown_seconds`, `min_background_seconds`, `refresh_seconds`) accept an integer or a decimal. A field with the wrong type is skipped.
 - Placement names are the `AdPlacement` names in snake_case: `default`, `home`, `level_start`, `level_complete`, `retry`, `double_reward`, `extra_life`, `pause`, `replay`, `rewarded_fallback`.
+- `banner.refresh_seconds` and `mrec.refresh_seconds` apply to MAX only, and are read when MAX initializes. AdMob ignores them: the AdMob SDK refreshes its banner by itself.
 - The rules are fixed once per session, at the first ad decision. A policy that arrives later applies from the next session. The last good policy is cached on the device and applied at the start of the next session.
 - A missing or blank `ads_policy` keeps the cached override. To clear a cached override, publish `{}`.
 
@@ -123,7 +136,7 @@ RemoteConfig.Activated += () => Debug.Log("New values are active.");
 { "max": { "android": { "interstitial": "your-unit-id" } }, "admob": { "android": { "banner": "your-unit-id" } } }
 ```
 
-Empty strings are ignored. IDs are read when the provider initializes. Ads waits for Remote Config for at most the fetch timeout before initializing, so IDs that arrive later apply from the next session.
+Empty strings are ignored. Both providers read their IDs when they initialize. Ads waits for Remote Config for at most the fetch timeout before initializing, so fetched IDs (or the settings defaults, when the fetch fails or times out) are in place first. The last good `ads_unit_ids` is cached on the device and applied at the start of the next session, so IDs that arrive after the provider initialized apply from the next session. A missing or blank key, or a value that is not a JSON object, keeps the cache; publish `{}` to clear it.
 
 ## Attribution and AppsFlyer
 

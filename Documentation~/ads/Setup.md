@@ -1,7 +1,7 @@
 # Setup
 
 1. Install the combined `com.ripplegame.base` UPM package from its tagged Git URL.
-2. Open **RIPPLE Game > Open Hub > SDK** and press **Setup** on the SDK of the provider you want: **Google Mobile Ads** for AdMob, or **AppLovin MAX**. See [SDK setup](../sdk/Setup.md). Remove old copies under `Assets` first (`Assets/GoogleMobileAds`, `Assets/MaxSdk`, `Assets/Firebase`, `Assets/ExternalDependencyManager`).
+2. Open **RIPPLE Game > Open Hub > SDK** and press **Setup** on the SDK of the provider you want: **Google Mobile Ads** for AdMob, or **AppLovin MAX**. See [SDK setup](../sdk/Setup.md). If the SDK page shows **Old copy found in Assets** (an old `.unitypackage` import, for example `Assets/GoogleMobileAds/Editor` or `Assets/MaxSdk/Scripts`), delete that plugin's old files first, as [SDK setup](../sdk/Setup.md#the-sdk-page) describes.
 3. For AdMob, open **Assets > Google Mobile Ads > Settings** once, so the plugin creates its settings asset.
 4. Open **RIPPLE Game > Open Hub > ADS** and press **Create Configuration**.
 5. In the configuration, set `providerId` to `admob` or `max` (a new configuration starts at `none`, which shows no ads). The ADS page shows whether that provider's SDK is compiled.
@@ -32,7 +32,9 @@ The rules live in the `Policy` block of `AdsConfiguration` and apply to both pro
 | App open | on, 20 second cooldown, 5 seconds in the background |
 | Rewarded fallback | off |
 | Organic users see banner, MREC, interstitial, app open | all on |
-| Banner and MREC refresh | 0 (the network refreshes) |
+| Banner and MREC refresh | 0 (the network refreshes). MAX only: AdMob ignores it and its SDK refreshes the banner |
 | Pause time and audio during full-screen ads | on |
+
+A format that fails to load is retried: the first `Retry Max Attempts` retries back off exponentially from `Retry Initial Delay Seconds`, then a retry runs every `Retry Max Delay Seconds` until a load succeeds. Coming back online reloads missing formats at once. Unit IDs and the refresh values are read when the provider initializes, after Remote Config (see [SDK setup](../sdk/Setup.md#ad-keys)).
 
 Rewarded fallback shows a ready interstitial, and grants the reward when it closes, if no rewarded ad is ready. Placements are `Default`, `Home`, `LevelStart`, `LevelComplete`, `Retry`, `DoubleReward`, `ExtraLife`, `Pause`, `Replay` and `RewardedFallback`. MREC (`Ads.ShowMrec`, `Ads.HideMrec`) works with MAX.

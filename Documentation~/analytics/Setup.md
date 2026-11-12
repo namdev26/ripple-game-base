@@ -15,7 +15,7 @@ Tới đây game đã chạy được: event chỉ in ra Console, chưa gửi l�
 
 Mở **RIPPLE Game > Open Hub > SDK** và bấm **Setup** ở dòng **Firebase Analytics**. Hub tự tải đúng bản Firebase mà package đã ghim (13.1.0), kiểm tra SHA-256, thêm vào `Packages/manifest.json` và cài luôn Firebase App cùng External Dependency Manager. Không import `.unitypackage` vào `Assets`.
 
-- Nếu project còn thư mục cũ `Assets/Firebase` hoặc `Assets/ExternalDependencyManager`, Hub từ chối Setup. Xóa các thư mục đó bằng tay (cả file `.meta`), rồi bấm Setup lại.
+- Nếu project còn bản import `.unitypackage` cũ của Firebase hoặc External Dependency Manager (Hub nhận ra qua `Assets/Firebase/Plugins`, `Assets/Firebase/Editor` hoặc `Assets/ExternalDependencyManager/Editor`), Hub từ chối Setup. Xóa bằng tay thư mục `Assets/Firebase` và `Assets/ExternalDependencyManager` (cả file `.meta`, giữ lại `google-services.json`), rồi bấm Setup lại.
 - Không còn define `FIREBASE` và không còn nút **Enable Firebase** hay **Disable Firebase**. Cài đúng bản SDK là Firebase tự bật, gỡ SDK (nút **Remove**) là quay lại chế độ chỉ log Console. Trang **Analytics** hiện `Backend: Firebase` hoặc `Console only` để bạn kiểm tra.
 - Cài sai bản thì phần code Firebase không compile và build bị chặn. Bấm **Fix** ở dòng SDK.
 
