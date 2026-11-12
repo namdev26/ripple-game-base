@@ -68,7 +68,9 @@ namespace RippleGame.Ads
         private IEnumerator RouteWhenSceneIsReady(Scene scene, int routeVersion)
         {
             var sceneName = scene.name;
-            if (_configuration == null || !_configuration.ShouldShowBannerInScene(sceneName, scene.buildIndex))
+            // Unity's null check: _configuration is a ScriptableObject.
+            var position = _configuration != null ? _configuration.GetActiveBannerPosition() : null;
+            if (position == null || !_configuration.ShouldShowBannerInScene(sceneName, scene.buildIndex))
             {
                 Log($"Hiding banner in scene '{sceneName}'.");
                 Ads.HideBanner();
@@ -90,7 +92,7 @@ namespace RippleGame.Ads
             }
 
             Log($"Showing persistent banner in scene '{sceneName}'.");
-            Ads.ShowBanner(_configuration.GetActiveProfile().BannerPosition);
+            Ads.ShowBanner(position.Value);
             _routeCoroutine = null;
         }
 

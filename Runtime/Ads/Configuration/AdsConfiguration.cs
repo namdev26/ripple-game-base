@@ -46,6 +46,22 @@ namespace RippleGame.Ads
             return ResolveCompileTimeEnvironment() == AdsEnvironment.Test ? maxTest : maxProduction;
         }
 
+        /// <summary>
+        /// Banner position from the selected provider's active profile: MAX uses its own profile, "none" has no
+        /// banner (null) and every other provider uses the AdMob profile.
+        /// </summary>
+        public BannerPosition? GetActiveBannerPosition()
+        {
+            if (string.IsNullOrWhiteSpace(providerId) || string.Equals(providerId, "none", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return string.Equals(providerId, "max", StringComparison.OrdinalIgnoreCase)
+                ? GetActiveMaxProfile().BannerPosition
+                : GetActiveProfile().BannerPosition;
+        }
+
         private void OnEnable()
         {
             // A freshly created asset has nothing to migrate. Loaded assets already went through

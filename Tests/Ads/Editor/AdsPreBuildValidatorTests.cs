@@ -8,7 +8,8 @@ namespace RippleGame.Ads.Editor.Tests
     public sealed class AdsPreBuildValidatorTests
     {
         private const string SetupMessage =
-            "Ads provider '{0}' is selected but its SDK is not installed at the pinned version. Open RIPPLE Game > Open Hub > SDK and press Setup or Fix.";
+            "Ads provider '{0}' is selected but its SDK is not installed at the pinned version. Open RIPPLE Game > Open Hub > SDK and press Setup or Fix. " +
+            "If this game should not show ads, apply the No Ads build profile or set providerId to none.";
 
         private AdsConfiguration _configuration;
 

@@ -48,7 +48,8 @@ namespace RippleGame.Ads.Editor
             if (!providerCompiled(typeName))
             {
                 return $"Ads provider '{providerId}' is selected but its SDK is not installed at the pinned version. " +
-                       "Open RIPPLE Game > Open Hub > SDK and press Setup or Fix.";
+                       "Open RIPPLE Game > Open Hub > SDK and press Setup or Fix. " +
+                       "If this game should not show ads, apply the No Ads build profile or set providerId to none.";
             }
 
             if (typeName == AdMobTypeName && target != BuildTarget.Android)
