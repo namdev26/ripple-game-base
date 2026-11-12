@@ -14,6 +14,8 @@ namespace RippleGame.Ads
         public void ShowBanner(BannerPosition position) => RaiseDisabled(AdFormat.Banner, AdPlacement.Default);
         public void HideBanner() { }
         public void DestroyBanner() { }
+        public void ShowMrec(MrecPosition position) => RaiseDisabled(AdFormat.Mrec, AdPlacement.Default);
+        public void HideMrec() { }
 
         public void ShowInterstitial(AdPlacement placement, Action<AdsResult> completed = null)
         {

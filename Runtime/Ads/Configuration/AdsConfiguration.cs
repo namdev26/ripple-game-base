@@ -4,19 +4,26 @@ using UnityEngine;
 namespace RippleGame.Ads
 {
     [CreateAssetMenu(fileName = "AdsConfiguration", menuName = "RIPPLE Game/ADS/Ads Configuration")]
-    public sealed class AdsConfiguration : ScriptableObject
+    public sealed class AdsConfiguration : ScriptableObject, ISerializationCallbackReceiver
     {
-        [SerializeField] private string providerId = "admob";
+        [SerializeField] private string providerId = "none";
         [SerializeField] private bool enableLogging = true;
         [Tooltip("Banner is shown in all build scenes except these scene names.")]
         [SerializeField] private string[] bannerExcludedSceneNames = { "Loading", "LoadingScene" };
         [SerializeField] private AdMobAdUnitConfiguration test = AdMobAdUnitConfiguration.CreateAndroidTest();
         [SerializeField] private AdMobAdUnitConfiguration production = new AdMobAdUnitConfiguration();
+        [SerializeField] private AdsPolicySettings policy = new AdsPolicySettings();
+        [SerializeField] private MaxAdUnitConfiguration maxTest = new MaxAdUnitConfiguration();
+        [SerializeField] private MaxAdUnitConfiguration maxProduction = new MaxAdUnitConfiguration();
+        [HideInInspector] [SerializeField] private bool policyMigrated;
 
         public string ProviderId => providerId;
         public bool EnableLogging => enableLogging;
         public AdMobAdUnitConfiguration Test => test;
         public AdMobAdUnitConfiguration Production => production;
+        public AdsPolicySettings Policy => policy;
+        public MaxAdUnitConfiguration MaxTest => maxTest;
+        public MaxAdUnitConfiguration MaxProduction => maxProduction;
 
         public static AdsEnvironment ResolveCompileTimeEnvironment()
         {
@@ -34,6 +41,40 @@ namespace RippleGame.Ads
         public AdMobAdUnitConfiguration GetActiveProfile()
         {
             return ResolveCompileTimeEnvironment() == AdsEnvironment.Test ? test : production;
+        }
+
+        public MaxAdUnitConfiguration GetActiveMaxProfile()
+        {
+            return ResolveCompileTimeEnvironment() == AdsEnvironment.Test ? maxTest : maxProduction;
+        }
+
+        private void OnEnable()
+        {
+            // A freshly created asset has nothing to migrate. Loaded assets already went through
+            // OnAfterDeserialize, so this only flips the flag for new instances.
+            policyMigrated = true;
+        }
+
+        public void OnBeforeSerialize() { }
+
+        public void OnAfterDeserialize()
+        {
+            if (policyMigrated)
+            {
+                return;
+            }
+
+            // 0.3.1 kept the presentation cooldowns on the Production AdMob profile.
+            if (policy == null) policy = new AdsPolicySettings();
+            if (production != null)
+            {
+                policy.Interstitial.CooldownSeconds = production.InterstitialCooldownSeconds;
+                policy.Interstitial.MaxPerSession = production.InterstitialMaxImpressionsPerSession;
+                policy.AppOpen.CooldownSeconds = production.AppOpenCooldownSeconds;
+                policy.AppOpen.MinBackgroundSeconds = production.AppOpenMinimumBackgroundSeconds;
+            }
+
+            policyMigrated = true;
         }
 
         public bool ShouldShowBannerInScene(string sceneName, int buildIndex)
@@ -74,18 +115,17 @@ namespace RippleGame.Ads
         [SerializeField] private bool enableAppOpen = true;
         [SerializeField] private BannerPosition bannerPosition = BannerPosition.Bottom;
 
+        [Min(0f)] [HideInInspector] [SerializeField] private float appOpenCooldownSeconds = 20f;
+        [Min(0f)] [HideInInspector] [SerializeField] private float appOpenMinimumBackgroundSeconds = 5f;
         [Header("Loading")]
-        [Min(0f)] [SerializeField] private float appOpenCooldownSeconds = 20f;
-        [Min(0f)] [SerializeField] private float appOpenMinimumBackgroundSeconds = 5f;
         [Min(0)] [SerializeField] private int retryMaxAttempts = 3;
         [Min(0.1f)] [SerializeField] private float retryInitialDelaySeconds = 2f;
         [Min(0.1f)] [SerializeField] private float retryMaxDelaySeconds = 30f;
 
-        [Header("Presentation")]
-        [Tooltip("Minimum elapsed real time between two interstitial impressions.")]
-        [Min(0f)] [SerializeField] private float interstitialCooldownSeconds = 45f;
-        [Tooltip("Maximum interstitial impressions in one app session. Set 0 for no cap.")]
-        [Min(0)] [SerializeField] private int interstitialMaxImpressionsPerSession = 4;
+        // Legacy 0.3.1 presentation fields, superseded by AdsConfiguration.Policy. Kept serialized so
+        // existing assets still deserialize and migrate.
+        [Min(0f)] [HideInInspector] [SerializeField] private float interstitialCooldownSeconds = 45f;
+        [Min(0)] [HideInInspector] [SerializeField] private int interstitialMaxImpressionsPerSession = 4;
 
         // Google demo IDs: https://developers.google.com/admob/unity/test-ads
         public static AdMobAdUnitConfiguration CreateAndroidTest()

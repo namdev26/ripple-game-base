@@ -21,6 +21,7 @@ namespace RippleGame.Ads
         private Task<AdsResult> _initializationTask;
         private bool _initialized;
         private bool _fullScreenShowing;
+        private bool _mrecUnsupportedLogged;
         private bool _appWasBackgrounded;
         private float _appBackgroundedAt;
         private float _lastAppOpenShowTime = float.NegativeInfinity;
@@ -94,6 +95,7 @@ namespace RippleGame.Ads
                 AdFormat.Interstitial => _interstitial != null && _interstitial.IsReady,
                 AdFormat.Rewarded => _rewarded != null && _rewarded.IsReady,
                 AdFormat.AppOpen => _appOpen != null && _appOpen.IsReady,
+                AdFormat.Mrec => false,
                 _ => _banner != null
             };
         }
@@ -111,6 +113,19 @@ namespace RippleGame.Ads
 
         public void HideBanner() => _banner?.Hide();
         public void DestroyBanner() => _banner?.Destroy();
+
+        public void ShowMrec(MrecPosition position)
+        {
+            if (!_mrecUnsupportedLogged)
+            {
+                _mrecUnsupportedLogged = true;
+                Debug.LogWarning("[RippleGame Ads] MREC is not supported by the AdMob provider in 0.4.0.");
+            }
+
+            Raise(AdsEventType.ShowFailed, AdFormat.Mrec, message: "MREC is not supported by the AdMob provider.");
+        }
+
+        public void HideMrec() { }
 
         public void ShowInterstitial(AdPlacement placement, Action<AdsResult> completed = null)
         {

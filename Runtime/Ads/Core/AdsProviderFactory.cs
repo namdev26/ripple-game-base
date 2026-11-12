@@ -42,6 +42,11 @@ namespace RippleGame.Ads
                 return registeredService;
             }
 
+            if (string.Equals(configuration.ProviderId, "none", StringComparison.OrdinalIgnoreCase))
+            {
+                return new NoAdsService();
+            }
+
 #if ADS
             if (string.Equals(configuration.ProviderId, "admob", StringComparison.OrdinalIgnoreCase))
             {
