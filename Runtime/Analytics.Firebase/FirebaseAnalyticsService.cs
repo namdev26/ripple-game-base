@@ -1,8 +1,7 @@
-#if FIREBASE && !UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using Firebase;
 using Firebase.Extensions;
+using RippleGame.Firebase;
 using UnityEngine;
 using FirebaseSdk = Firebase.Analytics.FirebaseAnalytics;
 using FirebaseParameter = Firebase.Analytics.Parameter;
@@ -16,14 +15,17 @@ namespace RippleGame.Analytics
 
         private FirebaseAnalyticsService(bool logToConsole) => _logToConsole = logToConsole;
 
+        /// <summary>Registers this service as the analytics backend. The Editor ignores it and keeps the Console service.</summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
+        private static void Register() => AnalyticsBootstrap.RegisterBackend(Initialize);
+
         internal static void Initialize(AnalyticsSettings settings)
         {
-            FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+            FirebaseBootstrap.EnsureReadyAsync().ContinueWithOnMainThread(task =>
             {
-                var status = task.IsFaulted || task.IsCanceled ? DependencyStatus.UnavailableOther : task.Result;
-                if (status != DependencyStatus.Available)
+                // FirebaseBootstrap already logged why Firebase is unavailable.
+                if (task.IsFaulted || task.IsCanceled || !task.Result)
                 {
-                    Debug.LogError(Analytics.LogPrefix + "Firebase unavailable: " + (task.Exception?.GetBaseException().Message ?? status.ToString()));
                     Analytics.SetService(new DebugAnalyticsService(settings.EnableConsoleLog));
                     return;
                 }
@@ -70,4 +72,3 @@ namespace RippleGame.Analytics
         public void SetCollectionEnabled(bool enabled) => FirebaseSdk.SetAnalyticsCollectionEnabled(enabled);
     }
 }
-#endif

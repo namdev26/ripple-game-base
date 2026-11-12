@@ -1,0 +1,31 @@
+{
+  "name": "RippleGame.Analytics.Firebase",
+  "rootNamespace": "RippleGame.Analytics",
+  "references": [
+    "RippleGame.Analytics.Runtime",
+    "RippleGame.Firebase"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_SDK_FIREBASE_ANALYTICS",
+    "RIPPLEGAME_SDK_FIREBASE_APP"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.google.firebase.analytics",
+      "expression": "[13.1.0]",
+      "define": "RIPPLEGAME_SDK_FIREBASE_ANALYTICS"
+    },
+    {
+      "name": "com.google.firebase.app",
+      "expression": "[13.1.0]",
+      "define": "RIPPLEGAME_SDK_FIREBASE_APP"
+    }
+  ],
+  "noEngineReferences": false
+}

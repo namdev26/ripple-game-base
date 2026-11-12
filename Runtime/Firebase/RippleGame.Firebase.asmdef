@@ -1,0 +1,22 @@
+{
+  "name": "RippleGame.Firebase",
+  "rootNamespace": "RippleGame.Firebase",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_SDK_FIREBASE_APP"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.google.firebase.app",
+      "expression": "[13.1.0]",
+      "define": "RIPPLEGAME_SDK_FIREBASE_APP"
+    }
+  ],
+  "noEngineReferences": false
+}

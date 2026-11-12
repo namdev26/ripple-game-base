@@ -25,7 +25,7 @@ internal static class ToolHubCatalog
         new ToolHubSection("build", "Android Build", "Version, identity, icons, signing and Android settings.", "BuildSettings.Android"),
         new ToolHubSection("textures", "Textures", "Resize image canvases and optimize Android texture imports.", "Texture Icon"),
         new ToolHubSection("ads", "ADS", "Edit ad configuration, scene setup and Android build profiles.", "SettingsIcon"),
-        new ToolHubSection("analytics", "Analytics", "Edit event collection settings and enable Firebase integration.", "Profiler.NetworkMessages"),
+        new ToolHubSection("analytics", "Analytics", "Edit event collection settings and see which analytics backend is active.", "Profiler.NetworkMessages"),
         new ToolHubSection("save", "Save", "Create the game's save key and inspect encrypted save files.", "SaveAs"),
         new ToolHubSection("localization", "Localization", "Sync the game's translations from a Google Sheet.", "FilterByLabel"),
         new ToolHubSection("reports", "Build Reports", "Inspect the latest build result, size, duration and output.", "UnityEditor.ConsoleWindow"),

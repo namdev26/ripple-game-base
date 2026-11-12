@@ -43,8 +43,6 @@ namespace RippleGame.Base.Tests
         [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "ConfigureAdsProduction")]
         [TestCase("RippleGame.Ads.Editor.AdsConfigurationAssetMenu", "Create")]
         [TestCase("RippleGame.Ads.Editor.AdsSceneInstaller", "AddAdsObjectToActiveScene")]
-        [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "EnableFirebase")]
-        [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "DisableFirebase")]
         [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "CreateSettings")]
         public void HubCommand_FindsItsMethod(string typeName, string methodName)
         {
