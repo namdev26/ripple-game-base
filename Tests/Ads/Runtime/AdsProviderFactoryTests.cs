@@ -15,13 +15,31 @@ namespace RippleGame.Ads.Tests
         private AdsConfiguration _configuration;
 
         [SetUp]
-        public void SetUp() => Ads.ResetForTests();
+        public void SetUp()
+        {
+            Ads.ResetForTests();
+            AdsProviderRegistry.ClearForTests();
+        }
 
         [TearDown]
         public void TearDown()
         {
             Ads.ResetForTests();
             if (_configuration != null) Object.DestroyImmediate(_configuration);
+        }
+
+        [Test]
+        public void Registry_ReportsRegisteredProviders_UntilCleared()
+        {
+            Assert.That(AdsProviderRegistry.IsRegistered(FakeProviderId), Is.False);
+
+            AdsProviderRegistry.Register(new FakeFactory(new FakeAdsService()));
+            Assert.That(AdsProviderRegistry.IsRegistered(FakeProviderId), Is.True);
+            Assert.That(AdsProviderRegistry.IsRegistered(FakeProviderId.ToUpperInvariant()), Is.True);
+
+            AdsProviderRegistry.ClearForTests();
+            Assert.That(AdsProviderRegistry.IsRegistered(FakeProviderId), Is.False);
+            Assert.That(AdsProviderRegistry.IsRegistered(null), Is.False);
         }
 
         [Test]

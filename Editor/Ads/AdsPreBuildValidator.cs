@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using RippleGame.Sdk.Editor;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 
 namespace RippleGame.Ads.Editor
 {
@@ -15,34 +18,25 @@ namespace RippleGame.Ads.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            var defines = AdsBuildProfileUtility.Parse(PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android));
-            var adsEnabled = defines.Contains("ADS");
-            var testEnabled = defines.Contains("ADS_TEST");
+            var target = NamedBuildTarget.FromBuildTargetGroup(report.summary.platformGroup);
+            var defines = AdsBuildProfileUtility.Parse(PlayerSettings.GetScriptingDefineSymbols(target));
+            var environment = AdsBuildProfileUtility.ResolveEnvironment(defines);
+            var configuration = AdsConfigurationLocator.Find();
 
-            if (testEnabled && !adsEnabled)
+            var error = GetBuildError(
+                configuration,
+                environment,
+                report.summary.platform,
+                ProviderBuildCheck.IsCompiled,
+                SdkStatusOf);
+            if (error != null)
             {
-                throw new BuildFailedException("ADS_TEST requires ADS.");
+                throw new BuildFailedException(error);
             }
 
-            if (!adsEnabled)
+            if (environment == AdsEnvironment.Disabled || configuration == null || IsNone(configuration.ProviderId))
             {
                 return;
-            }
-
-            if (report.summary.platform != BuildTarget.Android)
-            {
-                throw new BuildFailedException("RippleGame Ads currently supports ADS builds only for Android.");
-            }
-
-            if (!AdMobSettingsSynchronizer.IsGoogleMobileAdsInstalled())
-            {
-                throw new BuildFailedException("ADS is enabled but the official Google Mobile Ads Unity plugin is not installed.");
-            }
-
-            var configuration = FindConfiguration();
-            if (configuration == null)
-            {
-                throw new BuildFailedException("ADS is enabled but Assets/Settings/RippleGameAds/AdsConfiguration.asset is missing. Use Create Configuration in RIPPLE Game > Open Hub > ADS.");
             }
 
             var runtimeReference = AssetDatabase.LoadAssetAtPath<AdsConfigurationReference>("Assets/Resources/RippleGameAds/AdsConfigurationReference.asset");
@@ -50,26 +44,72 @@ namespace RippleGame.Ads.Editor
             {
                 throw new BuildFailedException("The AdsConfiguration runtime reference is missing or out of date. Use Create Configuration in RIPPLE Game > Open Hub > ADS again.");
             }
-
-            var active = testEnabled ? configuration.Test : configuration.Production;
-            ValidateProfile(active, testEnabled ? "Test" : "Production");
-            if (testEnabled)
-            {
-                ValidateTestProfile(configuration.Test, configuration.Production);
-            }
-            else
-            {
-                ValidateProductionProfile(configuration.Production);
-            }
-
-            AdMobSettingsSynchronizer.SynchronizeAndroidAppId(active.AndroidAppId);
         }
 
-        internal static void ValidateProfile(AdMobAdUnitConfiguration profile, string profileName)
+        /// <summary>
+        /// Returns null when the build can proceed, or the first error. A NoAds build, a project without an
+        /// AdsConfiguration and the "none" provider all skip every provider check.
+        /// </summary>
+        internal static string GetBuildError(
+            AdsConfiguration configuration,
+            AdsEnvironment environment,
+            BuildTarget target,
+            Func<string, bool> providerCompiled,
+            Func<string, SdkStatusInfo> sdkStatus)
+        {
+            if (environment == AdsEnvironment.Disabled || configuration == null)
+            {
+                return null;
+            }
+
+            var providerId = configuration.ProviderId;
+            var providerError = ProviderBuildCheck.Validate(providerId, providerCompiled, sdkStatus, target);
+            if (providerError != null || IsNone(providerId))
+            {
+                return providerError;
+            }
+
+            if (string.Equals(providerId, "admob", StringComparison.OrdinalIgnoreCase))
+            {
+                return ValidateAdMob(configuration, environment);
+            }
+
+            if (string.Equals(providerId, "max", StringComparison.OrdinalIgnoreCase))
+            {
+                return ValidateMax(configuration, environment, target);
+            }
+
+            return null;
+        }
+
+        internal static string ValidateAdMob(AdsConfiguration configuration, AdsEnvironment environment)
+        {
+            var testing = environment == AdsEnvironment.Test;
+            var profileName = testing ? "Test" : "Production";
+            var error = ValidateAdMobProfile(testing ? configuration.Test : configuration.Production, profileName);
+            if (error != null)
+            {
+                return error;
+            }
+
+            if (testing)
+            {
+                var production = new HashSet<string>(AllIds(configuration.Production).Where(id => !string.IsNullOrWhiteSpace(id)));
+                return AllIds(configuration.Test).Any(id => !string.IsNullOrWhiteSpace(id) && production.Contains(id))
+                    ? "Test AdsConfiguration reuses an ID from Production. Use Google demo/test IDs instead."
+                    : null;
+            }
+
+            return AllIds(configuration.Production).Any(id => id.Contains(GoogleDemoPublisherId, StringComparison.Ordinal))
+                ? "Production AdsConfiguration contains a Google demo ID."
+                : null;
+        }
+
+        internal static string ValidateAdMobProfile(AdMobAdUnitConfiguration profile, string profileName)
         {
             if (profile == null)
             {
-                throw new BuildFailedException($"{profileName} profile is missing.");
+                return $"{profileName} profile is missing.";
             }
 
             var required = new List<(string Name, string Value)> { ("Android App ID", profile.AndroidAppId) };
@@ -79,52 +119,69 @@ namespace RippleGame.Ads.Editor
             if (profile.EnableAppOpen) required.Add(("App Open unit ID", profile.AppOpenUnitId));
 
             var missing = required.Where(item => string.IsNullOrWhiteSpace(item.Value)).Select(item => item.Name).ToArray();
-            if (missing.Length > 0)
-            {
-                throw new BuildFailedException($"{profileName} AdsConfiguration is missing: {string.Join(", ", missing)}.");
-            }
+            return missing.Length > 0
+                ? $"{profileName} AdsConfiguration is missing: {string.Join(", ", missing)}."
+                : null;
         }
 
-        private static void ValidateProductionProfile(AdMobAdUnitConfiguration profile)
+        /// <summary>The Production MAX profile must have an SDK key and a unit ID for every enabled format on the target platform.</summary>
+        internal static string ValidateMax(AdsConfiguration configuration, AdsEnvironment environment, BuildTarget target)
         {
-            if (AllIds(profile).Any(id => id.Contains(GoogleDemoPublisherId, StringComparison.Ordinal)))
+            if (environment != AdsEnvironment.Production)
             {
-                throw new BuildFailedException("Production AdsConfiguration contains a Google demo ID.");
+                return null;
             }
+
+            var profile = configuration.MaxProduction;
+            if (profile == null)
+            {
+                return "Production profile is missing.";
+            }
+
+            var ids = target == BuildTarget.iOS ? profile.Ios : profile.Android;
+            ids = ids ?? new MaxPlatformUnitIds();
+            var required = new List<(string Name, string Value)> { ("MAX SDK key", profile.SdkKey) };
+            if (profile.EnableBanner) required.Add(("Banner unit ID", ids.Banner));
+            if (profile.EnableInterstitial) required.Add(("Interstitial unit ID", ids.Interstitial));
+            if (profile.EnableRewarded) required.Add(("Rewarded unit ID", ids.Rewarded));
+            if (profile.EnableAppOpen) required.Add(("App Open unit ID", ids.AppOpen));
+            if (profile.EnableMrec) required.Add(("MREC unit ID", ids.Mrec));
+
+            var missing = required.Where(item => string.IsNullOrWhiteSpace(item.Value)).Select(item => item.Name).ToArray();
+            return missing.Length > 0
+                ? $"Production AdsConfiguration (MAX) is missing: {string.Join(", ", missing)}."
+                : null;
         }
 
-        private static void ValidateTestProfile(AdMobAdUnitConfiguration test, AdMobAdUnitConfiguration production)
+        private static bool IsNone(string providerId)
         {
-            if (AllIds(test).Intersect(AllIds(production)).Any())
-            {
-                throw new BuildFailedException("Test AdsConfiguration reuses an ID from Production. Use Google demo/test IDs instead.");
-            }
+            return string.IsNullOrWhiteSpace(providerId) || string.Equals(providerId, "none", StringComparison.OrdinalIgnoreCase);
         }
 
         private static IEnumerable<string> AllIds(AdMobAdUnitConfiguration profile)
         {
-            yield return profile.AndroidAppId;
-            yield return profile.BannerUnitId;
-            yield return profile.InterstitialUnitId;
-            yield return profile.RewardedUnitId;
-            yield return profile.AppOpenUnitId;
+            yield return profile.AndroidAppId ?? string.Empty;
+            yield return profile.BannerUnitId ?? string.Empty;
+            yield return profile.InterstitialUnitId ?? string.Empty;
+            yield return profile.RewardedUnitId ?? string.Empty;
+            yield return profile.AppOpenUnitId ?? string.Empty;
         }
 
-        private static AdsConfiguration FindConfiguration()
+        private static SdkStatusInfo SdkStatusOf(string sdkId)
         {
-            const string canonicalPath = "Assets/Settings/RippleGameAds/AdsConfiguration.asset";
-            var canonical = AssetDatabase.LoadAssetAtPath<AdsConfiguration>(canonicalPath);
-            if (canonical != null)
+            try
             {
-                return canonical;
+                var entry = SdkCatalog.LoadDefault().Find(sdkId);
+                var projectRoot = Directory.GetParent(Application.dataPath).FullName;
+                var manifestPath = Path.Combine(projectRoot, "Packages", "manifest.json");
+                return entry == null || !File.Exists(manifestPath)
+                    ? null
+                    : SdkStatusResolver.Resolve(entry, File.ReadAllText(manifestPath), projectRoot);
             }
-
-            var matches = AssetDatabase.FindAssets("t:AdsConfiguration")
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .Select(AssetDatabase.LoadAssetAtPath<AdsConfiguration>)
-                .Where(config => config != null)
-                .ToArray();
-            return matches.Length == 1 ? matches[0] : null;
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

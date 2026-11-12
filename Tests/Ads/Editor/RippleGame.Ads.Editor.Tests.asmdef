@@ -3,7 +3,8 @@
   "rootNamespace": "RippleGame.Ads.Editor.Tests",
   "references": [
     "RippleGame.Ads.Runtime",
-    "RippleGame.Ads.Editor"
+    "RippleGame.Ads.Editor",
+    "RippleGame.Sdk.Editor"
   ],
   "includePlatforms": [
     "Editor"

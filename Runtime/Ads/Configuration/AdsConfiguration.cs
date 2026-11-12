@@ -27,14 +27,12 @@ namespace RippleGame.Ads
 
         public static AdsEnvironment ResolveCompileTimeEnvironment()
         {
-#if ADS
-    #if ADS_TEST
-            return AdsEnvironment.Test;
-    #else
-            return AdsEnvironment.Production;
-    #endif
-#else
+#if ADS_DISABLED
             return AdsEnvironment.Disabled;
+#elif ADS_TEST
+            return AdsEnvironment.Test;
+#else
+            return AdsEnvironment.Production;
 #endif
         }
 

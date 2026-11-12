@@ -17,6 +17,8 @@ namespace RippleGame.Ads.Editor
 
     internal static class AdsBuildProfileUtility
     {
+        internal const string DisabledSymbol = "ADS_DISABLED";
+        internal const string TestSymbol = "ADS_TEST";
         private const string PendingBuildProfileKey = "RippleGameAds.PendingAndroidBuildProfile";
 
         [InitializeOnLoadMethod]
@@ -39,28 +41,39 @@ namespace RippleGame.Ads.Editor
 
         internal static void ApplyProfile(AndroidAdsBuildProfile profile)
         {
-            if (profile != AndroidAdsBuildProfile.NoAds && !AdMobSettingsSynchronizer.IsGoogleMobileAdsInstalled())
-            {
-                throw new InvalidOperationException(
-                    "Install the official Google Mobile Ads Unity plugin before enabling ADS. No symbols were changed.");
-            }
-
-            var symbols = Parse(PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android));
-            symbols.Remove("ADS");
-            symbols.Remove("ADS_TEST");
-
-            if (profile != AndroidAdsBuildProfile.NoAds)
-            {
-                symbols.Add("ADS");
-            }
-
-            if (profile == AndroidAdsBuildProfile.AdsTest)
-            {
-                symbols.Add("ADS_TEST");
-            }
-
-            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Android, string.Join(";", symbols.OrderBy(symbol => symbol, StringComparer.Ordinal)));
+            var current = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android);
+            PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Android, ApplyProfile(current, profile));
             Debug.Log($"[RippleGame Ads] Android symbols configured for {profile}.");
+        }
+
+        /// <summary>
+        /// Returns <paramref name="defineSymbols"/> with the profile applied. The legacy <c>ADS</c> symbol is always
+        /// removed; NoAds adds <c>ADS_DISABLED</c>, AdsTest adds <c>ADS_TEST</c> and AdsProduction adds neither.
+        /// </summary>
+        internal static string ApplyProfile(string defineSymbols, AndroidAdsBuildProfile profile)
+        {
+            var symbols = Parse(defineSymbols ?? string.Empty);
+            symbols.Remove("ADS");
+            symbols.Remove(DisabledSymbol);
+            symbols.Remove(TestSymbol);
+
+            if (profile == AndroidAdsBuildProfile.NoAds)
+            {
+                symbols.Add(DisabledSymbol);
+            }
+            else if (profile == AndroidAdsBuildProfile.AdsTest)
+            {
+                symbols.Add(TestSymbol);
+            }
+
+            return string.Join(";", symbols.OrderBy(symbol => symbol, StringComparer.Ordinal));
+        }
+
+        /// <summary>Mirrors <see cref="AdsConfiguration.ResolveCompileTimeEnvironment"/> for an arbitrary symbol set.</summary>
+        internal static AdsEnvironment ResolveEnvironment(ISet<string> symbols)
+        {
+            if (symbols.Contains(DisabledSymbol)) return AdsEnvironment.Disabled;
+            return symbols.Contains(TestSymbol) ? AdsEnvironment.Test : AdsEnvironment.Production;
         }
 
         private static void Build(AndroidAdsBuildProfile profile)

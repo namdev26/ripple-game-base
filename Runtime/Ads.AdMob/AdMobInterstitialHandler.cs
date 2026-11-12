@@ -1,8 +1,7 @@
-#if ADS
 using System;
 using GoogleMobileAds.Api;
 
-namespace RippleGame.Ads
+namespace RippleGame.Ads.AdMob
 {
     internal sealed class AdMobInterstitialHandler : IDisposable
     {
@@ -70,4 +69,3 @@ namespace RippleGame.Ads
         }
     }
 }
-#endif

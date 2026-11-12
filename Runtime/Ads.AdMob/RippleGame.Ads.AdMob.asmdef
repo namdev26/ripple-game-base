@@ -1,0 +1,24 @@
+{
+  "name": "RippleGame.Ads.AdMob",
+  "rootNamespace": "RippleGame.Ads.AdMob",
+  "references": [
+    "RippleGame.Ads.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_SDK_ADMOB"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.google.ads.mobile",
+      "expression": "[11.0.0]",
+      "define": "RIPPLEGAME_SDK_ADMOB"
+    }
+  ],
+  "noEngineReferences": false
+}

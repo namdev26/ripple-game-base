@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RippleGame.Ads
 {
-    /// <summary>Safe fallback used whenever the ADS symbol is absent.</summary>
+    /// <summary>Safe fallback used whenever ads are disabled (ADS_DISABLED), no provider is selected or the provider is unknown.</summary>
     internal sealed class NoAdsService : IAdsService
     {
         public event Action<AdsEvent> EventRaised;

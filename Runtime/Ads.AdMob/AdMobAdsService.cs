@@ -1,14 +1,16 @@
-#if ADS
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using GoogleMobileAds.Api;
 using UnityEngine;
 
-namespace RippleGame.Ads
+namespace RippleGame.Ads.AdMob
 {
-    /// <summary>Google Mobile Ads implementation. This is the only runtime file that knows the SDK API.</summary>
-    internal sealed class AdMobAdsService : IAdsService, IAdsLifecycleAware
+    /// <summary>
+    /// Google Mobile Ads implementation: load, show and retry only. Cooldowns, session caps and app-open
+    /// resume rules live in the shared policy layer that wraps this service.
+    /// </summary>
+    internal sealed class AdMobAdsService : IAdsService
     {
         private readonly AdsConfiguration _configuration;
         private readonly AdMobAdUnitConfiguration _profile;
@@ -22,12 +24,6 @@ namespace RippleGame.Ads
         private bool _initialized;
         private bool _fullScreenShowing;
         private bool _mrecUnsupportedLogged;
-        private bool _appWasBackgrounded;
-        private float _appBackgroundedAt;
-        private float _lastAppOpenShowTime = float.NegativeInfinity;
-        private float _lastFullScreenClosedTime = float.NegativeInfinity;
-        private float _lastInterstitialShowTime = float.NegativeInfinity;
-        private int _interstitialImpressionsThisSession;
         private int _interstitialRetryAttempt;
         private int _rewardedRetryAttempt;
         private int _appOpenRetryAttempt;
@@ -129,11 +125,6 @@ namespace RippleGame.Ads
 
         public void ShowInterstitial(AdPlacement placement, Action<AdsResult> completed = null)
         {
-            if (!CanShowInterstitial(completed))
-            {
-                return;
-            }
-
             if (!CanShowFullScreen(_interstitial != null && _interstitial.IsReady, AdFormat.Interstitial, placement, completed))
             {
                 return;
@@ -141,11 +132,7 @@ namespace RippleGame.Ads
 
             _showingPlacement = placement;
             if (!_interstitial.Show(
-                    () =>
-                    {
-                        RecordInterstitialImpression();
-                        Raise(AdsEventType.Shown, AdFormat.Interstitial, placement);
-                    },
+                    () => Raise(AdsEventType.Shown, AdFormat.Interstitial, placement),
                     () => FinishFullScreen(AdFormat.Interstitial, placement, AdsResult.Closed, completed, LoadInterstitial),
                     error => FinishFullScreen(AdFormat.Interstitial, placement, AdsResult.Failed, completed, LoadInterstitial, error)))
             {
@@ -177,18 +164,11 @@ namespace RippleGame.Ads
 
         public void ShowAppOpen(Action<AdsResult> completed = null)
         {
-            if (Time.realtimeSinceStartup - _lastAppOpenShowTime < _profile.AppOpenCooldownSeconds)
-            {
-                completed?.Invoke(AdsResult.Cooldown);
-                return;
-            }
-
             if (!CanShowFullScreen(_appOpen != null && _appOpen.IsReady, AdFormat.AppOpen, AdPlacement.Default, completed))
             {
                 return;
             }
 
-            _lastAppOpenShowTime = Time.realtimeSinceStartup;
             if (!_appOpen.Show(
                     () => Raise(AdsEventType.Shown, AdFormat.AppOpen),
                     () => FinishFullScreen(AdFormat.AppOpen, AdPlacement.Default, AdsResult.Closed, completed, LoadAppOpen),
@@ -196,36 +176,6 @@ namespace RippleGame.Ads
             {
                 FinishFullScreen(AdFormat.AppOpen, AdPlacement.Default, AdsResult.NotReady, completed, LoadAppOpen);
             }
-        }
-
-        public void OnApplicationFocusChanged(bool hasFocus)
-        {
-            if (!hasFocus)
-                return;
-
-            var wasBackgrounded = _appWasBackgrounded;
-            _appWasBackgrounded = false;
-            if (!wasBackgrounded ||
-                Time.realtimeSinceStartup - _appBackgroundedAt < _profile.AppOpenMinimumBackgroundSeconds ||
-                !_initialized ||
-                _fullScreenShowing ||
-                _appOpen == null ||
-                !_appOpen.IsReady ||
-                Time.realtimeSinceStartup - _lastFullScreenClosedTime < _profile.AppOpenCooldownSeconds)
-            {
-                return;
-            }
-
-            ShowAppOpen();
-        }
-
-        public void OnApplicationPauseChanged(bool isPaused)
-        {
-            if (!isPaused)
-                return;
-
-            _appWasBackgrounded = true;
-            _appBackgroundedAt = Time.realtimeSinceStartup;
         }
 
         public void Dispose()
@@ -263,30 +213,9 @@ namespace RippleGame.Ads
             return true;
         }
 
-        private bool CanShowInterstitial(Action<AdsResult> completed)
-        {
-            var isSessionCapReached = _profile.InterstitialMaxImpressionsPerSession > 0 &&
-                                      _interstitialImpressionsThisSession >= _profile.InterstitialMaxImpressionsPerSession;
-            var isCoolingDown = Time.realtimeSinceStartup - _lastInterstitialShowTime < _profile.InterstitialCooldownSeconds;
-            if (!isSessionCapReached && !isCoolingDown)
-            {
-                return true;
-            }
-
-            completed?.Invoke(AdsResult.Cooldown);
-            return false;
-        }
-
-        private void RecordInterstitialImpression()
-        {
-            _lastInterstitialShowTime = Time.realtimeSinceStartup;
-            _interstitialImpressionsThisSession++;
-        }
-
         private void FinishFullScreen(AdFormat format, AdPlacement placement, AdsResult result, Action<AdsResult> completed, Action reload, string error = null)
         {
             _fullScreenShowing = false;
-            _lastFullScreenClosedTime = Time.realtimeSinceStartup;
             Raise(result == AdsResult.Failed ? AdsEventType.ShowFailed : AdsEventType.Closed, format, placement, error);
             completed?.Invoke(result);
             reload();
@@ -354,4 +283,3 @@ namespace RippleGame.Ads
         }
     }
 }
-#endif

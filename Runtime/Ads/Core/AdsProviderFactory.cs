@@ -16,6 +16,13 @@ namespace RippleGame.Ads
             Factories[factory.ProviderId] = factory;
         }
 
+        public static bool IsRegistered(string providerId)
+        {
+            return !string.IsNullOrEmpty(providerId) && Factories.ContainsKey(providerId);
+        }
+
+        internal static void ClearForTests() => Factories.Clear();
+
         internal static bool TryCreate(string providerId, AdsConfiguration configuration, out IAdsService service)
         {
             if (!string.IsNullOrEmpty(providerId) && Factories.TryGetValue(providerId, out var factory))

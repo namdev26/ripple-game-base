@@ -119,6 +119,11 @@ namespace RippleGame.Ads
         public AdRevenue? Revenue { get; }
     }
 
+    /// <summary>
+    /// The provider contract. Implementations must raise <see cref="EventRaised"/> and invoke every
+    /// completion and reward callback on the Unity main thread, marshalling SDK callbacks that arrive on
+    /// other threads (see <c>MainThreadDispatcher</c>).
+    /// </summary>
     public interface IAdsService : IDisposable
     {
         event Action<AdsEvent> EventRaised;

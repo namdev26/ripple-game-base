@@ -1,11 +1,9 @@
-using System;
-using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
 
-namespace RippleGame.Ads.Editor
+namespace RippleGame.Ads.AdMob.Editor
 {
     /// <summary>Updates the public GoogleMobileAdsSettings API without depending on a plugin-internal file path.</summary>
     internal static class AdMobSettingsSynchronizer
@@ -28,11 +26,6 @@ namespace RippleGame.Ads.Editor
             property.SetValue(settingsAsset, appId);
             EditorUtility.SetDirty(settingsAsset);
             AssetDatabase.SaveAssets();
-        }
-
-        internal static bool IsGoogleMobileAdsInstalled()
-        {
-            return AppDomain.CurrentDomain.GetAssemblies().Any(assembly => assembly.GetType("GoogleMobileAds.Api.MobileAds") != null);
         }
 
         private static ScriptableObject FindGoogleMobileAdsSettingsAsset()

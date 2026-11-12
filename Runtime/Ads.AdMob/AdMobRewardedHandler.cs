@@ -1,9 +1,8 @@
-#if ADS
 using System;
 using System.Threading.Tasks;
 using GoogleMobileAds.Api;
 
-namespace RippleGame.Ads
+namespace RippleGame.Ads.AdMob
 {
     internal sealed class AdMobRewardedHandler : IDisposable
     {
@@ -109,4 +108,3 @@ namespace RippleGame.Ads
         }
     }
 }
-#endif

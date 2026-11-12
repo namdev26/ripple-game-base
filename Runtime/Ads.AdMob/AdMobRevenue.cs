@@ -1,8 +1,7 @@
-#if ADS
 using System;
 using GoogleMobileAds.Api;
 
-namespace RippleGame.Ads
+namespace RippleGame.Ads.AdMob
 {
     /// <summary>Converts the Google Mobile Ads paid event into the SDK-free <see cref="AdRevenue"/>.</summary>
     internal static class AdMobRevenue
@@ -19,8 +18,7 @@ namespace RippleGame.Ads
                 // Response info is optional metadata; revenue is still reported without it.
             }
 
-            return new AdRevenue(value.Value, value.CurrencyCode, (int)value.Precision, unitId, adSourceName);
+            return new AdRevenue(value.Value, value.CurrencyCode, (int)value.Precision, unitId, adSourceName, AdRevenue.PlatformAdMob);
         }
     }
 }
-#endif
