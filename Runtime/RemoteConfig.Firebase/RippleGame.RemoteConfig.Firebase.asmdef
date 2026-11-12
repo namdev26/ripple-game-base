@@ -1,0 +1,31 @@
+{
+  "name": "RippleGame.RemoteConfig.Firebase",
+  "rootNamespace": "RippleGame.RemoteConfig",
+  "references": [
+    "RippleGame.RemoteConfig",
+    "RippleGame.Firebase"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_SDK_FIREBASE_REMOTE_CONFIG",
+    "RIPPLEGAME_SDK_FIREBASE_APP"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.google.firebase.remote-config",
+      "expression": "[13.1.0]",
+      "define": "RIPPLEGAME_SDK_FIREBASE_REMOTE_CONFIG"
+    },
+    {
+      "name": "com.google.firebase.app",
+      "expression": "[13.1.0]",
+      "define": "RIPPLEGAME_SDK_FIREBASE_APP"
+    }
+  ],
+  "noEngineReferences": false
+}
