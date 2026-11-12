@@ -42,7 +42,7 @@ Use Unity 6000.0 or newer. Remove or migrate previous copies of these tools and 
 | Runtime/Ads.AttributionBridge | Sends ad revenue to Attribution and feeds the organic status into the Ads rules |
 | Editor/Tools | `RIPPLE Game > Open Hub`, Scene Switch, Android Build, Texture, Save, package update and JSON export tools |
 | Editor/Sdk | The Hub **SDK** page: installs, fixes and removes the pinned optional SDKs, and blocks a build with a wrong SDK version |
-| Editor/Ads, Editor/Analytics, Editor/RemoteConfig, Editor/Attribution | Project configuration and build validation |
+| Editor/Ads, Editor/Analytics | Project configuration and build validation |
 
 Open **RIPPLE Game > Open Hub** for settings and actions in one window. The third-party SDKs (Google Mobile Ads, AppLovin MAX, Firebase, AppsFlyer) are optional and are not part of this package. The **SDK** page installs the exact versions this release was built against, from checked tarballs, with one button each. A provider's code compiles only when its pinned SDK is installed, so a game with no SDK still compiles, and the Analytics Console fallback and Remote Config defaults work. There are no `ADS` or `FIREBASE` define symbols any more. See [SDK setup](Documentation~/sdk/Setup.md).
 
