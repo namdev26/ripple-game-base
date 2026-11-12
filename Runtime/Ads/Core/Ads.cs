@@ -46,6 +46,12 @@ namespace RippleGame.Ads
 
         internal static IAdsService CurrentService => _service;
 
+        /// <summary>The override last handed to <see cref="ApplyPolicyOverride"/>. Lets bridges and tests read what was applied.</summary>
+        internal static AdsPolicyOverride CurrentPolicyOverride => _policyOverride;
+
+        /// <summary>The value last handed to <see cref="SetAdsEnabled"/>; null until something sets it.</summary>
+        internal static bool? AdsEnabledValue => _adsEnabled;
+
         internal static void Configure(IAdsService service)
         {
             if (service == null)

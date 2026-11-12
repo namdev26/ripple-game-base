@@ -1,0 +1,17 @@
+{
+  "name": "RippleGame.Ads.RemoteConfigBridge",
+  "rootNamespace": "RippleGame.Ads.RemoteConfigBridge",
+  "references": [
+    "RippleGame.Ads.Runtime",
+    "RippleGame.RemoteConfig"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
