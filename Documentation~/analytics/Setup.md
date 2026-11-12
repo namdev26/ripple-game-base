@@ -11,15 +11,19 @@ Tới đây game đã chạy được: event chỉ in ra Console, chưa gửi l�
 1. Vào https://console.firebase.google.com, tạo project và thêm app Android có package name trùng `Player Settings > Package Name`.
 2. Tải `google-services.json` và bỏ vào `Assets/`. Với iOS thì tải `GoogleService-Info.plist`.
 
-## 3. Import Firebase SDK
+## 3. Cài Firebase Analytics từ Hub
 
-Tải Firebase Unity SDK tại https://firebase.google.com/download/unity, sau đó import **chỉ** `FirebaseAnalytics.unitypackage`. External Dependency Manager sẽ resolve các thư viện Android.
+Mở **RIPPLE Game > Open Hub > SDK** và bấm **Setup** ở dòng **Firebase Analytics**. Hub tự tải đúng bản Firebase mà package đã ghim (13.1.0), kiểm tra SHA-256, thêm vào `Packages/manifest.json` và cài luôn Firebase App cùng External Dependency Manager. Không import `.unitypackage` vào `Assets`.
 
-## 4. Bật Firebase
+- Nếu project còn thư mục cũ `Assets/Firebase` hoặc `Assets/ExternalDependencyManager`, Hub từ chối Setup. Xóa các thư mục đó bằng tay (cả file `.meta`), rồi bấm Setup lại.
+- Không còn define `FIREBASE` và không còn nút **Enable Firebase** hay **Disable Firebase**. Cài đúng bản SDK là Firebase tự bật, gỡ SDK (nút **Remove**) là quay lại chế độ chỉ log Console. Trang **Analytics** hiện `Backend: Firebase` hoặc `Console only` để bạn kiểm tra.
+- Cài sai bản thì phần code Firebase không compile và build bị chặn. Bấm **Fix** ở dòng SDK.
 
-Mở **RIPPLE Game > Open Hub > Analytics** rồi bấm **Enable Firebase** để thêm define `FIREBASE` cho Android và iOS. Nếu thiếu `google-services.json` (Android) hoặc `GoogleService-Info.plist` (iOS), lúc build sẽ báo lỗi.
+## 4. Build
 
-Muốn quay lại chế độ chỉ log Console thì bấm **Disable Firebase** trong trang đó.
+Nếu đã cài Firebase Analytics mà thiếu `google-services.json` (Android) hoặc `GoogleService-Info.plist` (iOS) trong `Assets/`, lúc build sẽ báo lỗi. Trong Editor, analytics luôn dùng Console dù đã cài Firebase.
+
+Firebase chỉ được khởi tạo một lần và dùng chung cho Analytics và Remote Config. Cài thêm Remote Config thì xem [sdk/Setup.md](../sdk/Setup.md).
 
 ## 5. Settings (không bắt buộc)
 
@@ -70,7 +74,7 @@ Analytics.SetUserProperty("ab_group", "B");
 
 Chỉ gọi những event game cần. Hàm nào không gọi thì không có event đó.
 
-Event quảng cáo (`ad_impression`, `ad_show`, `ad_show_fail`, `ad_reward_earned`) được log tự động qua module Ads đi kèm khi game sử dụng quảng cáo.
+Event quảng cáo (`ad_impression`, `ad_show`, `ad_show_fail`, `ad_reward_earned`) được log tự động qua module Ads đi kèm khi game sử dụng quảng cáo, cả với AdMob lẫn AppLovin MAX. Với `ad_impression`, `ad_platform` là `AdMob` hoặc `AppLovin` tùy provider đang chạy.
 
 ## Danh sách event
 
@@ -84,7 +88,7 @@ Event quảng cáo (`ad_impression`, `ad_show`, `ad_show_fail`, `ad_reward_earne
 | `earn_virtual_currency` | `virtual_currency_name`, `value`, `source` |
 | `spend_virtual_currency` | `virtual_currency_name`, `value`, `item_name` |
 | `screen_view` | `screen_name`, `screen_class` |
-| `ad_impression` | `ad_platform`, `ad_source`, `ad_format`, `ad_unit_name`, `value`, `currency`, `placement` |
+| `ad_impression` | `ad_platform` (`AdMob` hoặc `AppLovin`), `ad_source`, `ad_format`, `ad_unit_name`, `value`, `currency`, `placement` |
 | `ad_show` | `ad_format`, `placement` |
 | `ad_show_fail` | `ad_format`, `placement`, `error` |
 | `ad_reward_earned` | `placement` (không dùng `ad_reward` vì Firebase giữ tên này) |
