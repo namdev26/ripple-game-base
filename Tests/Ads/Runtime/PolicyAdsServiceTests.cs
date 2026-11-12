@@ -379,6 +379,53 @@ namespace RippleGame.Ads.Tests
         }
 
         [Test]
+        public void Fallback_BeforeStartSession_ReturnsNotReady_AndIsNotReady()
+        {
+            _settings.RewardedFallbackEnabled = true;
+            _settings.Interstitial.StartSession = 2;
+            _inner.Ready[AdFormat.Rewarded] = false;
+            var policy = Create();
+            var result = new Results();
+            var rewards = 0;
+
+            Assert.That(policy.IsReady(AdFormat.Rewarded), Is.False);
+            policy.ShowRewarded(AdPlacement.DoubleReward, () => rewards++, result.Add);
+
+            Assert.That(result.Single, Is.EqualTo(AdsResult.NotReady));
+            Assert.That(rewards, Is.EqualTo(0));
+            Assert.That(_inner.Count(nameof(IAdsService.ShowInterstitial)), Is.EqualTo(0));
+
+            _session = 2;
+            Assert.That(policy.IsReady(AdFormat.Rewarded), Is.True);
+            policy.ShowRewarded(AdPlacement.DoubleReward, () => rewards++);
+            _inner.Close();
+            Assert.That(_inner.Count(nameof(IAdsService.ShowInterstitial)), Is.EqualTo(1));
+            Assert.That(rewards, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Fallback_IgnoresSessionCap_AndIsNotCountedTowardIt()
+        {
+            _settings.RewardedFallbackEnabled = true;
+            _settings.Interstitial.CooldownSeconds = 0f;
+            _settings.Interstitial.MaxPerSession = 1;
+            _inner.Ready[AdFormat.Rewarded] = false;
+            var policy = Create();
+            var fallback = new Results();
+            var capped = new Results();
+
+            policy.ShowRewarded(AdPlacement.DoubleReward, null, fallback.Add);
+            _inner.Close();
+            ShowAndClose(policy); // the fallback did not use up the one-per-session cap
+            policy.ShowRewarded(AdPlacement.DoubleReward, null, fallback.Add);
+            _inner.Close();
+            policy.ShowInterstitial(AdPlacement.Default, capped.Add);
+
+            Assert.That(capped.Single, Is.EqualTo(AdsResult.Cooldown));
+            Assert.That(_inner.Count(nameof(IAdsService.ShowInterstitial)), Is.EqualTo(3));
+        }
+
+        [Test]
         public void Fallback_RewardIsNeverCarriedToNextInterstitial()
         {
             _settings.RewardedFallbackEnabled = true;

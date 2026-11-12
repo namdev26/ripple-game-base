@@ -352,7 +352,10 @@ namespace RippleGame.Ads
             return context.Value.CurrentLevel < minLevel;
         }
 
-        /// <summary>Spec 4.3: no cooldown or min level check; organic and the RewardedFallback placement still apply.</summary>
+        /// <summary>
+        /// Spec 4.3: no cooldown or min level check, and the session cap neither blocks nor counts it.
+        /// Organic, the RewardedFallback placement and startSession still apply.
+        /// </summary>
         private bool CanShowFallback(AdsPolicySettings policy)
         {
             return policy.RewardedFallbackEnabled &&
@@ -360,6 +363,7 @@ namespace RippleGame.Ads
                    !AdsRemoved &&
                    OrganicAllows(policy.Organic.Interstitial) &&
                    !policy.Interstitial.DisabledPlacements.Contains(AdPlacement.RewardedFallback) &&
+                   _sessionNumber() >= policy.Interstitial.StartSession &&
                    _inner.IsReady(AdFormat.Interstitial);
         }
 
