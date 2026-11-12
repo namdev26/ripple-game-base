@@ -12,7 +12,8 @@
       "legacyPaths": [
         "Assets/ExternalDependencyManager"
       ],
-      "asmdefName": ""
+      "asmdefName": "",
+      "unityDependencies": {}
     },
     {
       "id": "firebase-app",
@@ -28,7 +29,8 @@
       "legacyPaths": [
         "Assets/Firebase"
       ],
-      "asmdefName": ""
+      "asmdefName": "",
+      "unityDependencies": {}
     },
     {
       "id": "firebase-analytics",
@@ -45,7 +47,8 @@
       "legacyPaths": [
         "Assets/Firebase"
       ],
-      "asmdefName": ""
+      "asmdefName": "",
+      "unityDependencies": {}
     },
     {
       "id": "firebase-remote-config",
@@ -62,7 +65,8 @@
       "legacyPaths": [
         "Assets/Firebase"
       ],
-      "asmdefName": ""
+      "asmdefName": "",
+      "unityDependencies": {}
     },
     {
       "id": "firebase-crashlytics",
@@ -79,7 +83,8 @@
       "legacyPaths": [
         "Assets/Firebase"
       ],
-      "asmdefName": ""
+      "asmdefName": "",
+      "unityDependencies": {}
     },
     {
       "id": "firebase-messaging",
@@ -96,7 +101,8 @@
       "legacyPaths": [
         "Assets/Firebase"
       ],
-      "asmdefName": ""
+      "asmdefName": "",
+      "unityDependencies": {}
     },
     {
       "id": "admob",
@@ -112,7 +118,8 @@
       "legacyPaths": [
         "Assets/GoogleMobileAds"
       ],
-      "asmdefName": ""
+      "asmdefName": "",
+      "unityDependencies": {}
     },
     {
       "id": "max",
@@ -128,7 +135,8 @@
       "legacyPaths": [
         "Assets/MaxSdk"
       ],
-      "asmdefName": "MaxSdk.Scripts"
+      "asmdefName": "MaxSdk.Scripts",
+      "unityDependencies": { "com.unity.ugui": "2.0.0" }
     },
     {
       "id": "appsflyer",
@@ -142,7 +150,8 @@
       "legacyPaths": [
         "Assets/AppsFlyer"
       ],
-      "asmdefName": "AppsFlyer"
+      "asmdefName": "AppsFlyer",
+      "unityDependencies": {}
     }
   ]
 }

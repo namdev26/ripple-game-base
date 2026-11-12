@@ -1,0 +1,26 @@
+{
+  "name": "RippleGame.Sdk.Editor.Tests",
+  "rootNamespace": "RippleGame.Sdk.Editor.Tests",
+  "references": [
+    "RippleGame.Sdk.Editor",
+    "Unity.Newtonsoft.Json"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "RIPPLEGAME_TEST_FRAMEWORK"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.test-framework",
+      "expression": "1.1.0",
+      "define": "RIPPLEGAME_TEST_FRAMEWORK"
+    }
+  ]
+}
