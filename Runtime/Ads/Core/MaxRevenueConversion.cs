@@ -10,6 +10,15 @@ namespace RippleGame.Ads
     {
         internal const string Currency = "USD";
 
+        /// <summary>
+        /// MAX reports -1 when the revenue could not be determined. Negative, NaN and infinite values are not
+        /// revenue, so no Paid event is raised for them. 0 is a real (zero) impression and is reported.
+        /// </summary>
+        internal static bool ShouldReport(double usd)
+        {
+            return !double.IsNaN(usd) && !double.IsInfinity(usd) && usd >= 0;
+        }
+
         /// <summary>USD to micros, rounded half away from zero. Negative, NaN and infinite values become 0.</summary>
         internal static long ToMicros(double usd)
         {

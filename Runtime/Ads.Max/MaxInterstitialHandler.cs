@@ -119,7 +119,7 @@ namespace RippleGame.Ads.Max
         private void OnAdRevenuePaid(string unitId, MaxSdkBase.AdInfo info)
         {
             if (unitId != _unitId) return;
-            var revenue = MaxRevenue.From(_unitId, info);
+            if (!MaxRevenue.TryFrom(_unitId, info, out var revenue)) return;
             MainThreadDispatcher.Post(() => Paid?.Invoke(revenue));
         }
 

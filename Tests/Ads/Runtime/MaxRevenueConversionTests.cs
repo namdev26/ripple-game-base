@@ -13,6 +13,17 @@ namespace RippleGame.Ads.Tests
         }
 
         [Test]
+        public void ShouldReport_SkipsErrorValueNaNAndInfinity()
+        {
+            Assert.That(MaxRevenueConversion.ShouldReport(-1), Is.False, "MAX error revenue");
+            Assert.That(MaxRevenueConversion.ShouldReport(-0.0001), Is.False);
+            Assert.That(MaxRevenueConversion.ShouldReport(double.NaN), Is.False);
+            Assert.That(MaxRevenueConversion.ShouldReport(double.PositiveInfinity), Is.False);
+            Assert.That(MaxRevenueConversion.ShouldReport(0), Is.True);
+            Assert.That(MaxRevenueConversion.ShouldReport(0.0012), Is.True);
+        }
+
+        [Test]
         public void Create_SetsMaxPlatformAndUsd()
         {
             var revenue = MaxRevenueConversion.Create(0.5, "unit-1", "AppLovin");
