@@ -184,7 +184,7 @@ namespace RippleGame.Ads
             var blocked = CheckInterstitial(policy, placement);
             if (blocked.HasValue)
             {
-                completed?.Invoke(blocked.Value);
+                Notify(completed, blocked.Value);
                 return;
             }
 
@@ -197,14 +197,14 @@ namespace RippleGame.Ads
             var policy = TakeSnapshot();
             if (GrantsFreeRewards)
             {
-                rewarded?.Invoke();
-                completed?.Invoke(AdsResult.Success);
+                Notify(rewarded);
+                Notify(completed, AdsResult.Success);
                 return;
             }
 
             if (_showing != ShowKind.None)
             {
-                completed?.Invoke(AdsResult.AlreadyShowing);
+                Notify(completed, AdsResult.AlreadyShowing);
                 return;
             }
 
@@ -220,7 +220,7 @@ namespace RippleGame.Ads
             {
                 if (granted) return;
                 granted = true;
-                rewarded?.Invoke();
+                Notify(rewarded);
             }
 
             var finish = BeginFullScreen(ShowKind.Rewarded, policy, completed);
@@ -246,7 +246,7 @@ namespace RippleGame.Ads
 
             if (blocked.HasValue)
             {
-                completed?.Invoke(blocked.Value);
+                Notify(completed, blocked.Value);
                 return;
             }
 
@@ -374,14 +374,14 @@ namespace RippleGame.Ads
             {
                 if (result != AdsResult.Closed && result != AdsResult.Success)
                 {
-                    completed?.Invoke(AdsResult.Failed);
+                    Notify(completed, AdsResult.Failed);
                     return;
                 }
 
                 _lastInterstitialTime = Now;
-                rewarded?.Invoke();
+                Notify(rewarded);
                 Raise(AdsEventType.RewardEarned, AdFormat.Rewarded, placement, FallbackRewardMessage);
-                completed?.Invoke(AdsResult.Success);
+                Notify(completed, AdsResult.Success);
             });
             Run(() => _inner.ShowInterstitial(AdPlacement.RewardedFallback, finish), finish);
         }
@@ -437,7 +437,7 @@ namespace RippleGame.Ads
                 if (finished) return;
                 finished = true;
                 EndFullScreen(kind, result);
-                onFinished?.Invoke(result);
+                Notify(onFinished, result);
             };
         }
 
@@ -470,6 +470,35 @@ namespace RippleGame.Ads
             else if (kind == ShowKind.AppOpen)
             {
                 _lastAppOpenTime = Now;
+            }
+        }
+
+        // ---- Game callbacks ----
+
+        // A throwing game callback is logged and never skips the steps after it (completion, bookkeeping, reload).
+        private static void Notify(Action callback)
+        {
+            if (callback == null) return;
+            try
+            {
+                callback();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+        }
+
+        private static void Notify(Action<AdsResult> callback, AdsResult result)
+        {
+            if (callback == null) return;
+            try
+            {
+                callback(result);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
             }
         }
 

@@ -236,6 +236,55 @@ namespace RippleGame.Ads.Tests
             Assert.That(_inner.Calls.Where(c => c.StartsWith("Show")), Is.Empty);
         }
 
+        // ---- Throwing game callbacks (final review I4) ----
+
+        [Test]
+        public void FreeRewards_ThrowingRewardCallback_StillCompletesOnce()
+        {
+            var policy = Create();
+            var result = new Results();
+            Ads.SetPolicyContext(new AdsPolicyContext(1, AdsEntitlement.RemoveAdsAndFreeRewards));
+            LogAssert.Expect(LogType.Exception, new Regex("game reward failed"));
+
+            policy.ShowRewarded(AdPlacement.ExtraLife, () => throw new InvalidOperationException("game reward failed"), result.Add);
+
+            Assert.That(result.Single, Is.EqualTo(AdsResult.Success));
+        }
+
+        [Test]
+        public void Fallback_ThrowingRewardCallback_StillCompletesOnce_AndFreesTheSlot()
+        {
+            _settings.RewardedFallbackEnabled = true;
+            _settings.Interstitial.CooldownSeconds = 0f;
+            _inner.Ready[AdFormat.Rewarded] = false;
+            var policy = Create();
+            var result = new Results();
+            var next = new Results();
+            LogAssert.Expect(LogType.Exception, new Regex("game reward failed"));
+
+            policy.ShowRewarded(AdPlacement.DoubleReward, () => throw new InvalidOperationException("game reward failed"), result.Add);
+            _inner.Close();
+
+            Assert.That(result.Single, Is.EqualTo(AdsResult.Success));
+            policy.ShowInterstitial(AdPlacement.LevelComplete, next.Add);
+            Assert.That(_inner.Count(nameof(IAdsService.ShowInterstitial)), Is.EqualTo(2), "the full-screen slot was released");
+        }
+
+        [Test]
+        public void Rewarded_ThrowingCompletedCallback_IsLogged_AndReleasesTheSlot()
+        {
+            var policy = Create();
+            var next = new Results();
+            LogAssert.Expect(LogType.Exception, new Regex("game completed failed"));
+
+            policy.ShowRewarded(AdPlacement.DoubleReward, null, _ => throw new InvalidOperationException("game completed failed"));
+            _inner.Close();
+
+            policy.ShowRewarded(AdPlacement.DoubleReward, null, next.Add);
+            Assert.That(_inner.Count(nameof(IAdsService.ShowRewarded)), Is.EqualTo(2));
+            Assert.That(next.Count, Is.EqualTo(0), "the second show is pending, not refused");
+        }
+
         [Test]
         public void AdsDisabled_RewardedGrantsImmediately_InterstitialDisabled()
         {

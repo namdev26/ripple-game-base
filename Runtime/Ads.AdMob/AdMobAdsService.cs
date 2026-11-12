@@ -15,10 +15,11 @@ namespace RippleGame.Ads.AdMob
         private readonly AdsConfiguration _configuration;
         private readonly AdMobAdUnitConfiguration _profile;
         private readonly CancellationTokenSource _disposeToken = new CancellationTokenSource();
-        private readonly AdMobBannerHandler _banner;
-        private readonly AdMobInterstitialHandler _interstitial;
-        private readonly AdMobRewardedHandler _rewarded;
-        private readonly AdMobAppOpenHandler _appOpen;
+        // Created in InitializeAsync, after the initialization gate, so remote unit ids apply. Null before that.
+        private AdMobBannerHandler _banner;
+        private AdMobInterstitialHandler _interstitial;
+        private AdMobRewardedHandler _rewarded;
+        private AdMobAppOpenHandler _appOpen;
 
         private Task<AdsResult> _initializationTask;
         private bool _initialized;
@@ -33,10 +34,24 @@ namespace RippleGame.Ads.AdMob
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _profile = configuration.GetActiveProfile();
-            _banner = _profile.EnableBanner ? new AdMobBannerHandler(_profile.BannerUnitId) : null;
-            _interstitial = _profile.EnableInterstitial ? new AdMobInterstitialHandler(_profile.InterstitialUnitId) : null;
-            _rewarded = _profile.EnableRewarded ? new AdMobRewardedHandler(_profile.RewardedUnitId) : null;
-            _appOpen = _profile.EnableAppOpen ? new AdMobAppOpenHandler(_profile.AppOpenUnitId) : null;
+        }
+
+        /// <summary>
+        /// Resolves unit ids (remote overrides first) and builds the format handlers. Runs once, from InitializeAsync,
+        /// which the policy layer calls after the initialization gate. Banner refresh is left to the AdMob SDK, so the
+        /// policy refresh values do not apply to this provider.
+        /// </summary>
+        private void CreateHandlers()
+        {
+            var bannerId = ResolveUnitId(_profile.EnableBanner, AdFormat.Banner, _profile.BannerUnitId);
+            var interstitialId = ResolveUnitId(_profile.EnableInterstitial, AdFormat.Interstitial, _profile.InterstitialUnitId);
+            var rewardedId = ResolveUnitId(_profile.EnableRewarded, AdFormat.Rewarded, _profile.RewardedUnitId);
+            var appOpenId = ResolveUnitId(_profile.EnableAppOpen, AdFormat.AppOpen, _profile.AppOpenUnitId);
+
+            _banner = bannerId != null ? new AdMobBannerHandler(bannerId) : null;
+            _interstitial = interstitialId != null ? new AdMobInterstitialHandler(interstitialId) : null;
+            _rewarded = rewardedId != null ? new AdMobRewardedHandler(rewardedId) : null;
+            _appOpen = appOpenId != null ? new AdMobAppOpenHandler(appOpenId) : null;
 
             if (_banner != null) { _banner.Loaded += () => Raise(AdsEventType.Loaded, AdFormat.Banner); _banner.LoadFailed += message => Raise(AdsEventType.Failed, AdFormat.Banner, message: message); }
             if (_interstitial != null) { _interstitial.Loaded += () => { _interstitialRetryAttempt = 0; Raise(AdsEventType.Loaded, AdFormat.Interstitial); }; _interstitial.LoadFailed += message => RetryLoad(AdFormat.Interstitial, message); }
@@ -47,6 +62,23 @@ namespace RippleGame.Ads.AdMob
             if (_interstitial != null) _interstitial.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Interstitial, _showingPlacement, revenue: revenue);
             if (_rewarded != null) _rewarded.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Rewarded, _showingPlacement, revenue: revenue);
             if (_appOpen != null) _appOpen.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.AppOpen, revenue: revenue);
+        }
+
+        private static string ResolveUnitId(bool enabled, AdFormat format, string configured)
+        {
+            if (!enabled)
+            {
+                return null;
+            }
+
+            var id = AdUnitIdOverrides.Resolve(AdMobProviderFactory.Id, Application.platform, format, configured);
+            if (string.IsNullOrEmpty(id))
+            {
+                Debug.LogWarning($"[RippleGame Ads] AdMob {format} is enabled but has no ad unit id; the format is disabled.");
+                return null;
+            }
+
+            return id;
         }
 
         public event Action<AdsEvent> EventRaised;
@@ -63,6 +95,7 @@ namespace RippleGame.Ads.AdMob
             _initializationTask = completion.Task;
             try
             {
+                CreateHandlers();
                 MobileAds.Initialize(status => MainThreadDispatcher.Post(() =>
                 {
                     _initialized = status != null;
@@ -86,6 +119,11 @@ namespace RippleGame.Ads.AdMob
 
         public bool IsReady(AdFormat format)
         {
+            if (!_initialized)
+            {
+                return false;
+            }
+
             return format switch
             {
                 AdFormat.Interstitial => _interstitial != null && _interstitial.IsReady,
@@ -216,9 +254,19 @@ namespace RippleGame.Ads.AdMob
         private void FinishFullScreen(AdFormat format, AdPlacement placement, AdsResult result, Action<AdsResult> completed, Action reload, string error = null)
         {
             _fullScreenShowing = false;
-            Raise(result == AdsResult.Failed ? AdsEventType.ShowFailed : AdsEventType.Closed, format, placement, error);
-            completed?.Invoke(result);
-            reload();
+            try
+            {
+                Raise(result == AdsResult.Failed ? AdsEventType.ShowFailed : AdsEventType.Closed, format, placement, error);
+                completed?.Invoke(result);
+            }
+            finally
+            {
+                // A throwing game callback must not leave the format without an ad for the rest of the session.
+                if (!_disposeToken.IsCancellationRequested)
+                {
+                    reload();
+                }
+            }
         }
 
         private void LoadInitialAds()
@@ -249,14 +297,15 @@ namespace RippleGame.Ads.AdMob
             }
         }
 
+        /// <summary>Keeps retrying until a load succeeds or the service is disposed, so a format is never left empty.</summary>
         private async void RetryAfterDelay(Action loader, int attempt)
         {
-            if (attempt > _profile.RetryMaxAttempts || _disposeToken.IsCancellationRequested)
+            if (_disposeToken.IsCancellationRequested)
             {
                 return;
             }
 
-            var delay = Mathf.Min(_profile.RetryInitialDelaySeconds * Mathf.Pow(2f, attempt - 1), _profile.RetryMaxDelaySeconds);
+            var delay = AdsLoadRetry.DelaySeconds(attempt, _profile.RetryMaxAttempts, _profile.RetryInitialDelaySeconds, _profile.RetryMaxDelaySeconds);
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(delay), _disposeToken.Token);

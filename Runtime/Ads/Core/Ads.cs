@@ -49,6 +49,16 @@ namespace RippleGame.Ads
         /// <summary>The override last handed to <see cref="ApplyPolicyOverride"/>. Lets bridges and tests read what was applied.</summary>
         internal static AdsPolicyOverride CurrentPolicyOverride => _policyOverride;
 
+        /// <summary>
+        /// <paramref name="asset"/> with the current remote override applied (a new instance). Providers read banner and
+        /// MREC refresh from it when they initialize, which is after the initialization gate.
+        /// </summary>
+        internal static AdsPolicySettings EffectivePolicy(AdsPolicySettings asset)
+        {
+            if (_policyOverride != null) return _policyOverride.ApplyTo(asset);
+            return asset != null ? asset.Clone() : new AdsPolicySettings();
+        }
+
         /// <summary>The value last handed to <see cref="SetAdsEnabled"/>; null until something sets it.</summary>
         internal static bool? AdsEnabledValue => _adsEnabled;
 

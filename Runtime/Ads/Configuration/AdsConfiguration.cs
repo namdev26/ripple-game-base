@@ -132,6 +132,7 @@ namespace RippleGame.Ads
         [Min(0f)] [HideInInspector] [SerializeField] private float appOpenCooldownSeconds = 20f;
         [Min(0f)] [HideInInspector] [SerializeField] private float appOpenMinimumBackgroundSeconds = 5f;
         [Header("Loading")]
+        [Tooltip("Failed loads retried with exponential backoff from Retry Initial Delay. Later retries wait Retry Max Delay and never stop until a load succeeds.")]
         [Min(0)] [SerializeField] private int retryMaxAttempts = 3;
         [Min(0.1f)] [SerializeField] private float retryInitialDelaySeconds = 2f;
         [Min(0.1f)] [SerializeField] private float retryMaxDelaySeconds = 30f;

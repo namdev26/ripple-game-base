@@ -18,11 +18,12 @@ namespace RippleGame.Ads.Max
         // MAX reuses the retry settings of the active AdMob profile.
         private readonly AdMobAdUnitConfiguration _retry;
         private readonly CancellationTokenSource _disposeToken = new CancellationTokenSource();
-        private readonly MaxBannerHandler _banner;
-        private readonly MaxMrecHandler _mrec;
-        private readonly MaxInterstitialHandler _interstitial;
-        private readonly MaxRewardedHandler _rewarded;
-        private readonly MaxAppOpenHandler _appOpen;
+        // Created in InitializeAsync, after the initialization gate, so remote unit ids and policy apply. Null before that.
+        private MaxBannerHandler _banner;
+        private MaxMrecHandler _mrec;
+        private MaxInterstitialHandler _interstitial;
+        private MaxRewardedHandler _rewarded;
+        private MaxAppOpenHandler _appOpen;
 
         private Task<AdsResult> _initializationTask;
         private Action<MaxSdkBase.SdkConfiguration> _sdkInitializedHandler;
@@ -43,36 +44,6 @@ namespace RippleGame.Ads.Max
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _profile = configuration.GetActiveMaxProfile();
             _retry = configuration.GetActiveProfile();
-            var policy = configuration.Policy;
-#if UNITY_IOS
-            var ids = _profile.Ios;
-#else
-            var ids = _profile.Android;
-#endif
-
-            var bannerId = ResolveUnitId(_profile.EnableBanner, AdFormat.Banner, ids.Banner);
-            var mrecId = ResolveUnitId(_profile.EnableMrec, AdFormat.Mrec, ids.Mrec);
-            var interstitialId = ResolveUnitId(_profile.EnableInterstitial, AdFormat.Interstitial, ids.Interstitial);
-            var rewardedId = ResolveUnitId(_profile.EnableRewarded, AdFormat.Rewarded, ids.Rewarded);
-            var appOpenId = ResolveUnitId(_profile.EnableAppOpen, AdFormat.AppOpen, ids.AppOpen);
-
-            _banner = bannerId != null ? new MaxBannerHandler(bannerId, policy?.BannerRefreshSeconds ?? 0f) : null;
-            _mrec = mrecId != null ? new MaxMrecHandler(mrecId, policy?.MrecRefreshSeconds ?? 0f) : null;
-            _interstitial = interstitialId != null ? new MaxInterstitialHandler(interstitialId) : null;
-            _rewarded = rewardedId != null ? new MaxRewardedHandler(rewardedId) : null;
-            _appOpen = appOpenId != null ? new MaxAppOpenHandler(appOpenId) : null;
-
-            if (_banner != null) { _banner.Loaded += () => Raise(AdsEventType.Loaded, AdFormat.Banner); _banner.LoadFailed += message => Raise(AdsEventType.Failed, AdFormat.Banner, message: message); }
-            if (_mrec != null) { _mrec.Loaded += () => Raise(AdsEventType.Loaded, AdFormat.Mrec); _mrec.LoadFailed += message => Raise(AdsEventType.Failed, AdFormat.Mrec, message: message); }
-            if (_interstitial != null) { _interstitial.Loaded += () => { _interstitialRetryAttempt = 0; Raise(AdsEventType.Loaded, AdFormat.Interstitial); }; _interstitial.LoadFailed += message => RetryLoad(AdFormat.Interstitial, message); }
-            if (_rewarded != null) { _rewarded.Loaded += () => { _rewardedRetryAttempt = 0; Raise(AdsEventType.Loaded, AdFormat.Rewarded); }; _rewarded.LoadFailed += message => RetryLoad(AdFormat.Rewarded, message); }
-            if (_appOpen != null) { _appOpen.Loaded += () => { _appOpenRetryAttempt = 0; Raise(AdsEventType.Loaded, AdFormat.AppOpen); }; _appOpen.LoadFailed += message => RetryLoad(AdFormat.AppOpen, message); }
-
-            if (_banner != null) _banner.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Banner, revenue: revenue);
-            if (_mrec != null) _mrec.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Mrec, revenue: revenue);
-            if (_interstitial != null) _interstitial.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Interstitial, _showingPlacement, revenue: revenue);
-            if (_rewarded != null) _rewarded.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Rewarded, _showingPlacement, revenue: revenue);
-            if (_appOpen != null) _appOpen.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.AppOpen, revenue: revenue);
         }
 
         public event Action<AdsEvent> EventRaised;
@@ -89,6 +60,8 @@ namespace RippleGame.Ads.Max
             _initializationTask = completion.Task;
             try
             {
+                CreateHandlers();
+
                 var consent = Ads.PolicyContext?.HasUserConsent;
                 if (consent.HasValue)
                 {
@@ -134,6 +107,11 @@ namespace RippleGame.Ads.Max
 
         public bool IsReady(AdFormat format)
         {
+            if (!_initialized)
+            {
+                return false;
+            }
+
             return format switch
             {
                 AdFormat.Interstitial => _interstitial != null && _interstitial.IsReady,
@@ -252,6 +230,44 @@ namespace RippleGame.Ads.Max
 
         private static float Now => Time.realtimeSinceStartup;
 
+        /// <summary>
+        /// Resolves unit ids (remote overrides first) and the effective banner/MREC refresh, then builds the format
+        /// handlers. Runs once, from InitializeAsync, which the policy layer calls after the initialization gate.
+        /// </summary>
+        private void CreateHandlers()
+        {
+            var policy = Ads.EffectivePolicy(_configuration.Policy);
+#if UNITY_IOS
+            var ids = _profile.Ios;
+#else
+            var ids = _profile.Android;
+#endif
+
+            var bannerId = ResolveUnitId(_profile.EnableBanner, AdFormat.Banner, ids.Banner);
+            var mrecId = ResolveUnitId(_profile.EnableMrec, AdFormat.Mrec, ids.Mrec);
+            var interstitialId = ResolveUnitId(_profile.EnableInterstitial, AdFormat.Interstitial, ids.Interstitial);
+            var rewardedId = ResolveUnitId(_profile.EnableRewarded, AdFormat.Rewarded, ids.Rewarded);
+            var appOpenId = ResolveUnitId(_profile.EnableAppOpen, AdFormat.AppOpen, ids.AppOpen);
+
+            _banner = bannerId != null ? new MaxBannerHandler(bannerId, policy.BannerRefreshSeconds) : null;
+            _mrec = mrecId != null ? new MaxMrecHandler(mrecId, policy.MrecRefreshSeconds) : null;
+            _interstitial = interstitialId != null ? new MaxInterstitialHandler(interstitialId) : null;
+            _rewarded = rewardedId != null ? new MaxRewardedHandler(rewardedId) : null;
+            _appOpen = appOpenId != null ? new MaxAppOpenHandler(appOpenId) : null;
+
+            if (_banner != null) { _banner.Loaded += () => Raise(AdsEventType.Loaded, AdFormat.Banner); _banner.LoadFailed += message => Raise(AdsEventType.Failed, AdFormat.Banner, message: message); }
+            if (_mrec != null) { _mrec.Loaded += () => Raise(AdsEventType.Loaded, AdFormat.Mrec); _mrec.LoadFailed += message => Raise(AdsEventType.Failed, AdFormat.Mrec, message: message); }
+            if (_interstitial != null) { _interstitial.Loaded += () => { _interstitialRetryAttempt = 0; Raise(AdsEventType.Loaded, AdFormat.Interstitial); }; _interstitial.LoadFailed += message => RetryLoad(AdFormat.Interstitial, message); }
+            if (_rewarded != null) { _rewarded.Loaded += () => { _rewardedRetryAttempt = 0; Raise(AdsEventType.Loaded, AdFormat.Rewarded); }; _rewarded.LoadFailed += message => RetryLoad(AdFormat.Rewarded, message); }
+            if (_appOpen != null) { _appOpen.Loaded += () => { _appOpenRetryAttempt = 0; Raise(AdsEventType.Loaded, AdFormat.AppOpen); }; _appOpen.LoadFailed += message => RetryLoad(AdFormat.AppOpen, message); }
+
+            if (_banner != null) _banner.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Banner, revenue: revenue);
+            if (_mrec != null) _mrec.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Mrec, revenue: revenue);
+            if (_interstitial != null) _interstitial.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Interstitial, _showingPlacement, revenue: revenue);
+            if (_rewarded != null) _rewarded.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.Rewarded, _showingPlacement, revenue: revenue);
+            if (_appOpen != null) _appOpen.Paid += revenue => Raise(AdsEventType.Paid, AdFormat.AppOpen, revenue: revenue);
+        }
+
         private static string ResolveUnitId(bool enabled, AdFormat format, string configured)
         {
             if (!enabled)
@@ -298,11 +314,18 @@ namespace RippleGame.Ads.Max
         private void FinishFullScreen(AdFormat format, AdPlacement placement, AdsResult result, Action<AdsResult> completed, Action reload, string error = null)
         {
             _fullScreenShowing = false;
-            Raise(result == AdsResult.Failed ? AdsEventType.ShowFailed : AdsEventType.Closed, format, placement, error);
-            completed?.Invoke(result);
-            if (!_disposed)
+            try
             {
-                reload();
+                Raise(result == AdsResult.Failed ? AdsEventType.ShowFailed : AdsEventType.Closed, format, placement, error);
+                completed?.Invoke(result);
+            }
+            finally
+            {
+                // A throwing game callback must not leave the format without an ad for the rest of the session.
+                if (!_disposed)
+                {
+                    reload();
+                }
             }
         }
 
@@ -334,14 +357,15 @@ namespace RippleGame.Ads.Max
             }
         }
 
+        /// <summary>Keeps retrying until a load succeeds or the service is disposed, so a format is never left empty.</summary>
         private async void RetryAfterDelay(Action loader, int attempt)
         {
-            if (attempt > _retry.RetryMaxAttempts || _disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            var delay = Mathf.Min(_retry.RetryInitialDelaySeconds * Mathf.Pow(2f, attempt - 1), _retry.RetryMaxDelaySeconds);
+            var delay = AdsLoadRetry.DelaySeconds(attempt, _retry.RetryMaxAttempts, _retry.RetryInitialDelaySeconds, _retry.RetryMaxDelaySeconds);
             try
             {
                 await Task.Delay(TimeSpan.FromSeconds(delay), _disposeToken.Token);
