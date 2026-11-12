@@ -30,19 +30,15 @@ namespace RippleGame.Ads
                 configuration = reference != null ? reference.Configuration : null;
             }
 
-#if ADS
             if (configuration == null)
             {
-                Debug.LogError("[RippleGame Ads] ADS is enabled, but no AdsConfigurationReference was found at Resources/RippleGameAds/AdsConfigurationReference.");
+                Debug.LogError("[RippleGame Ads] No AdsConfigurationReference was found at Resources/RippleGameAds/AdsConfigurationReference.");
                 Ads.Configure(new NoAdsService());
             }
             else
             {
                 Ads.Configure(AdsProviderFactory.Create(configuration));
             }
-#else
-            Ads.Configure(new NoAdsService());
-#endif
 
             var bannerRouter = GetComponent<AdsSceneBannerRouter>();
             if (bannerRouter == null)
@@ -54,6 +50,9 @@ namespace RippleGame.Ads
                 bannerRouter.Configure(configuration);
             }
 
+            // Wait for anything that must finish before the provider starts (consent, remote config).
+            // The policy layer shares this same wait, so an early InitializeAsync from elsewhere is gated too.
+            await Ads.WaitForInitializationGateAsync();
             await Ads.InitializeAsync();
         }
 

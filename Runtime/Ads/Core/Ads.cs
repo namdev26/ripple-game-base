@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace RippleGame.Ads
 {
@@ -38,6 +39,11 @@ namespace RippleGame.Ads
             PolicyContextChanged?.Invoke();
         }
 
+        private static Task _initializationGateTask;
+        private static AdsPolicyOverride _policyOverride;
+        private static bool? _adsEnabled;
+        private static bool? _isOrganic;
+
         internal static IAdsService CurrentService => _service;
 
         internal static void Configure(IAdsService service)
@@ -51,6 +57,110 @@ namespace RippleGame.Ads
             _service.Dispose();
             _service = service;
             _service.EventRaised += ForwardEvent;
+
+            if (_service is PolicyAdsService policy)
+            {
+                if (_policyOverride != null) policy.SetOverride(_policyOverride);
+                if (_adsEnabled.HasValue) policy.SetAdsEnabled(_adsEnabled.Value);
+                if (_isOrganic.HasValue) policy.SetOrganic(_isOrganic.Value);
+            }
+        }
+
+        /// <summary>Policy values from remote config. Ignored once this session's rules are fixed.</summary>
+        internal static void ApplyPolicyOverride(AdsPolicyOverride value)
+        {
+            _policyOverride = value;
+            (_service as PolicyAdsService)?.SetOverride(value);
+        }
+
+        /// <summary>The <c>ads_enabled</c> kill switch. Takes effect immediately.</summary>
+        internal static void SetAdsEnabled(bool enabled)
+        {
+            _adsEnabled = enabled;
+            (_service as PolicyAdsService)?.SetAdsEnabled(enabled);
+        }
+
+        /// <summary>Attribution result: organic users follow the organic policy switches.</summary>
+        internal static void SetOrganic(bool isOrganic)
+        {
+            _isOrganic = isOrganic;
+            (_service as PolicyAdsService)?.SetOrganic(isOrganic);
+        }
+
+        /// <summary>
+        /// Runs <see cref="InitializationGate"/> once and shares the wait with every caller. Never faults:
+        /// a failing gate is logged and ads continue to initialize.
+        /// </summary>
+        internal static Task WaitForInitializationGateAsync()
+        {
+            if (_initializationGateTask != null)
+            {
+                return _initializationGateTask;
+            }
+
+            var gate = InitializationGate;
+            if (gate == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            Task gateTask;
+            try
+            {
+                gateTask = gate();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+                gateTask = null;
+            }
+
+            _initializationGateTask = gateTask == null ? Task.CompletedTask : ObserveGate(gateTask);
+            return _initializationGateTask;
+        }
+
+        private static async Task ObserveGate(Task gateTask)
+        {
+            try
+            {
+                await gateTask;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics() => ResetForTests();
+
+        /// <summary>Clears every static so state never leaks across play sessions (domain reload off) or tests.</summary>
+        internal static void ResetForTests()
+        {
+            var previous = _service;
+            _service = new NoAdsService();
+            if (previous != null)
+            {
+                previous.EventRaised -= ForwardEvent;
+                try
+                {
+                    previous.Dispose();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+
+            PolicyContext = null;
+            PolicyContextChanged = null;
+            InitializationGate = null;
+            _initializationGateTask = null;
+            _policyOverride = null;
+            _adsEnabled = null;
+            _isOrganic = null;
+            AdUnitIdOverrides.Clear();
+            AdsSession.Reset();
         }
 
         private static void ForwardEvent(AdsEvent adsEvent) => EventRaised?.Invoke(adsEvent);
