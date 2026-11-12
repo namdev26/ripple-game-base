@@ -1,3 +1,16 @@
+# Verification - 0.4.0, 2026-11-12
+
+Unity Editor: 6000.0.50f1 on Windows.
+
+- Four scratch projects, one per SDK combination, each importing the package from a local path with `com.unity.test-framework` 1.5.1 and `com.unity.ugui` 2.0.0. SDK tarballs were copied to `Packages/RippleSdks/` and added to the manifest as `file:RippleSdks/<file>`, the same state Hub Setup writes, so each SDK reads as Installed. Every combination imported with 0 `error CS`:
+  - none: no `RippleGame.Ads.AdMob*`, `Ads.Max`, `Firebase`, `Analytics.Firebase`, `RemoteConfig.Firebase` or `Attribution.AppsFlyer` DLL in `Library/ScriptAssemblies`.
+  - admob: adds `RippleGame.Ads.AdMob.dll` and `RippleGame.Ads.AdMob.Editor.dll` only.
+  - max: adds `RippleGame.Ads.Max.dll` only.
+  - max + appsflyer + firebase-remote-config + firebase-analytics: adds `Ads.Max`, `RippleGame.Firebase`, `Analytics.Firebase`, `RemoteConfig.Firebase` and `Attribution.AppsFlyer`.
+- Test suites, run in the none and the four-SDK combinations with the same result in both: EditMode 309 passed, 6 skipped without a graphics device (the pop-out window tests), 0 failed. PlayMode 177 passed, 0 failed. A fresh project without TextMesh Pro essentials made one PlayMode test fail in the first run (a delayed TMP importer window logged "No graphic device is available"); with the essentials imported, as in `ripple-verify`, all 177 passed.
+- Wrong version: `max` pointed at a tarball whose package version is 8.5.0. Unity resolved 8.5.0, imported with 0 `error CS`, and built no `RippleGame.Ads.Max.dll`. `SdkStatusResolver` returned `WrongVersion`. A batchmode Android build with `providerId` `max` failed in `AdsPreBuildValidator` (the `ProviderBuildCheck` message, "SDK is not installed at the pinned version"), and `SdkPreBuildValidator` also failed it ("installed at ... 8.5.0 but this RIPPLE Game Base version needs 8.5.1").
+- Not run: Android device; the Hub's live download from the `ripple-game-sdks` release (the release does not exist yet, so it is checked at publish time); `DeviceChecklist-0.4.0.md` with real MAX keys.
+
 # Verification - 0.3.1, 2026-11-07
 
 Unity Editor: 6000.0.71f1 on Windows.
