@@ -72,8 +72,8 @@ namespace RippleGame.Sdk.Editor
                     var status = SdkStatusResolver.Resolve(entry, original, projectRoot);
                     if (status.State == SdkState.Legacy)
                         return SdkOperationResult.Fail(
-                            $"{Label(entry)} still has files in {string.Join(", ", status.FoundLegacyPaths)}. " +
-                            "Delete them first, then install again.");
+                            $"{Label(entry)} has an old .unitypackage copy in Assets ({string.Join(", ", status.FoundLegacyPaths)}). " +
+                            "Delete that plugin's old files by hand first, then install again.");
                     if (status.State == SdkState.Installed) continue;
                     toInstall.Add(entry);
                     if (status.State == SdkState.WrongVersion)

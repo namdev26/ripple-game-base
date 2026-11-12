@@ -10,7 +10,7 @@
       "sha256": "46684b475c2a39844c44c07945b5aee02895c41a9bff97d5cd4b5d9e85e021d8",
       "dependsOn": [],
       "legacyPaths": [
-        "Assets/ExternalDependencyManager"
+        "Assets/ExternalDependencyManager/Editor"
       ],
       "asmdefName": "",
       "unityDependencies": {}
@@ -27,7 +27,8 @@
         "edm"
       ],
       "legacyPaths": [
-        "Assets/Firebase"
+        "Assets/Firebase/Plugins",
+        "Assets/Firebase/Editor"
       ],
       "asmdefName": "",
       "unityDependencies": {}
@@ -45,7 +46,8 @@
         "edm"
       ],
       "legacyPaths": [
-        "Assets/Firebase"
+        "Assets/Firebase/Plugins",
+        "Assets/Firebase/Editor"
       ],
       "asmdefName": "",
       "unityDependencies": {}
@@ -63,7 +65,8 @@
         "edm"
       ],
       "legacyPaths": [
-        "Assets/Firebase"
+        "Assets/Firebase/Plugins",
+        "Assets/Firebase/Editor"
       ],
       "asmdefName": "",
       "unityDependencies": {}
@@ -81,7 +84,8 @@
         "edm"
       ],
       "legacyPaths": [
-        "Assets/Firebase"
+        "Assets/Firebase/Plugins",
+        "Assets/Firebase/Editor"
       ],
       "asmdefName": "",
       "unityDependencies": {}
@@ -99,7 +103,8 @@
         "edm"
       ],
       "legacyPaths": [
-        "Assets/Firebase"
+        "Assets/Firebase/Plugins",
+        "Assets/Firebase/Editor"
       ],
       "asmdefName": "",
       "unityDependencies": {}
@@ -116,7 +121,10 @@
         "edm"
       ],
       "legacyPaths": [
-        "Assets/GoogleMobileAds"
+        "Assets/GoogleMobileAds/Editor",
+        "Assets/GoogleMobileAds/GoogleMobileAds.dll",
+        "Assets/GoogleMobileAds/Api",
+        "Assets/GoogleMobileAds/Platforms"
       ],
       "asmdefName": "",
       "unityDependencies": {}
@@ -133,7 +141,8 @@
         "edm"
       ],
       "legacyPaths": [
-        "Assets/MaxSdk"
+        "Assets/MaxSdk/Scripts",
+        "Assets/MaxSdk/AppLovin"
       ],
       "asmdefName": "MaxSdk.Scripts",
       "unityDependencies": { "com.unity.ugui": "2.0.0" }
@@ -148,7 +157,9 @@
       "sha256": "f354f607d1edc69b4ab14e05416541e1b2982803e1d79b627884eb1e1372b76a",
       "dependsOn": [],
       "legacyPaths": [
-        "Assets/AppsFlyer"
+        "Assets/AppsFlyer/Editor",
+        "Assets/AppsFlyer/Plugins",
+        "Assets/AppsFlyer/AppsFlyer.cs"
       ],
       "asmdefName": "AppsFlyer",
       "unityDependencies": {}

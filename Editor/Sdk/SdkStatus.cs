@@ -13,7 +13,11 @@ namespace RippleGame.Sdk.Editor
         /// <summary>The manifest value for the entry's package, or null when it is not listed.</summary>
         public string InstalledReference { get; set; }
 
-        /// <summary>Catalog legacy paths that exist under the project root.</summary>
+        /// <summary>
+        /// Catalog legacy markers (files or folders) that exist under the project root. Markers are paths only an old
+        /// .unitypackage import creates; the UPM packages themselves create other files under the same roots (for
+        /// example <c>Assets/MaxSdk/Resources/AppLovinSettings.asset</c>), which must not count as an old copy.
+        /// </summary>
         public IReadOnlyList<string> FoundLegacyPaths { get; set; } = new string[0];
     }
 
@@ -28,7 +32,7 @@ namespace RippleGame.Sdk.Editor
         {
             var reference = SdkManifestEditor.GetDependency(manifestJson, entry.PackageName);
             var legacy = entry.LegacyPaths
-                .Where(p => Directory.Exists(Path.Combine(projectRoot, p)))
+                .Where(p => Directory.Exists(Path.Combine(projectRoot, p)) || File.Exists(Path.Combine(projectRoot, p)))
                 .ToList();
 
             SdkState state;

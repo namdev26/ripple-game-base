@@ -144,8 +144,75 @@ namespace RippleGame.Sdk.Editor.Tests
         {
             var message = SdkPreBuildValidator.Check(SdkCatalog.Parse(MaxCatalog), Manifest("\"com.applovin.mediation.ads\":\"8.5.0\""), root);
             Assert.That(message, Is.EqualTo(
-                "SDK 'AppLovin MAX' is installed at 8.5.0 but this RIPPLE Game Base version needs 8.5.1. " +
+                "SDK 'AppLovin MAX' is installed from '8.5.0' instead of the pinned tarball com.applovin.mediation.ads-8.5.1.tgz (8.5.1). " +
                 "Open RIPPLE Game > Open Hub > SDK and press Fix."));
+        }
+
+        [Test]
+        public void PreBuildCheck_SameVersionFromRegistry_NamesTheReferenceNotTheVersion()
+        {
+            // Before: "installed at 8.5.1 but ... needs 8.5.1".
+            var message = SdkPreBuildValidator.Check(SdkCatalog.Parse(MaxCatalog), Manifest("\"com.applovin.mediation.ads\":\"8.5.1\""), root);
+            Assert.That(message, Is.EqualTo(
+                "SDK 'AppLovin MAX' is installed from '8.5.1' instead of the pinned tarball com.applovin.mediation.ads-8.5.1.tgz (8.5.1). " +
+                "Open RIPPLE Game > Open Hub > SDK and press Fix."));
+        }
+
+        [Test]
+        public void PreBuildCheck_OtherPinnedTarball_NamesBothFiles()
+        {
+            var m = Manifest("\"com.applovin.mediation.ads\":\"file:RippleSdks/com.applovin.mediation.ads-8.5.0.tgz\"");
+            var message = SdkPreBuildValidator.Check(SdkCatalog.Parse(MaxCatalog), m, root);
+            Assert.That(message, Is.EqualTo(
+                "SDK 'AppLovin MAX' is installed from the tarball com.applovin.mediation.ads-8.5.0.tgz but this RIPPLE Game Base version needs " +
+                "com.applovin.mediation.ads-8.5.1.tgz (8.5.1). Open RIPPLE Game > Open Hub > SDK and press Fix."));
+        }
+
+        // --- Shipped catalog legacy markers (final review I2) ---
+
+        static void Touch(string root, string relativePath)
+        {
+            var path = Path.Combine(root, relativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            File.WriteAllText(path, "x");
+        }
+
+        [TestCase("max", "com.applovin.mediation.ads", "Assets/MaxSdk/Resources/AppLovinSettings.asset")]
+        [TestCase("admob", "com.google.ads.mobile", "Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset")]
+        [TestCase("admob", "com.google.ads.mobile", "Assets/GoogleMobileAds/link.xml")]
+        [TestCase("edm", "com.google.external-dependency-manager", "Assets/GeneratedLocalRepo/Firebase/m2repository/x.pom")]
+        [TestCase("firebase-app", "com.google.firebase.app", "Assets/Plugins/Android/FirebaseApp.androidlib/res/values/google-services.xml")]
+        [TestCase("firebase-app", "com.google.firebase.app", "Assets/Firebase/google-services.json")]
+        public void ShippedCatalog_FilesTheUpmPackageCreates_AreNotLegacy(string id, string packageName, string upmCreatedFile)
+        {
+            var entry = SdkCatalog.LoadDefault().Find(id);
+            Touch(root, upmCreatedFile);
+            var m = Manifest("\"" + packageName + "\":\"file:RippleSdks/" + entry.FileName + "\"");
+
+            var info = SdkStatusResolver.Resolve(entry, m, root);
+
+            Assert.That(info.State, Is.EqualTo(SdkState.Installed));
+            Assert.That(info.FoundLegacyPaths, Is.Empty);
+        }
+
+        [TestCase("max", "Assets/MaxSdk/Scripts/MaxSdk.cs", "Assets/MaxSdk/Scripts")]
+        [TestCase("max", "Assets/MaxSdk/AppLovin/Plugins/Android/applovin-max-unity-plugin.aar", "Assets/MaxSdk/AppLovin")]
+        [TestCase("admob", "Assets/GoogleMobileAds/GoogleMobileAds.dll", "Assets/GoogleMobileAds/GoogleMobileAds.dll")]
+        [TestCase("admob", "Assets/GoogleMobileAds/Editor/GoogleMobileAdsSettings.cs", "Assets/GoogleMobileAds/Editor")]
+        [TestCase("admob", "Assets/GoogleMobileAds/Api/BannerView.cs", "Assets/GoogleMobileAds/Api")]
+        [TestCase("edm", "Assets/ExternalDependencyManager/Editor/Google.VersionHandler.dll", "Assets/ExternalDependencyManager/Editor")]
+        [TestCase("firebase-analytics", "Assets/Firebase/Plugins/Firebase.Analytics.dll", "Assets/Firebase/Plugins")]
+        [TestCase("appsflyer", "Assets/AppsFlyer/AppsFlyer.cs", "Assets/AppsFlyer/AppsFlyer.cs")]
+        public void ShippedCatalog_UnitypackageMarker_IsLegacy(string id, string importedFile, string expectedMarker)
+        {
+            var entry = SdkCatalog.LoadDefault().Find(id);
+            Touch(root, importedFile);
+            var m = Manifest("\"" + entry.PackageName + "\":\"file:RippleSdks/" + entry.FileName + "\"");
+
+            var info = SdkStatusResolver.Resolve(entry, m, root);
+
+            Assert.That(info.State, Is.EqualTo(SdkState.Legacy));
+            Assert.That(info.FoundLegacyPaths, Does.Contain(expectedMarker));
         }
 
         [Test]

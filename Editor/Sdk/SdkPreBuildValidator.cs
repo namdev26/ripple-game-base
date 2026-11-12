@@ -41,8 +41,19 @@ namespace RippleGame.Sdk.Editor
                 var status = SdkStatusResolver.Resolve(entry, manifestJson, projectRoot);
                 if (status.State != SdkState.WrongVersion) continue;
                 var name = string.IsNullOrEmpty(entry.DisplayName) ? entry.Id : entry.DisplayName;
-                return $"SDK '{name}' is installed at {status.InstalledReference} but this RIPPLE Game Base version needs {entry.Version}. " +
-                       "Open RIPPLE Game > Open Hub > SDK and press Fix.";
+                const string fix = "Open RIPPLE Game > Open Hub > SDK and press Fix.";
+                var reference = status.InstalledReference ?? string.Empty;
+
+                // A pinned tarball of another version names the version it holds; any other reference (registry semver,
+                // git URL, another file path) is described as what it is.
+                if (reference.StartsWith(SdkStatusResolver.TarballReferencePrefix, StringComparison.Ordinal))
+                {
+                    var installedFile = reference.Substring(SdkStatusResolver.TarballReferencePrefix.Length);
+                    return $"SDK '{name}' is installed from the tarball {installedFile} but this RIPPLE Game Base version needs " +
+                           $"{entry.FileName} ({entry.Version}). {fix}";
+                }
+
+                return $"SDK '{name}' is installed from '{reference}' instead of the pinned tarball {entry.FileName} ({entry.Version}). {fix}";
             }
             return null;
         }

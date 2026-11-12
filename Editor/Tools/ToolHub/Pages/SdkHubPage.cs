@@ -62,7 +62,7 @@ internal sealed class SdkHubPage : ToolHubPage
                 if (status.State == SdkState.Legacy)
                 {
                     foreach (var path in status.FoundLegacyPaths) EditorGUILayout.LabelField(path, EditorStyles.miniLabel);
-                    EditorGUILayout.LabelField("Remove these folders by hand, then press Setup.", EditorStyles.wordWrappedMiniLabel);
+                    EditorGUILayout.LabelField("Left by an old .unitypackage import. Delete that plugin's old files by hand (see the SDK guide), then press Setup.", EditorStyles.wordWrappedMiniLabel);
                 }
             }
 
