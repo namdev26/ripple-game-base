@@ -53,7 +53,7 @@ namespace RippleGame.Analytics.AdsBridge.Tests
             Assert.That(_recorder.Param("currency").StringValue, Is.EqualTo("USD"));
             Assert.That(_recorder.Param("ad_format").StringValue, Is.EqualTo("rewarded"));
             Assert.That(_recorder.Param("placement").StringValue, Is.EqualTo("double_reward"));
-            Assert.That(_recorder.Param("ad_platform").StringValue, Is.EqualTo("admob"));
+            Assert.That(_recorder.Param("ad_platform").StringValue, Is.EqualTo("AdMob"));
             Assert.That(_recorder.Param("ad_source").StringValue, Is.EqualTo("AdMob Network"));
             Assert.That(_recorder.Param("ad_unit_name").StringValue, Is.EqualTo("ca-app-pub-unit"));
         }
@@ -66,8 +66,19 @@ namespace RippleGame.Analytics.AdsBridge.Tests
 
             AdsAnalyticsBridge.Handle(adsEvent, true);
 
-            Assert.That(_recorder.Param("ad_platform").StringValue, Is.EqualTo("applovin_max"));
+            Assert.That(_recorder.Param("ad_platform").StringValue, Is.EqualTo("AppLovin"));
             Assert.That(_recorder.Param("value").DoubleValue, Is.EqualTo(2.0).Within(1e-12));
+        }
+
+        [Test]
+        public void AnalyticsBridge_UnknownPlatform_PassesThrough()
+        {
+            var adsEvent = new AdsEvent(AdsEventType.Paid, AdFormat.Banner, AdPlacement.Default,
+                revenue: new AdRevenue(1_000_000, "USD", 2, "unit", "src", "custom_net"));
+
+            AdsAnalyticsBridge.Handle(adsEvent, true);
+
+            Assert.That(_recorder.Param("ad_platform").StringValue, Is.EqualTo("custom_net"));
         }
 
         [Test]
