@@ -229,14 +229,113 @@ namespace RippleGame.RemoteConfig.Tests
             var run = RemoteConfigBootstrap.Run(settings);
             yield return WaitUntil(() => RemoteConfig.IsReady, "ready after timeout", 1f);
             yield return WaitUntil(() => run.IsCompleted, "bootstrap task", 1f);
-            Assert.That(_activated, Is.EqualTo(0));
-
-            // The slow fetch finishing late must not raise Activated either.
-            var end = Time.realtimeSinceStartup + 0.7f;
-            while (Time.realtimeSinceStartup < end) yield return null;
-            Assert.That(_activated, Is.EqualTo(0));
+            Assert.That(_activated, Is.EqualTo(0), "Activated is not raised at the timeout itself");
             Assert.That(RemoteConfig.IsReady, Is.True);
             Assert.That(RemoteConfigNetworkWatcher.Exists, Is.True, "the first fetch did not succeed, so the watcher waits for the network");
+        }
+
+        [UnityTest]
+        public IEnumerator LateSuccessAfterTimeout_RaisesActivatedOnce_NewValuesLive_WatcherRemoved()
+        {
+            var settings = RemoteConfigSettings.CreateForTests(0.1f, 0);
+            _source.Delay = TimeSpan.FromMilliseconds(400);
+            _source.Result = true;
+            _source.Values["k"] = "old";
+            _source.ValuesAfterFetch["k"] = "new";
+            RemoteConfig.RegisterSource(_source);
+
+            var run = RemoteConfigBootstrap.Run(settings);
+            yield return WaitUntil(() => RemoteConfig.IsReady, "ready after timeout", 1f);
+            yield return WaitUntil(() => run.IsCompleted, "bootstrap task", 1f);
+            Assert.That(_activated, Is.EqualTo(0));
+            Assert.That(RemoteConfig.Get("k", ""), Is.EqualTo("old"));
+            Assert.That(RemoteConfigNetworkWatcher.Exists, Is.True);
+
+            yield return WaitUntil(() => _activated == 1, "late activation", 1.5f);
+            Assert.That(RemoteConfig.IsReady, Is.True);
+            Assert.That(RemoteConfig.Get("k", ""), Is.EqualTo("new"));
+            Assert.That(RemoteConfigNetworkWatcher.Exists, Is.False);
+
+            for (var i = 0; i < 5; i++) yield return null;
+            Assert.That(_activated, Is.EqualTo(1), "exactly once");
+        }
+
+        [UnityTest]
+        public IEnumerator LateFailureAfterTimeout_DoesNotActivate_AndKeepsWatcher()
+        {
+            var settings = RemoteConfigSettings.CreateForTests(0.1f, 0);
+            _source.Delay = TimeSpan.FromMilliseconds(300);
+            _source.Result = false;
+            RemoteConfig.RegisterSource(_source);
+
+            var run = RemoteConfigBootstrap.Run(settings);
+            yield return WaitUntil(() => run.IsCompleted, "bootstrap task", 1f);
+            var end = Time.realtimeSinceStartup + 0.5f;
+            while (Time.realtimeSinceStartup < end) yield return null;
+
+            Assert.That(_source.FetchCount, Is.EqualTo(1));
+            Assert.That(RemoteConfig.IsReady, Is.True);
+            Assert.That(_activated, Is.EqualTo(0));
+            Assert.That(RemoteConfigNetworkWatcher.Exists, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator LateThrowAfterTimeout_DoesNotActivate_AndKeepsWatcher()
+        {
+            var settings = RemoteConfigSettings.CreateForTests(0.1f, 0);
+            _source.Delay = TimeSpan.FromMilliseconds(300);
+            _source.ThrowOnFetch = true;
+            RemoteConfig.RegisterSource(_source);
+
+            var run = RemoteConfigBootstrap.Run(settings);
+            yield return WaitUntil(() => run.IsCompleted, "bootstrap task", 1f);
+            var end = Time.realtimeSinceStartup + 0.5f;
+            while (Time.realtimeSinceStartup < end) yield return null;
+
+            Assert.That(_activated, Is.EqualTo(0));
+            Assert.That(RemoteConfigNetworkWatcher.Exists, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator RetryThatTimesOutButSucceedsLate_RaisesActivated_AndRemovesWatcher()
+        {
+            var settings = RemoteConfigSettings.CreateForTests(0.1f, 0);
+            _source.Results.Enqueue(false);
+            _source.Results.Enqueue(true);
+            _source.ValuesAfterFetch["k"] = "new";
+            _reachability = NetworkReachability.NotReachable;
+            RemoteConfig.RegisterSource(_source);
+
+            var run = RemoteConfigBootstrap.Run(settings);
+            yield return WaitUntil(() => run.IsCompleted, "first fetch", 1f);
+            Assert.That(RemoteConfigNetworkWatcher.Exists, Is.True);
+
+            _source.Delay = TimeSpan.FromMilliseconds(300);
+            _reachability = NetworkReachability.ReachableViaLocalAreaNetwork;
+            RemoteConfigNetworkWatcher.Instance.Poll();
+            yield return WaitUntil(() => _source.FetchCount == 2, "retry started", 1f);
+            Assert.That(_activated, Is.EqualTo(0));
+
+            yield return WaitUntil(() => _activated == 1, "late retry activation", 1.5f);
+            Assert.That(RemoteConfig.Get("k", ""), Is.EqualTo("new"));
+            Assert.That(RemoteConfigNetworkWatcher.Exists, Is.False);
+        }
+
+        [UnityTest]
+        public IEnumerator LateSuccessAfterReset_IsIgnored()
+        {
+            var settings = RemoteConfigSettings.CreateForTests(0.1f, 0);
+            _source.Delay = TimeSpan.FromMilliseconds(300);
+            RemoteConfig.RegisterSource(_source);
+
+            var run = RemoteConfigBootstrap.Run(settings);
+            yield return WaitUntil(() => run.IsCompleted, "bootstrap task", 1f);
+            RemoteConfig.ResetForTests();
+            RemoteConfig.Activated += OnActivated;
+            var end = Time.realtimeSinceStartup + 0.5f;
+            while (Time.realtimeSinceStartup < end) yield return null;
+
+            Assert.That(_activated, Is.EqualTo(0));
         }
 
         [UnityTest]

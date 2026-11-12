@@ -20,20 +20,15 @@ namespace RippleGame.RemoteConfig
 
         public void SetDefaults(IReadOnlyDictionary<string, string> defaults) => _pendingDefaults = defaults;
 
+        /// <summary>
+        /// Fetches and activates. The timeout is enforced by the Remote Config core, which races this task and keeps
+        /// watching it, so a fetch that finishes late still raises Activated. Racing here would hide that result.
+        /// </summary>
         public async Task<bool> FetchAndActivateAsync(TimeSpan timeout, TimeSpan minimumInterval)
         {
             try
             {
-                var work = FetchCoreAsync(minimumInterval);
-                var finished = await Task.WhenAny(work, Task.Delay(timeout));
-                if (finished != work)
-                {
-                    // The fetch may still finish later and activate on its own; this call stops waiting for it.
-                    _ = work.ContinueWith(task => _ = task.Exception, TaskContinuationOptions.OnlyOnFaulted);
-                    return false;
-                }
-
-                return await work;
+                return await FetchCoreAsync(minimumInterval);
             }
             catch (Exception exception)
             {

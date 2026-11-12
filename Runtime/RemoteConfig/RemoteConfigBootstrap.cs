@@ -41,7 +41,7 @@ namespace RippleGame.RemoteConfig
             try
             {
                 ApplyDefaults(source, settings);
-                success = await AttemptAsync(source, settings);
+                success = await AttemptAsync(source, settings, generation);
             }
             catch (Exception exception)
             {
@@ -74,7 +74,7 @@ namespace RippleGame.RemoteConfig
             _retrying = true;
             try
             {
-                var success = await AttemptAsync(source, settings);
+                var success = await AttemptAsync(source, settings, generation);
                 if (!success || generation != RemoteConfig.Generation) return;
 
                 RemoteConfigNetworkWatcher.DestroyInstance();
@@ -102,7 +102,7 @@ namespace RippleGame.RemoteConfig
         }
 
         /// <summary>One fetch bounded by the settings timeout. True only when the source reports a successful fetch.</summary>
-        private static async Task<bool> AttemptAsync(IRemoteConfigSource source, RemoteConfigSettings settings)
+        private static async Task<bool> AttemptAsync(IRemoteConfigSource source, RemoteConfigSettings settings, int generation)
         {
             var timeout = TimeSpan.FromSeconds(settings.FetchTimeoutSeconds);
             var interval = TimeSpan.FromSeconds(settings.MinimumFetchIntervalSeconds);
@@ -114,9 +114,8 @@ namespace RippleGame.RemoteConfig
 
                 if (!await CompletedBeforeAsync(fetch, timeout))
                 {
-                    // A late failure must not surface as an unobserved task exception.
-                    _ = fetch.ContinueWith(task => _ = task.Exception, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
                     Debug.LogWarning(RemoteConfig.LogPrefix + "Fetch timed out. Using the last activated or default values.");
+                    _ = ObserveLateFetchAsync(fetch, generation);
                     return false;
                 }
 
@@ -126,6 +125,33 @@ namespace RippleGame.RemoteConfig
             {
                 Debug.LogWarning(RemoteConfig.LogPrefix + "Fetch failed: " + exception.Message + " Using the last activated or default values.");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Keeps watching a fetch that missed its timeout. If it still succeeds, its values are live, so the watcher is
+        /// no longer needed and Activated is raised once. A late failure only logs. Runs on the main thread because it
+        /// awaits with the captured Unity context.
+        /// </summary>
+        private static async Task ObserveLateFetchAsync(Task<bool> fetch, int generation)
+        {
+            try
+            {
+                var success = await fetch;
+                if (generation != RemoteConfig.Generation) return;
+
+                if (!success)
+                {
+                    Debug.LogWarning(RemoteConfig.LogPrefix + "A fetch that missed its timeout also failed.");
+                    return;
+                }
+
+                RemoteConfigNetworkWatcher.DestroyInstance();
+                RemoteConfig.RaiseActivated();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning(RemoteConfig.LogPrefix + "A fetch that missed its timeout also failed: " + exception.Message);
             }
         }
 

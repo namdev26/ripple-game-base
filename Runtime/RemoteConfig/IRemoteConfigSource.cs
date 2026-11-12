@@ -11,8 +11,9 @@ namespace RippleGame.RemoteConfig
     public interface IRemoteConfigSource
     {
         /// <summary>
-        /// Fetches new values and activates them. Resolves true when a fetch succeeded, false on failure or when
-        /// <paramref name="timeout"/> elapsed. <paramref name="minimumInterval"/> is the cache lifetime of the last fetch.
+        /// Fetches new values and activates them. Resolves true when a fetch succeeded and false on failure.
+        /// <paramref name="minimumInterval"/> is the cache lifetime of the last fetch. The core stops waiting after
+        /// <paramref name="timeout"/> but keeps observing the task: one that resolves true later still raises Activated.
         /// </summary>
         Task<bool> FetchAndActivateAsync(TimeSpan timeout, TimeSpan minimumInterval);
 

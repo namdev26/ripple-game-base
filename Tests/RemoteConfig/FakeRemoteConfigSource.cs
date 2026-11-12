@@ -14,6 +14,9 @@ namespace RippleGame.RemoteConfig.Tests
         public TimeSpan Delay { get; set; } = TimeSpan.Zero;
         public bool ThrowOnFetch { get; set; }
         public Dictionary<string, string> Values { get; } = new Dictionary<string, string>();
+
+        /// <summary>Copied into <see cref="Values"/> when a fetch completes, like a real activation.</summary>
+        public Dictionary<string, string> ValuesAfterFetch { get; } = new Dictionary<string, string>();
         public IReadOnlyDictionary<string, string> Defaults { get; private set; }
         public int FetchCount { get; private set; }
         public TimeSpan LastTimeout { get; private set; }
@@ -27,6 +30,7 @@ namespace RippleGame.RemoteConfig.Tests
             var result = Results.Count > 0 ? Results.Dequeue() : Result;
             if (Delay > TimeSpan.Zero) await Task.Delay(Delay);
             if (ThrowOnFetch) throw new InvalidOperationException("fetch failed");
+            foreach (var pair in ValuesAfterFetch) Values[pair.Key] = pair.Value;
             return result;
         }
 
