@@ -31,8 +31,8 @@ Each SDK has one row with one of these states:
 
 - **Setup** downloads the tarball into `Packages/RippleSdks/`, checks its SHA-256, writes `"<package>": "file:RippleSdks/<file>.tgz"` into `Packages/manifest.json`, and sets up missing dependencies in the same step (for example External Dependency Manager, and `com.unity.ugui` 2.0.0 for MAX). When a checksum is wrong the download is deleted and the manifest is not touched.
 - **Fix** brings a wrong version to the pinned one.
-- **Remove** takes the entry out of the manifest and deletes the tarball. It keeps a package another installed SDK still needs.
-- The Hub never deletes old copies under `Assets`. **Remove those folders by hand**, then press Setup. The Hub refuses Setup while they exist.
+- **Remove** takes the entry out of the manifest and deletes the tarball. It is refused while another installed SDK needs this one (remove that SDK first). Dependencies that Setup added, such as External Dependency Manager and `com.unity.ugui`, stay in the project.
+- The Hub never deletes old copies under `Assets`. **Remove those folders by hand**, then press Setup. The Hub refuses Setup of an SDK while its own old folders, or those of the SDKs it depends on, still exist. Old folders of unrelated SDKs do not block it.
 
 ## Guards against a wrong version
 

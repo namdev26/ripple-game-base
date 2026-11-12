@@ -652,9 +652,9 @@ Mở **RIPPLE Game > Open Hub > SDK**. Mỗi SDK có một dòng với một tro
 | Old copy found in Assets | Còn bản cài kiểu cũ trong `Assets` | không có nút |
 
 - **Setup** tải file về `Packages/RippleSdks/`, kiểm tra SHA-256, ghi vào `Packages/manifest.json`, rồi tự cài các SDK phụ thuộc còn thiếu. SHA-256 sai thì file tải về bị xóa và manifest không bị đụng tới.
-- **Remove** gỡ khỏi manifest và xóa file. SDK nào còn được SDK khác cần thì không bị gỡ.
+- **Remove** gỡ khỏi manifest và xóa file. Nếu còn SDK khác đang cài và cần SDK này thì Remove bị từ chối, hãy gỡ SDK kia trước. Các gói phụ thuộc mà Setup đã thêm (External Dependency Manager, `com.unity.ugui`) vẫn được giữ lại.
 - AppLovin MAX được tải từ kho chính thức của AppLovin vì giấy phép của họ không cho phát lại. Các SDK còn lại tải từ bản phát hành của repo `ripple-game-sdks`. Mọi file đều được kiểm tra SHA-256.
-- **Bản cài kiểu cũ phải xóa bằng tay:** `Assets/MaxSdk`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, `Assets/AppsFlyer`, `Assets/GoogleMobileAds` (cả file `.meta`). Hub chỉ liệt kê đường dẫn và từ chối Setup khi chúng còn tồn tại.
+- **Bản cài kiểu cũ phải xóa bằng tay:** `Assets/MaxSdk`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, `Assets/AppsFlyer`, `Assets/GoogleMobileAds` (cả file `.meta`). Hub chỉ liệt kê đường dẫn và từ chối Setup của SDK nào còn thư mục cũ của chính nó hoặc của SDK mà nó phụ thuộc. Thư mục cũ của SDK không liên quan thì không cản.
 
 ### Nếu cài sai bản
 
@@ -760,7 +760,7 @@ Bản 0.4.0 bỏ define `ADS` và `FIREBASE`, và SDK phải cài qua trang SDK.
 1. **Xử lý define.** Vào Player Settings > Scripting Define Symbols, xóa `ADS` và `FIREBASE` ở mọi nền tảng, hoặc bấm một chế độ ở trang ADS (chế độ nào cũng tự bỏ `ADS`).
    - **Game không quảng cáo (No Ads cũ):** ở 0.3.x "không có define `ADS`" nghĩa là No Ads. Ở 0.4.0 "không có define" nghĩa là **Production**, và file cấu hình cũ có `providerId` là `admob`, nên game sẽ build ra AdMob. Hãy bấm **No Ads** (đặt `ADS_DISABLED`) hoặc đặt `providerId` là `none`.
    - **Build iOS hoặc nền tảng khác của game dùng AdMob:** nút No Ads chỉ ghi define cho Android, nên tự thêm `ADS_DISABLED` cho nền tảng đó nếu không muốn quảng cáo.
-2. **Xóa SDK cũ trong `Assets`:** `Assets/GoogleMobileAds`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, và nếu có thì `Assets/MaxSdk`, `Assets/AppsFlyer` (cả file `.meta`). Giữ lại `google-services.json` và `GoogleService-Info.plist`. Hub từ chối Setup khi các thư mục này còn.
+2. **Xóa SDK cũ trong `Assets`:** `Assets/GoogleMobileAds`, `Assets/Firebase`, `Assets/ExternalDependencyManager`, và nếu có thì `Assets/MaxSdk`, `Assets/AppsFlyer` (cả file `.meta`). Giữ lại `google-services.json` và `GoogleService-Info.plist`. Hub từ chối Setup của SDK nào còn thư mục cũ của nó (hoặc của SDK nó phụ thuộc).
 3. **Cài SDK game cần:** mở **RIPPLE Game > Open Hub > SDK**, bấm **Setup** từng SDK (Google Mobile Ads, AppLovin MAX, Firebase Analytics, Firebase Remote Config, AppsFlyer). Đợi Unity compile xong.
 4. **Đặt `providerId`** trong `AdsConfiguration`: `none`, `admob` hoặc `max`. Cấu hình cũ giữ nguyên `admob`. Với `max`, điền hai mục Max Test và Max Production. Trang ADS phải báo `Compiled`.
 5. **Thêm `Ads.SetPolicyContext`** vào code game như [mục 6](#báo-trạng-thái-game-cho-ads).

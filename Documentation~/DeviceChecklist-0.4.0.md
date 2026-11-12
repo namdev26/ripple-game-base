@@ -26,7 +26,7 @@ Device, Android version, build date and tester:
 | A8 | Fallback with a failing interstitial | No reward, result is `Failed` | |
 | A9 | Cooldown: show an interstitial, request another at once | Second request returns `Cooldown`; it shows again after the cooldown | |
 | A10 | Session cap: reach `max_per_session` interstitials | Next request returns `Cooldown`; a new app launch resets the count | |
-| A11 | Organic block: set `organic.interstitial` to false and use an organic install (or a build before AppsFlyer reports) | Interstitial does not show for an organic user, and still shows for a non-organic user | |
+| A11 | Organic block: set `organic.interstitial` to false and use a user AppsFlyer has reported as Organic (status `Unknown` still shows ads) | With status `Organic` the interstitial does not show; with status `NonOrganic` or `Unknown` it still shows | |
 | A12 | `ads_policy` override: in Firebase set `{"interstitial":{"cooldown_seconds":90}}` and publish | Current session keeps its rules. After a full app restart, the interstitial cooldown is 90 seconds | |
 | A13 | `ads_policy` cleared: publish `{}` and restart twice | Cooldown returns to the AdsConfiguration value | |
 | A14 | `ads_enabled` = false and restart | No ad shows; rewarded grants its reward at once with `Success` | |
@@ -46,7 +46,7 @@ Device, Android version, build date and tester:
 | B6 | App open: background longer than the minimum, return | App open shows once; no ad on a quick return | |
 | B7 | Rewarded fallback with rewarded not ready | A ready interstitial shows and the reward is granted when it closes | |
 | B8 | Cooldown: two interstitial requests in a row | Second returns `Cooldown` | |
-| B9 | Organic block with `organic.interstitial` false | Blocked for organic users only | |
+| B9 | Organic block with `organic.interstitial` false, on a user AppsFlyer has reported as Organic (status `Unknown` still shows ads) | Interstitial does not show for status `Organic`; it still shows for `NonOrganic` and `Unknown` | |
 | B10 | `ads_policy` override on the next session (as A12) | New value applies after a full restart, not before | |
 | B11 | `ads_enabled` = false | No ad; rewarded grants at once | |
 | B12 | Revenue in the AppsFlyer debug view | Ad revenue event, mediation network Google AdMob | |
