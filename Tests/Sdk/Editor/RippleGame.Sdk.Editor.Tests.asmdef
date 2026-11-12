@@ -2,8 +2,12 @@
   "name": "RippleGame.Sdk.Editor.Tests",
   "rootNamespace": "RippleGame.Sdk.Editor.Tests",
   "references": [
-    "RippleGame.Sdk.Editor",
-    "Unity.Newtonsoft.Json"
+    "RippleGame.Sdk.Editor"
+  ],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll",
+    "Newtonsoft.Json.dll"
   ],
   "includePlatforms": [
     "Editor"
