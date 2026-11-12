@@ -12,6 +12,12 @@ namespace RippleGame.Ads
 
         [SerializeField] private AdsConfiguration configuration;
 
+        /// <summary>Tests set the configuration on an inactive object before Awake runs.</summary>
+        internal AdsConfiguration Configuration
+        {
+            set => configuration = value;
+        }
+
         private async void Awake()
         {
             if (_instance != null && _instance != this)

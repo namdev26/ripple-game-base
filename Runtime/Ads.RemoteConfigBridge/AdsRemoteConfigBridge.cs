@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RippleGame.RemoteConfig;
 using UnityEngine;
 using RemoteConfigApi = RippleGame.RemoteConfig.RemoteConfig;
@@ -7,15 +8,15 @@ namespace RippleGame.Ads.RemoteConfigBridge
 {
     /// <summary>
     /// Connects Remote Config to the Ads policy layer: applies <c>ads_enabled</c>, <c>ads_policy</c> and
-    /// <c>ads_unit_ids</c>, caches the policy override for the next session, and makes Ads wait for Remote Config
-    /// (bounded by its fetch timeout) before the provider initializes. Everything runs on the main thread.
+    /// <c>ads_unit_ids</c>, caches the policy override and the unit ids for the next session, and makes Ads wait for
+    /// Remote Config (bounded by its fetch timeout) before the provider initializes. Everything runs on the main thread.
     /// </summary>
     internal static class AdsRemoteConfigBridge
     {
         internal const string PolicyCacheKey = "ripplegame.ads.policy_override_cache";
+        internal const string UnitIdsCacheKey = "ripplegame.ads.unit_ids_cache";
 
-        // Readiness is already bounded by the fetch timeout; this only keeps the wait from being unbounded.
-        private const float ReadyWaitSeconds = 86400f;
+        private const float GateGraceSeconds = 0.5f;
 
         private static bool _installed;
         private static bool _activatedSeen;
@@ -41,12 +42,21 @@ namespace RippleGame.Ads.RemoteConfigBridge
             _activatedSeen = false;
 
             ApplyCachedPolicy();
+            ApplyCachedUnitIds();
 
-            // The timeout is read when the gate runs, so a settings asset registered after Install is honored.
-            Ads.InitializationGate = () => RemoteConfigApi.WaitUntilReadyAsync(RemoteConfigApi.Settings.FetchTimeoutSeconds);
+            // Providers read unit ids and refresh values when they initialize, which is right after this gate. Applying the
+            // ready-path values inside the gate guarantees they are in place first. Remote Config marks itself ready when
+            // its own fetch timeout ends, and it starts before the first scene, so it is ready before this wait ends; the
+            // grace only keeps the two equal timers from racing. The timeout is read when the gate runs, so a settings
+            // asset registered after Install is honored.
+            var epoch = _epoch;
+            Ads.InitializationGate = async () =>
+            {
+                await RemoteConfigApi.WaitUntilReadyAsync(RemoteConfigApi.Settings.FetchTimeoutSeconds + GateGraceSeconds);
+                if (epoch == _epoch && RemoteConfigApi.IsReady && !_activatedSeen) ApplyValues(fromActivation: false);
+            };
 
             RemoteConfigApi.Activated += OnActivated;
-            ApplyWhenReadyAsync(_epoch, RemoteConfigApi.Generation);
         }
 
         /// <summary>Last good <c>ads_policy</c> from an earlier session. It applies before any fetch can finish.</summary>
@@ -76,39 +86,50 @@ namespace RippleGame.Ads.RemoteConfigBridge
         }
 
         /// <summary>
-        /// Remote Config can become ready without a successful fetch (timeout, offline, no SDK). Activated is not raised
-        /// then, so apply what <c>Get</c> returns (the settings defaults). The cached policy stays untouched: defaults
-        /// must not replace it.
+        /// Last good <c>ads_unit_ids</c> from an earlier session, so ids that arrived after the provider initialized
+        /// take effect now. Applied at install, before anything can initialize a provider.
         /// </summary>
-        private static async void ApplyWhenReadyAsync(int epoch, int generation)
+        private static void ApplyCachedUnitIds()
         {
+            string cached;
             try
             {
-                await RemoteConfigApi.WaitUntilReadyAsync(ReadyWaitSeconds);
-
-                if (epoch != _epoch || generation != RemoteConfigApi.Generation) return;
-                if (!RemoteConfigApi.IsReady || _activatedSeen) return;
-
-                ApplyValues(includePolicy: false);
+                cached = PlayerPrefs.GetString(UnitIdsCacheKey, null);
             }
             catch (Exception exception)
             {
-                Debug.LogException(exception);
+                Debug.LogWarning(AdsPolicyJson.LogPrefix + "Could not read the cached ads unit ids: " + exception.Message);
+                return;
             }
+
+            if (string.IsNullOrEmpty(cached)) return;
+
+            if (!AdUnitIdsJson.TryParse(cached, out var entries))
+            {
+                PlayerPrefs.DeleteKey(UnitIdsCacheKey);
+                return;
+            }
+
+            SetUnitIds(entries);
         }
 
         // Activated can fire more than once (overlapping attempts, a late fetch after the timeout), so applying is idempotent.
         private static void OnActivated()
         {
             _activatedSeen = true;
-            ApplyValues(includePolicy: true);
+            ApplyValues(fromActivation: true);
         }
 
-        private static void ApplyValues(bool includePolicy)
+        /// <param name="fromActivation">
+        /// True for fetched values: the policy is applied and cached, and unit ids are cached. False when Remote Config
+        /// became ready without a successful fetch (timeout, offline, no SDK): Activated is not raised then, so the
+        /// values <c>Get</c> returns (the settings defaults) apply for this session only. Defaults never replace a cache.
+        /// </param>
+        private static void ApplyValues(bool fromActivation)
         {
             ApplyAdsEnabled();
-            if (includePolicy) ApplyPolicy();
-            ApplyUnitIds();
+            if (fromActivation) ApplyPolicy();
+            ApplyUnitIds(fromActivation);
         }
 
         private static void ApplyAdsEnabled()
@@ -140,14 +161,29 @@ namespace RippleGame.Ads.RemoteConfigBridge
             Ads.ApplyPolicyOverride(parsed);
         }
 
-        private static void ApplyUnitIds()
+        private static void ApplyUnitIds(bool cache)
         {
+            // A missing or blank key keeps the cache (as for ads_policy); publish {} to clear it.
             var raw = RemoteConfigApi.Get<string>(AdsRemoteConfigKeys.AdsUnitIds, null);
             if (string.IsNullOrWhiteSpace(raw)) return;
 
-            // Last write wins per (provider, platform, format). Providers read their ids when they initialize, so ids that
-            // arrive after that take effect from the next session.
-            foreach (var entry in AdUnitIdsJson.Parse(raw))
+            if (!AdUnitIdsJson.TryParse(raw, out var entries)) return;
+
+            // Providers read their ids when they initialize (after the gate). Ids that arrive later are cached and
+            // applied at the start of the next session.
+            if (cache)
+            {
+                PlayerPrefs.SetString(UnitIdsCacheKey, raw);
+                PlayerPrefs.Save();
+            }
+
+            SetUnitIds(entries);
+        }
+
+        // Last write wins per (provider, platform, format).
+        private static void SetUnitIds(IEnumerable<(string provider, string platform, AdFormat format, string id)> entries)
+        {
+            foreach (var entry in entries)
             {
                 AdUnitIdOverrides.Set(entry.provider, entry.platform, entry.format, entry.id);
             }

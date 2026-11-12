@@ -14,6 +14,7 @@ namespace RippleGame.Ads.RemoteConfigBridge.Tests
     public sealed class AdsRemoteConfigBridgeTests
     {
         private const string CacheKey = AdsRemoteConfigBridge.PolicyCacheKey;
+        private const string UnitIdsKey = AdsRemoteConfigBridge.UnitIdsCacheKey;
 
         /// <summary>Remote Config source whose fetch never resolves, like a dead connection.</summary>
         private sealed class SilentSource : IRemoteConfigSource
@@ -29,6 +30,7 @@ namespace RippleGame.Ads.RemoteConfigBridge.Tests
 
         private SilentSource _source;
         private string _savedCache;
+        private string _savedUnitIds;
         private Func<NetworkReachability> _savedReachability;
 
         [SetUp]
@@ -36,6 +38,8 @@ namespace RippleGame.Ads.RemoteConfigBridge.Tests
         {
             _savedCache = PlayerPrefs.HasKey(CacheKey) ? PlayerPrefs.GetString(CacheKey) : null;
             PlayerPrefs.DeleteKey(CacheKey);
+            _savedUnitIds = PlayerPrefs.HasKey(UnitIdsKey) ? PlayerPrefs.GetString(UnitIdsKey) : null;
+            PlayerPrefs.DeleteKey(UnitIdsKey);
             _savedReachability = RemoteConfigNetworkWatcher.ReachabilityProvider;
             RemoteConfigNetworkWatcher.ReachabilityProvider = () => NetworkReachability.NotReachable;
 
@@ -52,6 +56,8 @@ namespace RippleGame.Ads.RemoteConfigBridge.Tests
 
             if (_savedCache != null) PlayerPrefs.SetString(CacheKey, _savedCache);
             else PlayerPrefs.DeleteKey(CacheKey);
+            if (_savedUnitIds != null) PlayerPrefs.SetString(UnitIdsKey, _savedUnitIds);
+            else PlayerPrefs.DeleteKey(UnitIdsKey);
             PlayerPrefs.Save();
         }
 
@@ -194,6 +200,53 @@ namespace RippleGame.Ads.RemoteConfigBridge.Tests
             Assert.That(AdUnitIdOverrides.Resolve("max", RuntimePlatform.Android, AdFormat.Interstitial, "asset"), Is.EqualTo("second"));
         }
 
+        [Test]
+        public void Bridge_Activated_UnitIdsAreCached_InvalidOrAbsentKeepsTheCache()
+        {
+            const string good = "{\"max\":{\"android\":{\"rewarded\":\"r1\"}}}";
+            _source.Values[AdsRemoteConfigKeys.AdsUnitIds] = good;
+            AdsRemoteConfigBridge.Install();
+
+            RemoteConfigApi.RaiseActivated();
+            Assert.That(PlayerPrefs.GetString(UnitIdsKey), Is.EqualTo(good));
+
+            _source.Values[AdsRemoteConfigKeys.AdsUnitIds] = "{broken";
+            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"ads_unit_ids is not valid JSON"));
+            RemoteConfigApi.RaiseActivated();
+            Assert.That(PlayerPrefs.GetString(UnitIdsKey), Is.EqualTo(good), "an invalid value keeps the cache");
+
+            _source.Values.Remove(AdsRemoteConfigKeys.AdsUnitIds);
+            RemoteConfigApi.RaiseActivated();
+            Assert.That(PlayerPrefs.GetString(UnitIdsKey), Is.EqualTo(good), "an absent key keeps the cache");
+
+            _source.Values[AdsRemoteConfigKeys.AdsUnitIds] = "{}";
+            RemoteConfigApi.RaiseActivated();
+            Assert.That(PlayerPrefs.GetString(UnitIdsKey), Is.EqualTo("{}"), "{} clears the cache for the next session");
+        }
+
+        [Test]
+        public void Bridge_CachedUnitIds_AreAppliedAtInstall()
+        {
+            PlayerPrefs.SetString(UnitIdsKey, "{\"admob\":{\"android\":{\"banner\":\"cached-banner\"}}}");
+
+            AdsRemoteConfigBridge.Install();
+
+            Assert.That(RemoteConfigApi.IsReady, Is.False, "the source never answered");
+            Assert.That(AdUnitIdOverrides.Resolve("admob", RuntimePlatform.Android, AdFormat.Banner, "asset"), Is.EqualTo("cached-banner"));
+        }
+
+        [Test]
+        public void Bridge_CorruptUnitIdsCache_IsDropped()
+        {
+            PlayerPrefs.SetString(UnitIdsKey, "[1,2]");
+            LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"ads_unit_ids is not a JSON object"));
+
+            AdsRemoteConfigBridge.Install();
+
+            Assert.That(PlayerPrefs.HasKey(UnitIdsKey), Is.False);
+            Assert.That(AdUnitIdOverrides.Resolve("admob", RuntimePlatform.Android, AdFormat.Banner, "asset"), Is.EqualTo("asset"));
+        }
+
         // ---- Ready without a successful fetch ----
 
         [UnityTest]
@@ -210,12 +263,15 @@ namespace RippleGame.Ads.RemoteConfigBridge.Tests
             AdsRemoteConfigBridge.Install();
 
             _ = RemoteConfigBootstrap.Run(settings);
-            yield return WaitUntil(() => Ads.AdsEnabledValue.HasValue, "ads_enabled applied from defaults");
+            var gate = Ads.WaitForInitializationGateAsync(); // the ready-path values are applied inside the gate
+            yield return WaitUntil(() => gate.IsCompleted, "the initialization gate");
+            Assert.That(Ads.AdsEnabledValue.HasValue, Is.True, "ads_enabled applied from defaults before the gate released");
 
             Assert.That(Ads.AdsEnabledValue, Is.False);
             Assert.That(AdUnitIdOverrides.Resolve("max", RuntimePlatform.IPhonePlayer, AdFormat.Rewarded, "asset"), Is.EqualTo("offline-id"));
             Assert.That(PlayerPrefs.GetString(CacheKey), Is.EqualTo(cached), "defaults never replace the cached policy");
             Assert.That(Ads.CurrentPolicyOverride.InterstitialMinLevel, Is.EqualTo(4), "the cached policy stays in force");
+            Assert.That(PlayerPrefs.HasKey(UnitIdsKey), Is.False, "defaults never replace the unit id cache");
         }
 
         // ---- Initialization gate (Review Focus 4) ----

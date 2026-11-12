@@ -23,7 +23,17 @@ namespace RippleGame.Ads.RemoteConfigBridge
         /// <summary>Provider and platform come back lower-case. Invalid JSON logs a warning and yields nothing.</summary>
         internal static IEnumerable<(string provider, string platform, AdFormat format, string id)> Parse(string json)
         {
-            var result = new List<(string provider, string platform, AdFormat format, string id)>();
+            TryParse(json, out var result);
+            return result;
+        }
+
+        /// <summary>
+        /// False (with a warning) when <paramref name="json"/> is not a JSON object. A valid object with no usable ids,
+        /// such as <c>{}</c>, returns true and an empty list.
+        /// </summary>
+        internal static bool TryParse(string json, out List<(string provider, string platform, AdFormat format, string id)> result)
+        {
+            result = new List<(string provider, string platform, AdFormat format, string id)>();
 
             JObject root;
             try
@@ -33,13 +43,13 @@ namespace RippleGame.Ads.RemoteConfigBridge
             catch (Exception exception)
             {
                 Debug.LogWarning(AdsPolicyJson.LogPrefix + "ads_unit_ids is not valid JSON: " + exception.Message);
-                return result;
+                return false;
             }
 
             if (root == null)
             {
                 Debug.LogWarning(AdsPolicyJson.LogPrefix + "ads_unit_ids is not a JSON object.");
-                return result;
+                return false;
             }
 
             foreach (var provider in root.Properties())
@@ -63,7 +73,7 @@ namespace RippleGame.Ads.RemoteConfigBridge
                 }
             }
 
-            return result;
+            return true;
         }
     }
 }
