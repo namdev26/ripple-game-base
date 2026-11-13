@@ -1,11 +1,11 @@
 {
   "name": "com.ripplegame.base",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "displayName": "RIPPLE Game Base",
-  "description": "Reusable Unity game foundation: encrypted save, ads, analytics, localization, popup UI, scene loading and editor tooling. RIPPLE Game by Namdev26.",
+  "description": "Reusable Unity game foundation: encrypted save, ads (AdMob and AppLovin MAX), analytics, Remote Config, attribution (AppsFlyer), localization, popup UI, scene loading and editor tooling with a pinned optional-SDK installer. RIPPLE Game by Namdev26.",
   "unity": "6000.0",
   "license": "UNLICENSED",
-  "keywords": ["ripplegame", "base", "tools", "ads", "analytics", "localization"],
+  "keywords": ["ripplegame", "base", "tools", "ads", "max", "analytics", "remote-config", "appsflyer", "localization"],
   "author": { "name": "RIPPLE Game by Namdev26", "url": "https://github.com/namdev26" },
   "repository": { "type": "git", "url": "https://github.com/namdev26/ripple-game-base.git" },
   "dependencies": {
@@ -13,7 +13,8 @@
     "com.unity.modules.imgui": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
     "com.unity.modules.jsonserialize": "1.0.0",
-    "com.unity.modules.unitywebrequest": "1.0.0"
+    "com.unity.modules.unitywebrequest": "1.0.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.2"
   },
   "samples": [{ "displayName": "Basic Integration", "description": "Source-only examples of save, popups and localization. Assign your own prefabs and save key.", "path": "Samples~/Basic Integration" }]
 }

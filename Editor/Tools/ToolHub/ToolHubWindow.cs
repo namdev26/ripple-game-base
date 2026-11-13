@@ -18,6 +18,7 @@ internal sealed class ToolHubWindow : EditorWindow
     [SerializeField] private LocalizationHubPage localization = new LocalizationHubPage();
     [SerializeField] private BuildReportsHubPage reports = new BuildReportsHubPage();
     [SerializeField] private UpdateHubPage update = new UpdateHubPage();
+    [SerializeField] private SdkHubPage sdk = new SdkHubPage();
     private ToolHubNavigation navigation;
     private VisualElement body;
     private Label pageTitle;
@@ -32,7 +33,7 @@ internal sealed class ToolHubWindow : EditorWindow
         window.Show();
     }
 
-    private ToolHubPage[] Pages => new ToolHubPage[] { scenes, build, textures, ads, analytics, save, localization, reports, update };
+    private ToolHubPage[] Pages => new ToolHubPage[] { scenes, build, textures, ads, analytics, save, localization, reports, update, sdk };
 
     private void OnEnable()
     {
@@ -131,6 +132,7 @@ internal sealed class ToolHubWindow : EditorWindow
             case "save": return save;
             case "localization": return localization;
             case "update": return update;
+            case "sdk": return sdk;
             default: return reports;
         }
     }

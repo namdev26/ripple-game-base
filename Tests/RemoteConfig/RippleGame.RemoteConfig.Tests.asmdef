@@ -1,0 +1,23 @@
+{
+  "name": "RippleGame.RemoteConfig.Tests",
+  "rootNamespace": "RippleGame.RemoteConfig.Tests",
+  "references": [
+    "RippleGame.RemoteConfig"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "RIPPLEGAME_TEST_FRAMEWORK"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.test-framework",
+      "expression": "1.1.0",
+      "define": "RIPPLEGAME_TEST_FRAMEWORK"
+    }
+  ]
+}

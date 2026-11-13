@@ -1,0 +1,27 @@
+{
+  "name": "RippleGame.Ads.AdMob.Editor",
+  "rootNamespace": "RippleGame.Ads.AdMob.Editor",
+  "references": [
+    "RippleGame.Ads.Runtime",
+    "RippleGame.Ads.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_SDK_ADMOB"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.google.ads.mobile",
+      "expression": "[11.0.0]",
+      "define": "RIPPLEGAME_SDK_ADMOB"
+    }
+  ],
+  "noEngineReferences": false
+}

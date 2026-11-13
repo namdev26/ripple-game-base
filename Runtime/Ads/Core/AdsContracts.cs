@@ -15,13 +15,21 @@ namespace RippleGame.Ads
         Banner,
         Interstitial,
         Rewarded,
-        AppOpen
+        AppOpen,
+        Mrec
     }
 
     public enum BannerPosition
     {
         Top,
         Bottom
+    }
+
+    public enum MrecPosition
+    {
+        TopCenter,
+        Center,
+        BottomCenter
     }
 
     public enum AdPlacement
@@ -32,7 +40,10 @@ namespace RippleGame.Ads
         LevelComplete,
         Retry,
         DoubleReward,
-        ExtraLife
+        ExtraLife,
+        Pause,
+        Replay,
+        RewardedFallback
     }
 
     public enum AdsResult
@@ -62,13 +73,22 @@ namespace RippleGame.Ads
     /// <summary>Impression revenue reported by the ad network.</summary>
     public readonly struct AdRevenue
     {
+        public const string PlatformAdMob = "admob";
+        public const string PlatformMax = "applovin_max";
+
         public AdRevenue(long valueMicros, string currencyCode, int precision, string adUnitId, string adSourceName)
+            : this(valueMicros, currencyCode, precision, adUnitId, adSourceName, PlatformAdMob)
+        {
+        }
+
+        public AdRevenue(long valueMicros, string currencyCode, int precision, string adUnitId, string adSourceName, string platform)
         {
             ValueMicros = valueMicros;
             CurrencyCode = currencyCode;
             Precision = precision;
             AdUnitId = adUnitId;
             AdSourceName = adSourceName;
+            Platform = platform;
         }
 
         /// <summary>Revenue in micros of <see cref="CurrencyCode"/> (1,000,000 = 1 unit).</summary>
@@ -77,6 +97,8 @@ namespace RippleGame.Ads
         public int Precision { get; }
         public string AdUnitId { get; }
         public string AdSourceName { get; }
+        /// <summary>Mediation platform that reported the revenue, e.g. <see cref="PlatformAdMob"/>.</summary>
+        public string Platform { get; }
     }
 
     public readonly struct AdsEvent
@@ -97,6 +119,11 @@ namespace RippleGame.Ads
         public AdRevenue? Revenue { get; }
     }
 
+    /// <summary>
+    /// The provider contract. Implementations must raise <see cref="EventRaised"/> and invoke every
+    /// completion and reward callback on the Unity main thread, marshalling SDK callbacks that arrive on
+    /// other threads (see <c>MainThreadDispatcher</c>).
+    /// </summary>
     public interface IAdsService : IDisposable
     {
         event Action<AdsEvent> EventRaised;
@@ -107,6 +134,8 @@ namespace RippleGame.Ads
         void ShowBanner(BannerPosition position);
         void HideBanner();
         void DestroyBanner();
+        void ShowMrec(MrecPosition position);
+        void HideMrec();
         void ShowInterstitial(AdPlacement placement, Action<AdsResult> completed = null);
         void ShowRewarded(AdPlacement placement, Action rewarded, Action<AdsResult> completed = null);
         void ShowAppOpen(Action<AdsResult> completed = null);

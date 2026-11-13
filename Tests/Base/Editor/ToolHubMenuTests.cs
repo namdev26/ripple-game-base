@@ -43,12 +43,16 @@ namespace RippleGame.Base.Tests
         [TestCase("RippleGame.Ads.Editor.AdsBuildProfileUtility", "ConfigureAdsProduction")]
         [TestCase("RippleGame.Ads.Editor.AdsConfigurationAssetMenu", "Create")]
         [TestCase("RippleGame.Ads.Editor.AdsSceneInstaller", "AddAdsObjectToActiveScene")]
-        [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "EnableFirebase")]
-        [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "DisableFirebase")]
         [TestCase("RippleGame.Analytics.Editor.AnalyticsMenu", "CreateSettings")]
         public void HubCommand_FindsItsMethod(string typeName, string methodName)
         {
             Assert.That(ToolHubCommands.Find(typeName, methodName), Is.Not.Null);
+        }
+
+        [Test]
+        public void Search_FindsSdkSection()
+        {
+            Assert.That(ToolHubCatalog.Search("sdk").Select(section => section.Id), Does.Contain("sdk"));
         }
 
         [Test]

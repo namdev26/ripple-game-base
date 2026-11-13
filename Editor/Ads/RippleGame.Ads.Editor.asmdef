@@ -1,7 +1,7 @@
 {
   "name": "RippleGame.Ads.Editor",
   "rootNamespace": "RippleGame.Ads.Editor",
-  "references": ["RippleGame.Ads.Runtime"],
+  "references": ["RippleGame.Ads.Runtime", "RippleGame.Sdk.Editor"],
   "includePlatforms": ["Editor"],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

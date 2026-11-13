@@ -11,7 +11,6 @@ namespace RippleGame.Analytics.AdsBridge
     /// </summary>
     internal static class AdsAnalyticsBridge
     {
-        private const string AdPlatform = "AdMob";
         private const double MicrosPerUnit = 1_000_000.0;
 
         internal static bool IsInstalled { get; private set; }
@@ -67,6 +66,17 @@ namespace RippleGame.Analytics.AdsBridge
             return builder.ToString();
         }
 
+        /// <summary>Keeps the 0.3.x ad_platform names for AdMob and adds AppLovin. Other platforms pass through unchanged.</summary>
+        private static string ToAdPlatformName(string platform)
+        {
+            switch (platform)
+            {
+                case AdRevenue.PlatformAdMob: return "AdMob";
+                case AdRevenue.PlatformMax: return "AppLovin";
+                default: return platform;
+            }
+        }
+
         private static void OnAdsEvent(AdsEvent adsEvent) => Handle(adsEvent, Analytics.Settings.LogAdRevenue);
 
         private static void LogImpression(AdsEvent adsEvent, bool logAdRevenue)
@@ -81,7 +91,7 @@ namespace RippleGame.Analytics.AdsBridge
             }
 
             Analytics.LogEvent(Names.Events.AdImpression, new AnalyticsParams()
-                .Add(Names.Params.AdPlatform, AdPlatform)
+                .Add(Names.Params.AdPlatform, ToAdPlatformName(revenue.Platform))
                 .Add(Names.Params.AdSource, revenue.AdSourceName)
                 .Add(Names.Params.AdFormat, ToSnakeCase(adsEvent.Format.ToString()))
                 .Add(Names.Params.AdUnitName, revenue.AdUnitId)

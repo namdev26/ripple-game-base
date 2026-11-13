@@ -59,6 +59,29 @@ namespace RippleGame.Analytics.AdsBridge.Tests
         }
 
         [Test]
+        public void AnalyticsBridge_UsesRevenuePlatform()
+        {
+            var adsEvent = new AdsEvent(AdsEventType.Paid, AdFormat.Interstitial, AdPlacement.LevelComplete,
+                revenue: new AdRevenue(2_000_000, "USD", 2, "max-unit", "AppLovin", AdRevenue.PlatformMax));
+
+            AdsAnalyticsBridge.Handle(adsEvent, true);
+
+            Assert.That(_recorder.Param("ad_platform").StringValue, Is.EqualTo("AppLovin"));
+            Assert.That(_recorder.Param("value").DoubleValue, Is.EqualTo(2.0).Within(1e-12));
+        }
+
+        [Test]
+        public void AnalyticsBridge_UnknownPlatform_PassesThrough()
+        {
+            var adsEvent = new AdsEvent(AdsEventType.Paid, AdFormat.Banner, AdPlacement.Default,
+                revenue: new AdRevenue(1_000_000, "USD", 2, "unit", "src", "custom_net"));
+
+            AdsAnalyticsBridge.Handle(adsEvent, true);
+
+            Assert.That(_recorder.Param("ad_platform").StringValue, Is.EqualTo("custom_net"));
+        }
+
+        [Test]
         public void Paid_LogAdRevenueOff_LogsNothing()
         {
             AdsAnalyticsBridge.Handle(Paid("USD"), false);

@@ -26,6 +26,22 @@ namespace RippleGame.Ads.Tests
             Assert.That(service.IsReady(AdFormat.Interstitial), Is.False);
             Assert.That(service.IsReady(AdFormat.Rewarded), Is.False);
             Assert.That(service.IsReady(AdFormat.AppOpen), Is.False);
+            Assert.That(service.IsReady(AdFormat.Mrec), Is.False);
+        }
+
+        [Test]
+        public void NoAdsService_ShowMrec_RaisesFailedForMrec()
+        {
+            var service = new NoAdsService();
+            AdsEvent? raised = null;
+            service.EventRaised += e => raised = e;
+
+            service.ShowMrec(MrecPosition.Center);
+            service.HideMrec();
+
+            Assert.That(raised.HasValue, Is.True);
+            Assert.That(raised.Value.Type, Is.EqualTo(AdsEventType.Failed));
+            Assert.That(raised.Value.Format, Is.EqualTo(AdFormat.Mrec));
         }
     }
 }

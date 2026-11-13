@@ -1,0 +1,17 @@
+{
+  "name": "RippleGame.Ads.AttributionBridge",
+  "rootNamespace": "RippleGame.Ads.AttributionBridge",
+  "references": [
+    "RippleGame.Ads.Runtime",
+    "RippleGame.Attribution"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

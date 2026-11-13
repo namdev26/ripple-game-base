@@ -2,7 +2,7 @@
 
 ## New consuming project
 
-Install the tagged Git package. Create new project configurations from RIPPLE Game > Open Hub. Assign this project's own popup prefabs, identifiers, scenes and save keys. Install vendor SDKs only when needed; do not enable ADS or FIREBASE before their SDKs are present.
+Install the tagged Git package. Create new project configurations from RIPPLE Game > Open Hub. Assign this project's own popup prefabs, identifiers, scenes and save keys. Install vendor SDKs only when needed, from RIPPLE Game > Open Hub > SDK. The `ADS` and `FIREBASE` symbols no longer exist; an SDK is active when its pinned package is installed.
 
 ## Project already containing old TOOL code
 
@@ -25,6 +25,23 @@ Do not install the package alongside imported old implementations without perfor
    - **`save.BalanceStore(key)` or `save.LevelStore(key)`:** read the same section key at version 1, with a `[Serializable]` class that has an `int` field named exactly `value`.
    - **`PlayerPrefsBalanceStore(key)`:** this is a plain int in PlayerPrefs, not a save section. Keep reading it with `PlayerPrefs.GetInt(key)`, or copy it once into your save. Reading a new save section instead shows players 0 coins.
 4. Test with a save from the current release before publishing.
+
+## Moving to 0.4.0
+
+0.4.0 removes the `ADS` and `FIREBASE` define symbols. Third-party SDKs are now installed from RIPPLE Game > Open Hub > SDK at the version this package pins, and each provider assembly compiles only with that exact version. Back up the project and commit first, then follow these steps in order.
+
+1. **Fix the define symbols.** In Player Settings > Scripting Define Symbols, remove `ADS` and `FIREBASE` for every platform, or apply a build profile in RIPPLE Game > Open Hub > ADS (a profile removes `ADS` by itself).
+   - **No Ads games.** A 0.3.x game without the `ADS` symbol used to mean "No Ads". In 0.4.0 no symbol means **Production**, and the old configuration asset carries `providerId` `admob`, so such a game would now build with AdMob. Apply the **No Ads** profile (it sets `ADS_DISABLED`), or set `providerId` to `none`.
+   - **Non-Android builds of an AdMob game.** The No Ads profile writes the Android symbols only. For iOS or any other platform that must not show ads, add `ADS_DISABLED` for that platform by hand. The AdMob provider builds on Android only.
+2. **Remove the old SDK copies from `Assets`.** Delete the old `.unitypackage` imports: `Assets/GoogleMobileAds`, `Assets/Firebase`, `Assets/ExternalDependencyManager` (and `Assets/PlayServicesResolver`), and if present `Assets/MaxSdk` and `Assets/AppsFlyer`, along with their `.meta` files. Keep your `google-services.json` and `GoogleService-Info.plist`. The Hub recognises an old import by marker paths only a `.unitypackage` creates (for example `Assets/MaxSdk/Scripts`, `Assets/GoogleMobileAds/Editor`, `Assets/Firebase/Plugins`; the full list is in [SDK setup](sdk/Setup.md#the-sdk-page)), lists the markers it finds, and refuses Setup for the SDK being installed while that SDK or one in its dependency chain still has them. Files the UPM packages create later, such as `Assets/MaxSdk/Resources/AppLovinSettings.asset`, do not count.
+3. **Install the SDKs the game uses.** Open RIPPLE Game > Open Hub > SDK and press **Setup** on each: Google Mobile Ads for AdMob, AppLovin MAX, Firebase Analytics, Firebase Remote Config, AppsFlyer. Wait for the compile to finish. Firebase Analytics no longer needs the **Enable Firebase** button, which is gone. See [SDK setup](sdk/Setup.md).
+4. **Set `providerId`.** In the project's `AdsConfiguration`, choose `none`, `admob` or `max`. Existing assets keep `admob`. For `max`, fill the Max Test and Max Production profiles. Open the ADS page to confirm that the provider shows **Compiled**.
+5. **Tell Ads about the game.** Call `Ads.SetPolicyContext(new AdsPolicyContext(currentLevel, entitlement, hasUserConsent))` at start and whenever the level, a purchase or the consent answer changes. Without it `min_level` is ignored. See [SDK setup](sdk/Setup.md#game-code-for-the-ads-rules).
+6. **Check custom code.** A class that implements `IAdsService` must add `ShowMrec(MrecPosition)` and `HideMrec()`. Code that builds an `AdRevenue` can pass the new `platform` argument. A `switch` over `AdPlacement` should handle `Pause`, `Replay` and `RewardedFallback`.
+7. **Optional.** Create Remote Config and Attribution settings if the game uses them (the paths are in [SDK setup](sdk/Setup.md)). The old cooldown values in `AdsConfiguration` move into the new show rules by themselves, so no configuration is lost.
+8. Build once with Ads Test and run the [device checklist](DeviceChecklist-0.4.0.md) before a release.
+
+To roll back, return the package tag to `v0.3.1`, restore the symbols and the old SDK folders from your backup, and remove the `Packages/RippleSdks` folder and its manifest entries.
 
 ## Update or roll back a Git installation
 

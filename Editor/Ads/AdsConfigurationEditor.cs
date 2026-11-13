@@ -11,9 +11,19 @@ namespace RippleGame.Ads.Editor
         {
             var environment = AdsConfiguration.ResolveCompileTimeEnvironment();
             var message = environment == AdsEnvironment.Disabled
-                ? "Current symbols resolve to Disabled. Add ADS for production or ADS;ADS_TEST for test ads."
+                ? "Current symbols resolve to Disabled (ADS_DISABLED). Use the Ads Test or Ads Production profile in RIPPLE Game > Open Hub > ADS to turn ads on."
                 : $"Current symbols resolve to {environment}. This profile is selected at compile time.";
             EditorGUILayout.HelpBox(message, environment == AdsEnvironment.Disabled ? MessageType.Warning : MessageType.Info);
+
+            var providerId = ((AdsConfiguration)target).ProviderId;
+            var factoryType = ProviderBuildCheck.FactoryTypeName(providerId);
+            if (factoryType != null && !ProviderBuildCheck.IsCompiled(factoryType))
+            {
+                EditorGUILayout.HelpBox(
+                    $"Ads provider '{providerId}' is selected but its SDK is not installed at the pinned version. Open RIPPLE Game > Open Hub > SDK and press Setup or Fix.",
+                    MessageType.Warning);
+            }
+
             DrawDefaultInspector();
         }
     }

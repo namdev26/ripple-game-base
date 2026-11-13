@@ -1,11 +1,12 @@
 using System;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEngine;
 
 [Serializable]
 internal sealed class AnalyticsHubPage : ToolHubPage
 {
+    private const string FirebaseServiceType = "RippleGame.Analytics.FirebaseAnalyticsService, RippleGame.Analytics.Firebase";
+
     [SerializeField] private ToolHubAssetInspector configuration = new ToolHubAssetInspector();
     [SerializeField] private Vector2 scroll;
 
@@ -20,31 +21,14 @@ internal sealed class AnalyticsHubPage : ToolHubPage
                 return;
             }
             EditorGUILayout.LabelField("Firebase integration", EditorStyles.boldLabel);
-            DrawTarget("Android", NamedBuildTarget.Android);
-            DrawTarget("iOS", NamedBuildTarget.iOS);
-            var installed = ToolHubCommands.HasType("Firebase.Analytics.FirebaseAnalytics");
-            if (!installed)
-                EditorGUILayout.HelpBox("Firebase SDK is not installed. Events print to the Console.", MessageType.Info);
-            using (new EditorGUI.DisabledScope(EditorApplication.isCompiling || EditorApplication.isUpdating ||
-                EditorApplication.isPlayingOrWillChangePlaymode || BuildPipeline.isBuildingPlayer))
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                using (new EditorGUI.DisabledScope(!installed))
-                    if (GUILayout.Button("Enable Firebase", GUILayout.Height(28)))
-                        ToolHubCommands.Run("RippleGame.Analytics.Editor.AnalyticsMenu", "EnableFirebase");
-                if (GUILayout.Button("Disable Firebase", GUILayout.Height(28)))
-                    ToolHubCommands.Run("RippleGame.Analytics.Editor.AnalyticsMenu", "DisableFirebase");
-            }
+            var firebase = Type.GetType(FirebaseServiceType, false) != null;
+            EditorGUILayout.LabelField("Backend", firebase ? "Firebase" : "Console only");
+            if (!firebase)
+                EditorGUILayout.HelpBox("Firebase Analytics is not installed. Events print to the Console. Install it from the SDK page.", MessageType.Info);
             GUILayout.Space(18);
             EditorGUILayout.LabelField("Analytics settings", EditorStyles.boldLabel);
             configuration.Draw("RippleGame.Analytics.AnalyticsSettings", "RippleGame.Analytics.Editor.AnalyticsMenu", "CreateSettings");
         }
-    }
-
-    private static void DrawTarget(string label, NamedBuildTarget target)
-    {
-        var symbols = PlayerSettings.GetScriptingDefineSymbols(target).Split(';');
-        EditorGUILayout.LabelField(label, Array.IndexOf(symbols, "FIREBASE") >= 0 ? "Firebase enabled" : "Console only");
     }
 
     public override void Dispose() => configuration.Dispose();

@@ -19,19 +19,25 @@ Tài liệu này dành cho dev làm game trên package. Bạn chỉ cần làm t
 13. [Lỗi hay gặp](#13-lỗi-hay-gặp)
 14. [Giới hạn cần biết](#14-giới-hạn-cần-biết)
 15. [Đa ngôn ngữ](#15-đa-ngôn-ngữ)
+16. [SDK tùy chọn](#16-sdk-tùy-chọn)
+17. [Remote Config](#17-remote-config)
+18. [Attribution và AppsFlyer](#18-attribution-và-appsflyer)
+19. [Nâng lên 0.4.0 từ 0.3.x](#19-nâng-lên-040-từ-03x)
 
 ## 1. Package có gì
 
 | Phần | Làm được gì | Bạn phải làm |
 |---|---|---|
 | Save | Lưu dữ liệu vào file mã hóa, tự ghi, tự khôi phục khi file hỏng | Tạo key, khai báo class dữ liệu |
-| Quảng cáo | Banner, interstitial, rewarded, app open qua AdMob | Cài SDK, điền ID |
-| Analytics | Gửi event lên Firebase, chưa có Firebase thì in ra Console | Cài SDK nếu muốn gửi thật |
+| Quảng cáo | Banner, MREC, interstitial, rewarded, app open qua AdMob hoặc AppLovin MAX, kèm luật hiện quảng cáo dùng chung | Cài SDK ở trang SDK, điền ID, gọi `Ads.SetPolicyContext` |
+| Analytics | Gửi event lên Firebase, chưa có Firebase thì in ra Console | Cài Firebase Analytics ở trang SDK nếu muốn gửi thật |
+| Remote Config | Đọc giá trị từ Firebase, đổi luật quảng cáo không cần build lại | Cài Firebase Remote Config, đặt key trên Firebase |
+| Attribution | Biết người chơi organic hay đến từ quảng cáo, báo doanh thu quảng cáo cho AppsFlyer | Cài AppsFlyer, nhập dev key |
 | Popup | Mỗi lúc hiện một popup, popup mới thay popup cũ | Làm prefab |
 | Scene | Chuyển scene, màn hình loading có thanh tiến trình | Thêm scene vào Build Settings |
 | Safe area | Tránh tai thỏ và thanh home | Gắn component |
 | Đa ngôn ngữ | Đọc file dịch, đổi ngôn ngữ ngay khi đang chạy, sync từ Google Sheet | Làm Sheet, chọn ngôn ngữ, lo font |
-| TOOL Hub | Gom các công cụ Editor vào một cửa sổ, kiểm tra bản mới | Mở **RIPPLE Game > Open Hub** |
+| TOOL Hub | Gom các công cụ Editor vào một cửa sổ, cài đúng bản SDK, kiểm tra bản mới | Mở **RIPPLE Game > Open Hub** |
 
 Package chỉ có phần nền. Luật chơi, thắng thua, hồi sinh, thưởng, coin, level, art, prefab và scene đều do game tự viết.
 
@@ -47,6 +53,10 @@ Các ví dụ dưới đây dùng class `GameData` ở [mục 4](#bước-2-tạ
 | Hiện quảng cáo có thưởng | `Ads.ShowRewarded(AdPlacement.Default, () => { ... })` |
 | Hiện quảng cáo xen kẽ | `Ads.ShowInterstitial(AdPlacement.Home)` |
 | Ẩn hoặc hiện banner | `Ads.HideBanner()`, `Ads.ShowBanner()` |
+| Hiện hoặc ẩn MREC (chỉ MAX) | `Ads.ShowMrec(MrecPosition.Center)`, `Ads.HideMrec()` |
+| Báo level, gói bỏ quảng cáo, đồng ý dữ liệu cho Ads | `Ads.SetPolicyContext(new AdsPolicyContext(level))` |
+| Đọc giá trị Remote Config | `RemoteConfig.Get<int>("key", 0)` |
+| Biết người chơi organic hay không | `Attribution.Status` |
 | Gửi event | `Analytics.LogEvent("shop_open")` |
 | Hiện popup | `popups.Show(settingsPrefab)` |
 | Chuyển scene | `SceneLoader.Load("Home")` |
@@ -62,13 +72,13 @@ Máy cần có Unity 6000.0 trở lên và [Git](https://git-scm.com/).
 3. Dán địa chỉ sau rồi bấm **Install**:
 
 ```text
-https://github.com/namdev26/ripple-game-base.git#v0.3.1
+https://github.com/namdev26/ripple-game-base.git#v0.4.0
 ```
 
 Hoặc thêm một dòng vào `dependencies` trong `Packages/manifest.json`:
 
 ```json
-"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.3.1"
+"com.ripplegame.base": "https://github.com/namdev26/ripple-game-base.git#v0.4.0"
 ```
 
 Sau đó commit cả `Packages/manifest.json` và `Packages/packages-lock.json` để cả team dùng cùng một bản.
@@ -126,7 +136,7 @@ Luật chơi, thắng thua, thưởng, coin và level do game tự viết theo c
 
 ### Bước 4: Bật quảng cáo và analytics khi cần
 
-Làm theo [mục 6](#6-quảng-cáo) và [mục 7](#7-analytics). Chưa cài thì game vẫn chạy: quảng cáo báo không sẵn sàng, event in ra Console.
+Cài SDK cần dùng ở trang SDK ([mục 16](#16-sdk-tùy-chọn)), rồi làm theo [mục 6](#6-quảng-cáo) và [mục 7](#7-analytics). Chưa cài thì game vẫn chạy: quảng cáo báo không sẵn sàng, event in ra Console.
 
 ## 5. Save
 
@@ -240,13 +250,15 @@ Chi tiết hơn nằm ở [Save.md](Save.md).
 
 ### Cài đặt lần đầu
 
-1. Cài [Google Mobile Ads Unity plugin](https://developers.google.com/admob/unity/quick-start) vào project.
-2. Mở menu Settings của plugin một lần để nó tạo file cấu hình.
-3. Mở **RIPPLE Game > Open Hub > ADS** rồi bấm **Create Configuration**. File tạo ra đã có sẵn ID test của Google cho Android.
-4. Mở scene khởi động của game, bấm **Add Ads Object to Active Scene** trong trang ADS, rồi lưu scene.
-5. Bấm **Configure** ở dòng **Ads Test** và build thử lên máy.
-
-Khi sắp phát hành, điền ID thật vào mục `Production` trong file cấu hình, rồi dùng **Ads Production**.
+1. Mở **RIPPLE Game > Open Hub > SDK** và bấm **Setup** ở SDK của nhà cung cấp quảng cáo bạn chọn: **Google Mobile Ads** (AdMob) hoặc **AppLovin MAX**. Chi tiết ở [mục 16](#16-sdk-tùy-chọn).
+2. Với AdMob: mở **Assets > Google Mobile Ads > Settings** một lần để plugin tạo file cấu hình.
+3. Mở **RIPPLE Game > Open Hub > ADS** rồi bấm **Create Configuration**. Với AdMob, file tạo ra đã có sẵn ID test của Google cho Android.
+4. Trong file cấu hình, chọn `providerId`: `none` (không quảng cáo, là giá trị ban đầu), `admob` hoặc `max`. Trang ADS báo SDK của provider đó đã compile (`Compiled`) hay chưa.
+   - **AdMob:** điền ID thật vào mục `Production` khi sắp phát hành.
+   - **MAX:** điền SDK key và ID của từng loại quảng cáo (banner, interstitial, rewarded, app open, MREC), riêng cho Android và iOS, vào hai mục **Max Test** và **Max Production**. Nhập thêm SDK key này vào **AppLovin > Integration Manager**, vì AppLovin Quality Service đọc key ở đó. `MaxSdk.SetSdkKey` đã bị AppLovin đánh dấu cũ ở bản 8.5.1 nhưng package vẫn truyền key giúp bạn.
+5. Mở scene khởi động của game, bấm **Add Ads Object to Active Scene** trong trang ADS, rồi lưu scene.
+6. Bấm **Configure** ở dòng **Ads Test** và build thử lên máy.
+7. Trong code game, gọi `Ads.SetPolicyContext` (xem mục [Báo trạng thái game cho Ads](#báo-trạng-thái-game-cho-ads)).
 
 ### Chọn chế độ build
 
@@ -254,9 +266,13 @@ Khi sắp phát hành, điền ID thật vào mục `Production` trong file cấ
 
 | Chế độ | Kết quả |
 |---|---|
-| **No Ads** | Tắt quảng cáo. Rewarded báo `Disabled` và không bao giờ cho thưởng |
-| **Ads Test** | Dùng ID test. Dùng khi phát triển |
-| **Ads Production** | Dùng ID thật, từ chối build nếu còn ID demo của Google |
+| **No Ads** | Tắt quảng cáo (define `ADS_DISABLED`). Rewarded báo `Disabled` và không bao giờ cho thưởng |
+| **Ads Test** | Dùng ID test (define `ADS_TEST`). Dùng khi phát triển |
+| **Ads Production** | Dùng ID thật, từ chối build nếu còn ID demo của Google hoặc thiếu SDK key, ID của MAX |
+
+Không còn define `ADS`. Không có define nào nghĩa là **Production**. Ba nút trên chỉ ghi define cho **Android**. AdMob chỉ build cho Android, nên game dùng AdMob mà còn build iOS hoặc nền tảng khác không muốn quảng cáo thì tự thêm `ADS_DISABLED` cho nền tảng đó trong Player Settings.
+
+Nếu `providerId` chọn provider mà SDK của nó chưa cài hoặc sai bản, build dừng và báo rõ. Game không muốn quảng cáo thì chọn **No Ads** hoặc đặt `providerId` là `none`.
 
 Không bấm vào quảng cáo thật khi test.
 
@@ -267,6 +283,15 @@ Banner tự hiện ở mọi scene trong Build Settings, trừ các scene trong 
 ```csharp
 Ads.ShowBanner(BannerPosition.Bottom);
 Ads.HideBanner();
+```
+
+### MREC (hình chữ nhật 300x250)
+
+Chỉ có với MAX. AdMob bản này không hỗ trợ MREC, gọi sẽ chỉ có một cảnh báo trong log.
+
+```csharp
+Ads.ShowMrec(MrecPosition.Center);   // TopCenter, Center hoặc BottomCenter
+Ads.HideMrec();
 ```
 
 ### Quảng cáo có thưởng (rewarded)
@@ -294,11 +319,11 @@ watchButton.interactable = Ads.IsReady(AdFormat.Rewarded);
 Ads.ShowInterstitial(AdPlacement.Home, result => ResumeGame());
 ```
 
-Luôn tiếp tục game trong `completed`, vì quảng cáo có thể không hiện. Mặc định mỗi lần cách nhau ít nhất 45 giây và tối đa 4 lần mỗi phiên chơi. Đổi hai số này trong file cấu hình.
+Luôn tiếp tục game trong `completed`, vì quảng cáo có thể không hiện. Mặc định mỗi lần cách nhau ít nhất 45 giây và tối đa 4 lần mỗi phiên chơi. Đổi các số này trong mục `Policy` của file cấu hình, hoặc từ xa bằng Remote Config ([mục 17](#17-remote-config)).
 
 ### Quảng cáo khi mở app (app open)
 
-Tự hiện khi người chơi quay lại game sau khi rời đi ít nhất 5 giây, cách nhau ít nhất 20 giây. Bạn không cần gọi gì. Đổi hai số này trong file cấu hình, hoặc tắt bằng ô `Enable App Open`.
+Tự hiện khi người chơi quay lại game sau khi rời đi ít nhất 5 giây, cách nhau ít nhất 20 giây. Bạn không cần gọi gì. Đổi hai số này trong mục `Policy > App Open` của file cấu hình, hoặc tắt bằng ô `Enable App Open`.
 
 ### Giá trị của `result`
 
@@ -313,7 +338,45 @@ Tự hiện khi người chơi quay lại game sau khi rời đi ít nhất 5 gi
 
 ### Vị trí quảng cáo (`AdPlacement`)
 
-`Default`, `Home`, `LevelStart`, `LevelComplete`, `Retry`, `DoubleReward`, `ExtraLife`. Đây là nhãn để xem báo cáo trên analytics, không đổi cách hiện quảng cáo.
+`Default`, `Home`, `LevelStart`, `LevelComplete`, `Retry`, `DoubleReward`, `ExtraLife`, `Pause`, `Replay`, `RewardedFallback`. Đây là nhãn để xem báo cáo trên analytics. Riêng với interstitial, mỗi vị trí còn có thể bật hoặc tắt riêng trong luật hiện quảng cáo.
+
+### Luật hiện quảng cáo
+
+Mọi luật nằm trong lõi nên AdMob và MAX giống nhau. Chúng nằm ở mục `Policy` của `AdsConfiguration`:
+
+| Luật | Mặc định |
+|---|---|
+| Interstitial: thời gian chờ giữa hai lần | 45 giây |
+| Interstitial: tối đa mỗi phiên | 4 (số 0 là không giới hạn) |
+| Interstitial: chỉ từ level | 0 (tắt) |
+| Interstitial: chỉ từ phiên chơi thứ | 1 |
+| Interstitial: tắt theo vị trí | không tắt vị trí nào |
+| App open | bật, chờ 20 giây, rời app ít nhất 5 giây |
+| Rewarded fallback | tắt |
+| Người chơi organic vẫn thấy banner, MREC, interstitial, app open | cả bốn đều bật |
+| Banner, MREC tự đổi quảng cáo sau | 0 giây (để mạng quảng cáo tự làm). Chỉ MAX dùng; AdMob bỏ qua vì SDK AdMob tự đổi banner |
+| Dừng thời gian và âm thanh khi quảng cáo toàn màn hình hiện | bật, trả lại như cũ khi đóng |
+
+Số phiên chơi tăng một lần mỗi lần mở app. Các luật được chốt một lần mỗi phiên, vào lúc cần dùng đầu tiên.
+
+Quảng cáo tải lỗi thì được tải lại: `Retry Max Attempts` lần đầu chờ tăng dần từ `Retry Initial Delay Seconds`, sau đó cứ `Retry Max Delay Seconds` giây thử lại một lần cho tới khi tải được, không dừng giữa phiên. Có mạng trở lại thì định dạng còn thiếu được tải lại ngay.
+
+**Rewarded fallback:** khi bật, người chơi bấm xem quảng cáo có thưởng mà rewarded chưa sẵn sàng nhưng interstitial đã sẵn sàng, thì hiện interstitial. Đóng bình thường thì người chơi nhận thưởng và kết quả là `Success`. Interstitial lỗi thì không thưởng và kết quả là `Failed`. Kiểu hiện này bỏ qua thời gian chờ và level tối thiểu.
+
+#### Báo trạng thái game cho Ads
+
+Một số luật cần biết game đang ở đâu. Hãy gọi hàm này lúc mở game và mỗi khi level, quyền lợi hoặc việc đồng ý dữ liệu thay đổi:
+
+```csharp
+Ads.SetPolicyContext(new AdsPolicyContext(
+    currentLevel: 12,
+    entitlement: AdsEntitlement.None,
+    hasUserConsent: true));
+```
+
+- `entitlement`: `None`; `RemoveAds` (chặn banner, MREC, interstitial và app open, ví dụ người chơi đã mua bỏ quảng cáo); `RemoveAdsAndFreeRewards` (như trên và rewarded cho thưởng ngay, không hiện quảng cáo).
+- `hasUserConsent`: `true`, `false`, hoặc `null` nếu chưa hỏi. Giá trị này được truyền cho MAX trước khi khởi tạo.
+- Không gọi hàm này thì luật level tối thiểu bị bỏ qua và log một cảnh báo.
 
 ### Theo dõi mọi sự kiện quảng cáo
 
@@ -363,15 +426,15 @@ GameEvents.LevelFail(5, reason: "hit_wall");
 
 1. Tạo project trên [Firebase Console](https://console.firebase.google.com) và thêm app Android có package name trùng với game.
 2. Tải `google-services.json` vào `Assets/`.
-3. Tải [Firebase Unity SDK](https://firebase.google.com/download/unity) và import **chỉ** `FirebaseAnalytics.unitypackage`.
-4. Mở **RIPPLE Game > Open Hub > Analytics** rồi bấm **Enable Firebase**.
+3. Mở **RIPPLE Game > Open Hub > SDK** rồi bấm **Setup** ở dòng **Firebase Analytics**. Hub tải đúng bản (13.1.0), cài kèm Firebase App và External Dependency Manager. Nếu còn bản import `.unitypackage` cũ của Firebase (thư mục `Assets/Firebase/Plugins` hoặc `Assets/Firebase/Editor`) thì xóa thư mục `Assets/Firebase` bằng tay trước, giữ lại `google-services.json`.
+4. Mở trang **Analytics**: dòng `Backend` phải hiện `Firebase`.
 
-Muốn quay về chỉ in Console thì chọn **Disable Firebase**.
+Không còn define `FIREBASE` và không còn nút **Enable Firebase** hay **Disable Firebase**. Muốn quay về chỉ in Console thì bấm **Remove** ở dòng Firebase Analytics trên trang SDK. Trong Editor, event luôn chỉ in ra Console.
 
 ### Cần nhớ
 
 - **Tên event và param:** tối đa 40 ký tự, chỉ gồm chữ, số và `_`, bắt đầu bằng chữ. Sai luật thì event bị bỏ và có cảnh báo trong Editor.
-- **Doanh thu quảng cáo:** nếu đã link AdMob với Firebase, hãy tắt `Log Ad Revenue` trong **RIPPLE Game > Open Hub > Analytics**, nếu không doanh thu bị đếm hai lần.
+- **Doanh thu quảng cáo:** event `ad_impression` có `ad_platform` là `AdMob` hoặc `AppLovin`. Nếu đã link AdMob với Firebase, hãy tắt `Log Ad Revenue` trong **RIPPLE Game > Open Hub > Analytics**, nếu không doanh thu bị đếm hai lần.
 - **Kiểm tra trên máy:** chạy `adb shell setprop debug.firebase.analytics.app <package.name>` rồi xem Firebase Console > DebugView. Báo cáo thường thì chờ khoảng 24 giờ.
 
 Danh sách đầy đủ event và cách chờ người dùng đồng ý (consent) nằm ở [analytics/Setup.md](analytics/Setup.md).
@@ -442,8 +505,9 @@ Mở **RIPPLE Game > Open Hub**:
 | Scenes | Xem và chuyển nhanh giữa các scene |
 | Android Build | Version, package name, icon, keystore và các cài đặt Android |
 | Textures | Chỉnh kích thước ảnh về bội số của 4, tối ưu texture cho Android |
-| ADS | Sửa cấu hình quảng cáo, thêm Ads object vào scene, chọn chế độ build |
-| Analytics | Bật hoặc tắt Firebase, sửa cài đặt analytics |
+| ADS | Sửa cấu hình quảng cáo, xem provider đang chọn, thêm Ads object vào scene, chọn chế độ build |
+| Analytics | Xem analytics đang chạy bằng Firebase hay chỉ Console, sửa cài đặt analytics |
+| SDK | Cài, sửa hoặc gỡ các SDK tùy chọn (AdMob, MAX, Firebase, AppsFlyer) đúng bản package yêu cầu |
 | Save | Tạo key save, giải mã file save để xem |
 | Localization | Sync file dịch từ Google Sheet |
 | Build Reports | Xem kết quả, dung lượng và thời gian của lần build gần nhất |
@@ -457,13 +521,15 @@ Ngoài ra, chuột phải một ScriptableObject trong Inspector rồi chọn **
 
 Unity không tự cập nhật package. Package chỉ thông báo, còn bạn quyết định khi nào nâng:
 
-1. Khi mở Editor, nếu có bản mới thì Console hiện dòng `RIPPLE Game Base v0.3.0 is available`.
+1. Khi mở Editor, nếu có bản mới thì Console hiện dòng `RIPPLE Game Base v0.4.0 is available`.
 2. Mở **RIPPLE Game > Open Hub > Update**. Trang này hiện bản đang dùng và bản mới nhất.
 3. Bấm **View changes** để đọc thay đổi. Commit công việc đang làm.
-4. Bấm **Update to v0.3.0** rồi xác nhận. Unity tự tải bản mới và compile lại.
+4. Bấm **Update to v0.4.0** rồi xác nhận. Unity tự tải bản mới và compile lại.
 5. Commit `Packages/manifest.json` và `Packages/packages-lock.json`.
 
 **Quay lại bản cũ:** revert hai file đó bằng git.
+
+**Lên 0.4.0 từ 0.3.x:** bản này bỏ define `ADS` và `FIREBASE`, và SDK phải cài qua trang SDK. Làm theo [mục 19](#19-nâng-lên-040-từ-03x) trước khi cập nhật.
 
 **Lên 0.3.0 từ bản cũ hơn:** bản này bỏ Coin, Mở khóa level và Level flow. Game đang dùng các phần đó phải làm theo [Migration.md](Migration.md) trước khi cập nhật.
 
@@ -471,22 +537,26 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 
 **Cập nhật không ảnh hưởng dữ liệu của game:** file cấu hình quảng cáo, key save, prefab và keystore nằm trong project của bạn, nên không bị ghi đè.
 
-**Người phát hành bản mới:** sửa `version` trong `package.json` để khớp với tag, ghi vào `CHANGELOG.md`, rồi tạo tag dạng `vX.Y.Z` và push. Trang Update chỉ coi các tag dạng này là bản mới, nên tag kiểu `v0.3.0-beta` không được báo cho project khác.
+**Người phát hành bản mới:** sửa `version` trong `package.json` để khớp với tag, ghi vào `CHANGELOG.md`, rồi tạo tag dạng `vX.Y.Z` và push. Trang Update chỉ coi các tag dạng này là bản mới, nên tag kiểu `v0.4.0-beta` không được báo cho project khác.
 
 ## 13. Lỗi hay gặp
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách xử lý |
 |---|---|---|
-| Quảng cáo có thưởng báo chưa sẵn sàng | Rewarded chưa tải xong, đang ở chế độ No Ads, hoặc scene khởi động thiếu Ads object | Chọn **Ads Test**, chạy [cài đặt quảng cáo](#cài-đặt-lần-đầu) lại, đợi quảng cáo tải |
+| Quảng cáo có thưởng báo chưa sẵn sàng | Rewarded chưa tải xong, đang ở chế độ No Ads, `providerId` là `none`, hoặc scene khởi động thiếu Ads object | Chọn **Ads Test**, chạy [cài đặt quảng cáo](#cài-đặt-lần-đầu) lại, đợi quảng cáo tải |
 | Gọi interstitial mà không thấy hiện | Đang trong thời gian chờ 45 giây hoặc đã đủ 4 lần | Bình thường, đổi trong file cấu hình nếu cần |
 | Banner không hiện | Scene không có trong Build Settings, hoặc nằm trong danh sách loại trừ | Kiểm tra hai chỗ đó |
-| Build Production bị từ chối | Còn ID demo của Google hoặc thiếu ID | Điền ID thật trong mục `Production` |
+| Build Production bị từ chối | Còn ID demo của Google, hoặc thiếu ID, thiếu SDK key của MAX | Điền ID thật trong mục `Production` (hoặc `Max Production`) |
+| Build báo provider đã chọn nhưng chưa cài SDK đúng bản | SDK chưa cài, sai bản, hoặc còn bản import cũ trong `Assets` | Mở trang SDK, xóa bản import cũ bằng tay nếu Hub báo, rồi bấm **Setup** hoặc **Fix**. Game không cần quảng cáo thì chọn **No Ads** hoặc `providerId` là `none` |
+| Game cũ không có quảng cáo bỗng build ra AdMob | Bản 0.3.x dùng "không có define `ADS`" làm No Ads, nay đó là Production | Chọn **No Ads** (`ADS_DISABLED`) hoặc đặt `providerId` là `none` |
+| Hub không cho Setup SDK | Còn bản import `.unitypackage` cũ, ví dụ `Assets/MaxSdk/Scripts`, `Assets/Firebase/Plugins` | Xóa bằng tay bản import cũ của plugin đó, cả file `.meta` (xem [mục SDK](#cách-dùng-trang-sdk)) |
+| Console báo lỗi Firebase trong Editor khi dùng Remote Config | Thiếu `google-services-desktop.json` cho Editor | Bỏ qua được: game vẫn chạy bằng giá trị mặc định |
 | Lỗi trùng assembly khi cài | Project còn bản copy cũ của Ads, Analytics hoặc tool | Xóa bản cũ, xem [Migration.md](Migration.md) |
 | Báo lỗi tên save đã mở | Tạo hai `SaveFile` trùng tên | Chỉ mở trong `GameData`. Nếu tạo trong scene thì phải `Dispose` khi rời scene |
 | `DataLost` sau khi cập nhật game | Key bị đổi | Trả lại key cũ, save tự khôi phục |
 | Dữ liệu không được lưu | Sửa thẳng `Value` thay vì dùng `Update` | Đổi sang `Update` |
 | Lỗi khi load scene | Scene chưa có trong Build Settings | Thêm vào Build Settings |
-| Không thấy event trên Firebase | Chưa bật Firebase, hoặc báo cáo chưa kịp cập nhật | Chọn **Enable Firebase**, xem DebugView |
+| Không thấy event trên Firebase | Chưa cài Firebase Analytics, thiếu `google-services.json`, hoặc báo cáo chưa kịp cập nhật | Cài ở trang SDK (trang Analytics phải hiện `Backend: Firebase`), xem DebugView |
 | Trang Update báo `Could not check for updates` | Mất mạng, máy chưa có Git, hoặc không có quyền đọc repo | Kiểm tra mạng và lệnh `git` trong terminal |
 
 ## 14. Giới hạn cần biết
@@ -494,8 +564,8 @@ Unity không tự cập nhật package. Package chỉ thông báo, còn bạn qu
 - **Đổi hoặc mất key là mất save.** Lỡ phát hành nhầm key thì trả lại key cũ sẽ khôi phục được, nhưng mất hẳn key thì không.
 - **Mã hóa chỉ chặn việc sửa file thông thường.** Người có kinh nghiệm vẫn lấy được key từ bản build. IAP và bảng xếp hạng thật vẫn cần server xác thực.
 - **Save không lưu trực tiếp `Dictionary`.** Dùng `List` của một class `[Serializable]`. Class dữ liệu không được là `MonoBehaviour` hay `ScriptableObject`.
-- **Quảng cáo hiện chỉ có cấu hình ID cho Android.** Save nhắm tới Android và iOS, WebGL chưa làm, chưa có cloud save.
-- **Quảng cáo mạng thật và chạy trên điện thoại chưa được kiểm tra đầy đủ trong bản này.** Hãy test trên máy thật trước khi phát hành. Xem [Verification.md](Verification.md).
+- **AdMob chỉ chạy trên Android.** MAX chạy trên Android và iOS. MREC chỉ có với MAX. Save nhắm tới Android và iOS, WebGL chưa làm, chưa có cloud save.
+- **Quảng cáo mạng thật và chạy trên điện thoại chưa được kiểm tra đầy đủ trong bản này.** Hãy test trên máy thật trước khi phát hành, theo [DeviceChecklist-0.4.0.md](DeviceChecklist-0.4.0.md). Xem thêm [Verification.md](Verification.md).
 
 ## 15. Đa ngôn ngữ
 
@@ -555,3 +625,162 @@ private void Refresh() => coinLabel.text = Localizer.Format("s_coin_value", coin
 - **Hindi cần kiểm tra thực tế,** vì TextMeshPro có thể không ghép đúng chữ Devanagari.
 - **`LocalizedText` chỉ dùng được với TextMeshPro,** không dùng được với `Text` cũ.
 - **Nội dung quảng cáo và tên app trên điện thoại** không đổi theo ngôn ngữ.
+
+## 16. SDK tùy chọn
+
+Package không chứa SDK của bên thứ ba. Mỗi bản package ghim một bộ phiên bản SDK, và trang **SDK** cài đúng bộ đó chỉ bằng một nút. Game cần SDK nào thì cài SDK đó. Không cài SDK nào thì game vẫn compile và chạy: quảng cáo báo không có provider, analytics in ra Console, Remote Config trả về giá trị mặc định.
+
+### Bộ phiên bản đang ghim
+
+| SDK | Phiên bản |
+|---|---|
+| External Dependency Manager | 1.2.186 |
+| Firebase (app, analytics, remote-config, crashlytics, messaging) | 13.1.0 |
+| AppLovin MAX | 8.5.1 (cần `com.unity.ugui` 2.0.0, nút Setup tự thêm) |
+| AppsFlyer | 6.17.900 |
+| Google Mobile Ads (AdMob) | 11.0.0 |
+
+Crashlytics và Messaging chỉ được cài đúng bản, package chưa có code riêng cho hai SDK này.
+
+### Cách dùng trang SDK
+
+Mở **RIPPLE Game > Open Hub > SDK**. Mỗi SDK có một dòng với một trong bốn trạng thái:
+
+| Trạng thái | Ý nghĩa | Nút |
+|---|---|---|
+| Not installed | Chưa cài | **Setup** |
+| Installed | Đúng bản | **Remove** |
+| Wrong version | Sai bản, dòng chữ hiện bản đang cài và bản yêu cầu | **Fix** |
+| Old copy found in Assets | Còn bản import `.unitypackage` cũ của SDK này trong `Assets`; dòng này liệt kê các dấu hiệu tìm thấy | không có nút |
+
+- **Setup** tải file về `Packages/RippleSdks/`, kiểm tra SHA-256, ghi vào `Packages/manifest.json`, rồi tự cài các SDK phụ thuộc còn thiếu. SHA-256 sai thì file tải về bị xóa và manifest không bị đụng tới.
+- **Remove** gỡ khỏi manifest và xóa file. Nếu còn SDK khác đang cài và cần SDK này thì Remove bị từ chối, hãy gỡ SDK kia trước. Các gói phụ thuộc mà Setup đã thêm (External Dependency Manager, `com.unity.ugui`) vẫn được giữ lại.
+- AppLovin MAX được tải từ kho chính thức của AppLovin vì giấy phép của họ không cho phát lại. Các SDK còn lại tải từ bản phát hành của repo `ripple-game-sdks`. Mọi file đều được kiểm tra SHA-256.
+- **Bản import cũ phải xóa bằng tay** (cả file `.meta`). Hub chỉ liệt kê dấu hiệu tìm thấy, và từ chối Setup của SDK đang cài khi chính SDK đó hoặc một SDK trong chuỗi phụ thuộc của nó (ví dụ External Dependency Manager với MAX) còn bản import cũ. Bản import cũ của SDK không liên quan thì không cản.
+
+Hub nhận ra bản import cũ qua các đường dẫn mà chỉ `.unitypackage` mới tạo. Gói UPM cũng ghi vài file dưới cùng thư mục gốc, và chúng không bị coi là bản cũ: `Assets/MaxSdk/Resources/AppLovinSettings.asset`, `Assets/GoogleMobileAds/Resources/GoogleMobileAdsSettings.asset`, `Assets/GoogleMobileAds/link.xml` (ghi lúc build), `Assets/GeneratedLocalRepo`, `Assets/Plugins/Android`. `google-services.json` để trong `Assets/Firebase` cũng không bị coi là bản cũ.
+
+| SDK | Dấu hiệu (chỉ cần một cái là coi như còn bản import cũ) |
+|---|---|
+| External Dependency Manager | `Assets/ExternalDependencyManager/Editor` |
+| Firebase (mọi dòng Firebase) | `Assets/Firebase/Plugins`, `Assets/Firebase/Editor` |
+| Google Mobile Ads | `Assets/GoogleMobileAds/Editor`, `Assets/GoogleMobileAds/GoogleMobileAds.dll`, `Assets/GoogleMobileAds/Api`, `Assets/GoogleMobileAds/Platforms` |
+| AppLovin MAX | `Assets/MaxSdk/Scripts`, `Assets/MaxSdk/AppLovin` |
+| AppsFlyer | `Assets/AppsFlyer/Editor`, `Assets/AppsFlyer/Plugins`, `Assets/AppsFlyer/AppsFlyer.cs` |
+
+Thấy dấu hiệu thì xóa cả bản import cũ của plugin đó: với MAX là mọi thứ trong `Assets/MaxSdk` trừ `Resources/AppLovinSettings.asset`; với Google Mobile Ads là mọi thứ trong `Assets/GoogleMobileAds` trừ `Resources/GoogleMobileAdsSettings.asset`; và các thư mục `Assets/Firebase`, `Assets/ExternalDependencyManager` (cùng `Assets/PlayServicesResolver`), `Assets/AppsFlyer`. Giữ lại `google-services.json` và `GoogleService-Info.plist`.
+
+### Nếu cài sai bản
+
+Phần code của SDK đó sẽ không compile, trang SDK báo lệch, và build bị chặn kèm lời nhắc mở trang SDK bấm **Fix**.
+
+## 17. Remote Config
+
+Remote Config đọc giá trị từ Firebase, nhờ đó đổi luật quảng cáo hoặc số liệu game không cần build lại. Cần cài **Firebase Remote Config** ở trang SDK. Chưa cài thì mọi hàm đọc trả về giá trị mặc định và báo sẵn sàng ngay.
+
+### Tạo file cài đặt (không bắt buộc)
+
+Chọn **Assets > Create > RIPPLE Game > REMOTE CONFIG > Remote Config Settings**. File **phải nằm đúng** ở `Assets/Resources/RippleGameRemoteConfig/RemoteConfigSettings.asset`, nếu để chỗ khác package không tìm thấy.
+
+| Ô | Mặc định | Ý nghĩa |
+|---|---|---|
+| Fetch Timeout Seconds | 5 | Chờ fetch tối đa bao lâu, quá thì chạy tiếp bằng giá trị đã lưu hoặc mặc định |
+| Minimum Fetch Interval Seconds | 3600 | Thời gian giữ cache. Build Ads Test luôn dùng 0 |
+| Defaults | trống | Danh sách key và giá trị dùng khi server chưa có key đó |
+
+### Đọc giá trị
+
+```csharp
+using RippleGame.RemoteConfig;
+
+int lives = RemoteConfig.Get<int>("start_lives", 3);
+bool saleOn = RemoteConfig.Get<bool>("sale_on", false);
+var tuning = RemoteConfig.GetJson<MyTuning>("tuning", new MyTuning());
+
+RemoteConfig.Activated += () => Debug.Log("Đã có giá trị mới");
+```
+
+`Get` đọc được int, long, float, double, bool và string. Đọc sai kiểu thì trả về giá trị mặc định và log một cảnh báo cho mỗi key. Fetch lỗi hoặc quá giờ thì `RemoteConfig.IsReady` vẫn lên `true`, dùng giá trị đã lưu lần trước hoặc mặc định. Remote Config cũng chạy trong Editor. Thiếu `google-services-desktop.json` thì Console báo một lỗi Firebase, nhưng game vẫn chạy bằng giá trị mặc định.
+
+### Ba key điều khiển quảng cáo
+
+| Key | Kiểu | Mặc định | Tác dụng |
+|---|---|---|---|
+| `ads_enabled` | bool | true | `false`: không hiện quảng cáo nào, rewarded cho thưởng ngay và trả `Success`. Có hiệu lực ngay |
+| `ads_policy` | JSON | không có | Ghi đè luật hiện quảng cáo. Chỉ trường nào có mặt mới đổi, trường lạ bị bỏ qua |
+| `ads_unit_ids` | JSON | không có | Ghi đè ID quảng cáo theo provider và nền tảng |
+
+Ví dụ `ads_policy` (trường nào cũng không bắt buộc):
+
+```json
+{
+  "interstitial": { "cooldown_seconds": 60, "max_per_session": 0, "min_level": 3, "start_session": 2,
+                    "placements": { "replay": false, "pause": false } },
+  "app_open": { "enabled": true, "cooldown_seconds": 30, "min_background_seconds": 5 },
+  "rewarded_fallback": { "enabled": true },
+  "organic": { "banner": true, "mrec": true, "interstitial": false, "app_open": true },
+  "banner": { "refresh_seconds": 15 },
+  "mrec": { "refresh_seconds": 15 }
+}
+```
+
+- Trường số nguyên (`max_per_session`, `min_level`, `start_session`) chỉ nhận số nguyên, ghi `15.0` thì bị bỏ qua. Trường số thực (`cooldown_seconds`, `min_background_seconds`, `refresh_seconds`) nhận số nguyên hoặc số thập phân. Trường sai kiểu bị bỏ qua.
+- Tên vị trí là tên `AdPlacement` viết kiểu snake_case: `default`, `home`, `level_start`, `level_complete`, `retry`, `double_reward`, `extra_life`, `pause`, `replay`, `rewarded_fallback`.
+- `banner.refresh_seconds` và `mrec.refresh_seconds` chỉ có tác dụng với MAX và được đọc lúc MAX khởi tạo. AdMob bỏ qua hai trường này vì SDK AdMob tự đổi banner.
+- **Khi nào có hiệu lực:** luật được chốt một lần mỗi phiên, lúc có quyết định quảng cáo đầu tiên. `ads_policy` về muộn hơn lúc đó thì áp từ phiên sau. Bản hợp lệ gần nhất được lưu trên máy và dùng ngay từ đầu phiên kế tiếp.
+- **Key trống hoặc thiếu:** `ads_policy` thiếu hoặc để trống thì giữ nguyên bản đã lưu. Muốn xóa bản đã lưu, hãy đặt giá trị là `{}`.
+
+`ads_unit_ids` ví dụ (provider là `max` hoặc `admob`, nền tảng `android` hoặc `ios`, loại quảng cáo `banner`, `interstitial`, `rewarded`, `app_open`, `mrec`):
+
+```json
+{ "max": { "android": { "interstitial": "id-cua-ban" } }, "admob": { "android": { "banner": "id-cua-ban" } } }
+```
+
+Chuỗi rỗng bị bỏ qua. Cả hai provider chốt ID lúc khởi tạo. Ads chờ Remote Config tối đa bằng `Fetch Timeout Seconds` rồi mới khởi tạo, nên ID tải về (hoặc giá trị mặc định trong settings khi tải lỗi hay quá giờ) luôn có trước. Bản `ads_unit_ids` hợp lệ gần nhất được lưu trên máy và áp ngay từ đầu phiên sau, nên ID về muộn hơn lúc provider khởi tạo sẽ có hiệu lực từ phiên sau. Key thiếu, để trống hoặc không phải JSON object thì giữ bản đã lưu; muốn xóa bản đã lưu thì đặt giá trị là `{}`.
+
+Key riêng của game thì game tự đọc bằng `RemoteConfig.Get`.
+
+## 18. Attribution và AppsFlyer
+
+Attribution cho biết người chơi là organic (tự tìm đến) hay đến từ quảng cáo, và báo doanh thu quảng cáo cho AppsFlyer.
+
+1. Mở trang SDK và bấm **Setup** ở dòng **AppsFlyer**.
+2. Chọn **Assets > Create > RIPPLE Game > ATTRIBUTION > Attribution Settings**. File **phải nằm đúng** ở `Assets/Resources/RippleGameAttribution/AttributionSettings.asset`.
+3. Điền các ô:
+
+| Ô | Mặc định | Ý nghĩa |
+|---|---|---|
+| Dev Key | trống | Dev key của AppsFlyer. Để trống thì attribution tắt |
+| Ios App Id | trống | App id trên App Store, chỉ gồm số. Cần cho iOS |
+| Debug Log | tắt | Bật log gỡ lỗi của AppsFlyer. Tắt khi phát hành |
+| Log Ad Revenue | bật | Gửi doanh thu của từng lần hiện quảng cáo cho AppsFlyer |
+
+Dev key để trong file của game, không bao giờ để trong package.
+
+```csharp
+using RippleGame.Attribution;
+
+if (Attribution.Status == AttributionStatus.Organic) { /* ... */ }
+Attribution.StatusChanged += status => Debug.Log(status);
+```
+
+- `Attribution.Status` là `Unknown`, `Organic` hoặc `NonOrganic`, kèm `MediaSource` và `Campaign`. Lần đầu biết thì trạng thái được lưu lại và đọc lại ở các lần mở sau.
+- AppsFlyer chỉ chạy trên máy thật, Editor không khởi động nó nên trạng thái luôn là `Unknown`.
+- Khi có cả Ads, doanh thu mỗi lần hiện quảng cáo tự được gửi cho AppsFlyer (MAX và AdMob đều có), và trạng thái organic được đưa vào luật `organic` của quảng cáo. `Unknown` được coi là chưa organic, nên quảng cáo vẫn hiện cho tới khi AppsFlyer báo người đó organic.
+
+## 19. Nâng lên 0.4.0 từ 0.3.x
+
+Bản 0.4.0 bỏ define `ADS` và `FIREBASE`, và SDK phải cài qua trang SDK. Commit hoặc backup project trước, rồi làm lần lượt:
+
+1. **Xử lý define.** Vào Player Settings > Scripting Define Symbols, xóa `ADS` và `FIREBASE` ở mọi nền tảng, hoặc bấm một chế độ ở trang ADS (chế độ nào cũng tự bỏ `ADS`).
+   - **Game không quảng cáo (No Ads cũ):** ở 0.3.x "không có define `ADS`" nghĩa là No Ads. Ở 0.4.0 "không có define" nghĩa là **Production**, và file cấu hình cũ có `providerId` là `admob`, nên game sẽ build ra AdMob. Hãy bấm **No Ads** (đặt `ADS_DISABLED`) hoặc đặt `providerId` là `none`.
+   - **Build iOS hoặc nền tảng khác của game dùng AdMob:** nút No Ads chỉ ghi define cho Android, nên tự thêm `ADS_DISABLED` cho nền tảng đó nếu không muốn quảng cáo.
+2. **Xóa SDK cũ trong `Assets`** (bản import `.unitypackage`): `Assets/GoogleMobileAds`, `Assets/Firebase`, `Assets/ExternalDependencyManager` (cùng `Assets/PlayServicesResolver`), và nếu có thì `Assets/MaxSdk`, `Assets/AppsFlyer` (cả file `.meta`). Giữ lại `google-services.json` và `GoogleService-Info.plist`. Hub nhận ra bản cũ qua dấu hiệu như `Assets/MaxSdk/Scripts`, `Assets/GoogleMobileAds/Editor`, `Assets/Firebase/Plugins` (danh sách đủ ở [mục SDK](#cách-dùng-trang-sdk)) và từ chối Setup của SDK đang cài khi chính nó hoặc SDK trong chuỗi phụ thuộc của nó còn bản cũ. File do gói UPM tạo sau này, như `Assets/MaxSdk/Resources/AppLovinSettings.asset`, không tính.
+3. **Cài SDK game cần:** mở **RIPPLE Game > Open Hub > SDK**, bấm **Setup** từng SDK (Google Mobile Ads, AppLovin MAX, Firebase Analytics, Firebase Remote Config, AppsFlyer). Đợi Unity compile xong.
+4. **Đặt `providerId`** trong `AdsConfiguration`: `none`, `admob` hoặc `max`. Cấu hình cũ giữ nguyên `admob`. Với `max`, điền hai mục Max Test và Max Production. Trang ADS phải báo `Compiled`.
+5. **Thêm `Ads.SetPolicyContext`** vào code game như [mục 6](#báo-trạng-thái-game-cho-ads).
+6. Nếu game có class tự viết implement `IAdsService`, thêm hai hàm `ShowMrec(MrecPosition)` và `HideMrec()`. Code `switch` trên `AdPlacement` cần xử lý thêm `Pause`, `Replay`, `RewardedFallback`.
+7. Giá trị cũ về thời gian chờ interstitial và app open trong `AdsConfiguration` tự chuyển sang luật mới, không mất cấu hình.
+8. Build Ads Test rồi chạy [danh sách kiểm tra trên máy](DeviceChecklist-0.4.0.md) trước khi phát hành.
+
+Chi tiết và cách quay lại bản cũ nằm ở [Migration.md](Migration.md).

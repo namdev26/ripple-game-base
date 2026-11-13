@@ -1,0 +1,14 @@
+{
+  "name": "RippleGame.Attribution",
+  "rootNamespace": "RippleGame.Attribution",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

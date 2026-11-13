@@ -47,6 +47,27 @@ namespace RippleGame.Base.Tests
         }
 
         [Test]
+        public void CreatePage_Sdk_ReturnsTheSdkPage()
+        {
+            var page = ToolHubCatalog.CreatePage("sdk");
+
+            Assert.That(page, Is.Not.Null);
+            Assert.That(page.GetType().Name, Is.EqualTo("SdkHubPage"));
+        }
+
+        [Test]
+        public void Open_SdkPage_ShowsItsTitle()
+        {
+            RequireGraphics();
+
+            ToolHubPageWindow.Open("sdk");
+
+            Assert.That(OpenWindows().Length, Is.EqualTo(1));
+            Assert.That(OpenWindows()[0].PageId, Is.EqualTo("sdk"));
+            Assert.That(OpenWindows()[0].titleContent.text, Is.EqualTo("SDK"));
+        }
+
+        [Test]
         public void CreatePage_UnknownId_ReturnsNull()
         {
             Assert.That(ToolHubCatalog.CreatePage("nothing"), Is.Null);
@@ -110,6 +131,10 @@ namespace RippleGame.Base.Tests
 
             hub.ShowPage("save");
             Assert.That(button.style.display.value, Is.EqualTo(DisplayStyle.Flex));
+
+            hub.ShowPage("sdk");
+            Assert.That(button.style.display.value, Is.EqualTo(DisplayStyle.Flex));
+            Assert.That(hub.rootVisualElement.Q("inline-sdk"), Is.Not.Null);
         }
     }
 }

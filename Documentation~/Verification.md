@@ -1,3 +1,17 @@
+# Verification - 0.4.0, 2026-11-12
+
+Unity Editor: 6000.0.50f1 on Windows.
+
+- Four fresh scratch projects, one per SDK combination (not copies of `ripple-verify`), each importing the package from a local path with `com.unity.test-framework` 1.5.1 and `com.unity.ugui` 2.0.0. Hub Setup itself was not run: the SDK tarballs were copied into `Packages/RippleSdks/` and the manifest entries `file:RippleSdks/<file>` were written by hand to emulate it. In the four-SDK project, `SdkStatusResolver` returned Installed for max, appsflyer, firebase-remote-config, firebase-analytics, firebase-app and the External Dependency Manager. Every combination imported with 0 `error CS`:
+  - none: no `RippleGame.Ads.AdMob*`, `Ads.Max`, `Firebase`, `Analytics.Firebase`, `RemoteConfig.Firebase` or `Attribution.AppsFlyer` DLL in `Library/ScriptAssemblies`.
+  - admob: adds `RippleGame.Ads.AdMob.dll` and `RippleGame.Ads.AdMob.Editor.dll` only.
+  - max: adds `RippleGame.Ads.Max.dll` only.
+  - max + appsflyer + firebase-remote-config + firebase-analytics: adds `Ads.Max`, `RippleGame.Firebase`, `Analytics.Firebase`, `RemoteConfig.Firebase` and `Attribution.AppsFlyer`.
+- Test suites, run in the none and the four-SDK combinations with the same result in both: EditMode 309 passed, 6 skipped without a graphics device (the pop-out window tests), 0 failed. PlayMode 177 passed, 0 failed. The first PlayMode run failed one test in both the none and the four-SDK projects (a delayed TMP importer window logged "No graphic device is available"). The TextMesh Pro essentials were then copied in from `ripple-verify` and PlayMode re-run: all 177 passed.
+- Wrong version, in a fifth scratch project (`max` combination): `max` pointed at a tarball whose package version is 8.5.0. Unity resolved 8.5.0, imported with 0 `error CS`, and built no `RippleGame.Ads.Max.dll`. `SdkStatusResolver` returned `WrongVersion`. A batchmode Android build with `providerId` `max` failed in `AdsPreBuildValidator` (the `ProviderBuildCheck` message, "SDK is not installed at the pinned version"), and `SdkPreBuildValidator` also failed it ("installed at ... 8.5.0 but this RIPPLE Game Base version needs 8.5.1").
+- Live download, 2026-11-13, after release `sdks-0.4.0` was published on `namdev26/ripple-game-sdks` (8 files; MAX is not attached). Every catalog URL returned HTTP 200 and matched its catalog SHA-256, including MAX from AppLovin's registry. In a copy of `ripple-verify` without SDKs, a batchmode script ran the Hub's own `SdkInstaller` with `UnityWebRequestSdkDownloader` for admob, max, appsflyer and the four Firebase SDKs. All 9 tarballs were downloaded and verified into `Packages/RippleSdks/`, and the manifest got the 9 `file:RippleSdks/...` entries. Reopening the project resolved them with 0 `error CS` and built `Ads.AdMob`, `Ads.Max`, `Attribution.AppsFlyer`, `RippleGame.Firebase`, `Analytics.Firebase` and `RemoteConfig.Firebase`.
+- Not run: Android device; the Hub SDK page (GUI) was not opened, and the live install called the installer directly; and WrongVersion was confirmed via `SdkStatusResolver`, the page's data source; `DeviceChecklist-0.4.0.md` with real MAX keys.
+
 # Verification - 0.3.1, 2026-11-07
 
 Unity Editor: 6000.0.71f1 on Windows.

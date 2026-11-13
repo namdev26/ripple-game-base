@@ -1,0 +1,25 @@
+{
+  "name": "RippleGame.Ads.Max",
+  "rootNamespace": "RippleGame.Ads.Max",
+  "references": [
+    "RippleGame.Ads.Runtime",
+    "MaxSdk.Scripts"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "RIPPLEGAME_SDK_MAX"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.applovin.mediation.ads",
+      "expression": "[8.5.1]",
+      "define": "RIPPLEGAME_SDK_MAX"
+    }
+  ],
+  "noEngineReferences": false
+}
