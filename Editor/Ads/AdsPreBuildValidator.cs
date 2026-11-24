@@ -34,11 +34,6 @@ namespace RippleGame.Ads.Editor
                 throw new BuildFailedException("RippleGame Ads currently supports ADS builds only for Android.");
             }
 
-            if (!AdMobSettingsSynchronizer.IsGoogleMobileAdsInstalled())
-            {
-                throw new BuildFailedException("ADS is enabled but the official Google Mobile Ads Unity plugin is not installed.");
-            }
-
             var configuration = FindConfiguration();
             if (configuration == null)
             {
@@ -49,6 +44,17 @@ namespace RippleGame.Ads.Editor
             if (runtimeReference == null || runtimeReference.Configuration != configuration)
             {
                 throw new BuildFailedException("The AdsConfiguration runtime reference is missing or out of date. Use Create Configuration in RIPPLE Game > Open Hub > ADS again.");
+            }
+
+            ValidateProviderSettings(configuration);
+            if (!configuration.IsAdMob)
+            {
+                return;
+            }
+
+            if (!AdMobSettingsSynchronizer.IsGoogleMobileAdsInstalled())
+            {
+                throw new BuildFailedException("ADS is enabled but the official Google Mobile Ads Unity plugin is not installed.");
             }
 
             var active = testEnabled ? configuration.Test : configuration.Production;
@@ -63,6 +69,14 @@ namespace RippleGame.Ads.Editor
             }
 
             AdMobSettingsSynchronizer.SynchronizeAndroidAppId(active.AndroidAppId);
+        }
+
+        internal static void ValidateProviderSettings(AdsConfiguration configuration)
+        {
+            if (!configuration.IsAdMob && configuration.ProviderSettings == null)
+            {
+                throw new BuildFailedException($"AdsConfiguration uses provider '{configuration.ProviderId}' but has no Provider Settings asset with its IDs. Assign it in RIPPLE Game > Open Hub > ADS.");
+            }
         }
 
         internal static void ValidateProfile(AdMobAdUnitConfiguration profile, string profileName)

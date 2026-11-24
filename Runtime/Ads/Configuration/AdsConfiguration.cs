@@ -10,10 +10,14 @@ namespace RippleGame.Ads
         [SerializeField] private bool enableLogging = true;
         [Tooltip("Banner is shown in all build scenes except these scene names.")]
         [SerializeField] private string[] bannerExcludedSceneNames = { "Loading", "LoadingScene" };
+        [Tooltip("Asset with the app key and ad unit IDs of a provider other than AdMob, e.g. LevelPlaySettings.")]
+        [SerializeField] private ScriptableObject providerSettings;
         [SerializeField] private AdMobAdUnitConfiguration test = AdMobAdUnitConfiguration.CreateAndroidTest();
         [SerializeField] private AdMobAdUnitConfiguration production = new AdMobAdUnitConfiguration();
 
         public string ProviderId => providerId;
+        public bool IsAdMob => string.Equals(providerId, "admob", StringComparison.OrdinalIgnoreCase);
+        public ScriptableObject ProviderSettings => providerSettings;
         public bool EnableLogging => enableLogging;
         public AdMobAdUnitConfiguration Test => test;
         public AdMobAdUnitConfiguration Production => production;

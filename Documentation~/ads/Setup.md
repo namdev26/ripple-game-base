@@ -13,3 +13,7 @@ During development, use Google's test IDs or configure a test device. Do not cli
 The `[RippleGame Ads]` GameObject is saved in the startup scene chosen by the consuming game. It uses `DontDestroyOnLoad`, so it loads configuration once and stays available across that game's scene transitions.
 
 Banner routing includes all build scenes automatically, including scenes added later. `Banner Excluded Scene Names` in the configuration defaults to `Loading` and `LoadingScene`. Scenes outside the build do not show an automatic banner.
+
+## Another provider
+
+A game can add its own provider (for example LevelPlay) by registering an `IAdsProviderFactory` with `AdsProviderRegistry` and setting **Provider Id** to that provider's id. Put the provider's app key and ad unit IDs in a ScriptableObject of the game and assign it to **Provider Settings**. The provider reads it from `configuration.ProviderSettings`. The ADS page then hides the AdMob IDs and shows the provider's IDs. Format toggles, cooldowns and retries still come from the Test and Production profiles.

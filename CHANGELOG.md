@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2
+
+- `AdsConfiguration` has a **Provider Settings** field for the asset holding a non-AdMob provider's app key and ad unit IDs (e.g. LevelPlay). Read it with `configuration.ProviderSettings`.
+- When the provider is not `admob`, TOOL Hub ADS hides the AdMob IDs and shows that provider's IDs instead. Format toggles, cooldowns and retries stay in the Test and Production profiles.
+- The pre-build check validates AdMob IDs and requires the Google Mobile Ads plugin only for the `admob` provider. Other providers need a Provider Settings asset.
+
 ## 0.3.1
 
 - Localization sync accepts a Sheet whose first header row has a blank key cell and `English` in the next cell.
