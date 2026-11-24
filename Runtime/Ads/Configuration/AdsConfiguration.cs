@@ -15,6 +15,8 @@ namespace RippleGame.Ads
         [SerializeField] private AdsPolicySettings policy = new AdsPolicySettings();
         [SerializeField] private MaxAdUnitConfiguration maxTest = new MaxAdUnitConfiguration();
         [SerializeField] private MaxAdUnitConfiguration maxProduction = new MaxAdUnitConfiguration();
+        [Tooltip("Asset with the app key and ad unit IDs of a provider registered by the game, e.g. LevelPlaySettings.")]
+        [SerializeField] private ScriptableObject providerSettings;
         [HideInInspector] [SerializeField] private bool policyMigrated;
 
         public string ProviderId => providerId;
@@ -24,6 +26,8 @@ namespace RippleGame.Ads
         public AdsPolicySettings Policy => policy;
         public MaxAdUnitConfiguration MaxTest => maxTest;
         public MaxAdUnitConfiguration MaxProduction => maxProduction;
+        /// <summary>IDs of a provider other than none, admob and max. Read by that provider's factory.</summary>
+        public ScriptableObject ProviderSettings => providerSettings;
 
         public static AdsEnvironment ResolveCompileTimeEnvironment()
         {

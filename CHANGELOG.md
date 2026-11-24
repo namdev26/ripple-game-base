@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- TOOL Hub ADS shows only the selected provider's IDs: `admob` the AdMob Test and Production profiles, `max` the MAX profiles, `none` no IDs. Policy stays visible for every provider.
+- `AdsConfiguration` has a **Provider Settings** field (`configuration.ProviderSettings`) for the asset holding the app key and ad unit IDs of a provider the game registers, such as LevelPlay. For such a provider the ADS page shows that asset's fields, and the AdMob profiles without their IDs, because the provider still reads format toggles, banner position and retries from them.
+- The build stops when a game-registered provider is selected and Provider Settings is empty.
+
 ## 0.4.0
 
 - **Breaking:** the `ADS` and `FIREBASE` define symbols are gone. Code, the Hub and the build guard no longer read them. Remove them from Player Settings. `ADS_TEST` still selects the Test profile, and `ADS_DISABLED` is the No Ads profile. The Analytics page no longer has **Enable Firebase** or **Disable Firebase**.

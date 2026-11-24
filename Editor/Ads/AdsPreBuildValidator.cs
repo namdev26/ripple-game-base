@@ -79,7 +79,10 @@ namespace RippleGame.Ads.Editor
                 return ValidateMax(configuration, environment, target);
             }
 
-            return null;
+            // A game-registered provider keeps its IDs in Provider Settings.
+            return configuration.ProviderSettings == null
+                ? $"Ads provider '{providerId}' has no Provider Settings asset with its IDs. Assign it in RIPPLE Game > Open Hub > ADS."
+                : null;
         }
 
         internal static string ValidateAdMob(AdsConfiguration configuration, AdsEnvironment environment)

@@ -212,6 +212,29 @@ namespace RippleGame.Ads.Editor.Tests
         }
 
         [Test]
+        public void GetBuildError_GameProviderNeedsProviderSettings()
+        {
+            _configuration = Configuration("{\"providerId\":\"levelplay\"}");
+
+            var error = AdsPreBuildValidator.GetBuildError(_configuration, AdsEnvironment.Production, BuildTarget.Android, _ => true, Status);
+            Assert.That(error, Does.Contain("'levelplay' has no Provider Settings"));
+
+            var settings = ScriptableObject.CreateInstance<AdsConfiguration>();
+            try
+            {
+                var serialized = new SerializedObject(_configuration);
+                serialized.FindProperty("providerSettings").objectReferenceValue = settings;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+
+                Assert.That(AdsPreBuildValidator.GetBuildError(_configuration, AdsEnvironment.Production, BuildTarget.Android, _ => true, Status), Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(settings);
+            }
+        }
+
+        [Test]
         public void GetBuildError_NoConfiguration_Passes()
         {
             Assert.That(AdsPreBuildValidator.GetBuildError(null, AdsEnvironment.Production, BuildTarget.Android, _ => false, Status), Is.Null);

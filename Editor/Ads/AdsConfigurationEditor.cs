@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -7,6 +9,11 @@ namespace RippleGame.Ads.Editor
     [CustomEditor(typeof(AdsConfiguration))]
     internal sealed class AdsConfigurationEditor : UnityEditor.Editor
     {
+        private static readonly HashSet<string> AdMobIdFields = new HashSet<string>
+            { "androidAppId", "bannerUnitId", "interstitialUnitId", "rewardedUnitId", "appOpenUnitId" };
+
+        private UnityEditor.Editor providerEditor;
+
         public override void OnInspectorGUI()
         {
             var environment = AdsConfiguration.ResolveCompileTimeEnvironment();
@@ -24,7 +31,90 @@ namespace RippleGame.Ads.Editor
                     MessageType.Warning);
             }
 
-            DrawDefaultInspector();
+            serializedObject.Update();
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("providerId"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("enableLogging"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("bannerExcludedSceneNames"));
+            serializedObject.ApplyModifiedProperties();
+
+            // Only the selected provider's IDs are drawn, so a LevelPlay or MAX game never sees AdMob IDs.
+            providerId = ((AdsConfiguration)target).ProviderId;
+            if (IsProvider(providerId, "none") || string.IsNullOrWhiteSpace(providerId))
+            {
+                EditorGUILayout.HelpBox("Provider is none: no ads are shown and no IDs are needed.", MessageType.Info);
+                return;
+            }
+
+            if (IsProvider(providerId, "admob"))
+            {
+                DrawProperties("test", "production");
+            }
+            else if (IsProvider(providerId, "max"))
+            {
+                DrawProperties("maxTest", "maxProduction");
+            }
+            else
+            {
+                DrawProviderSettings(providerId);
+                DrawProfileWithoutAdMobIds("test");
+                DrawProfileWithoutAdMobIds("production");
+            }
+
+            DrawProperties("policy");
+        }
+
+        private static bool IsProvider(string providerId, string id) => string.Equals(providerId, id, StringComparison.OrdinalIgnoreCase);
+
+        private void DrawProperties(params string[] names)
+        {
+            serializedObject.Update();
+            foreach (var name in names) EditorGUILayout.PropertyField(serializedObject.FindProperty(name), true);
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawProviderSettings(string providerId)
+        {
+            GUILayout.Space(8);
+            EditorGUILayout.LabelField(providerId + " IDs", EditorStyles.boldLabel);
+            DrawProperties("providerSettings");
+            var settings = serializedObject.FindProperty("providerSettings").objectReferenceValue;
+            if (settings == null)
+            {
+                EditorGUILayout.HelpBox($"Assign the asset that holds the {providerId} app key and ad unit IDs.", MessageType.Warning);
+                return;
+            }
+
+            CreateCachedEditor(settings, null, ref providerEditor);
+            EditorGUI.BeginChangeCheck();
+            using (new EditorGUI.IndentLevelScope()) providerEditor.OnInspectorGUI();
+            // The Hub's Save button saves only this configuration, so save the provider IDs as they are typed.
+            if (EditorGUI.EndChangeCheck()) AssetDatabase.SaveAssetIfDirty(settings);
+            GUILayout.Space(8);
+        }
+
+        // A game-registered provider still reads format toggles, banner position and retries from the AdMob profiles.
+        private void DrawProfileWithoutAdMobIds(string name)
+        {
+            serializedObject.Update();
+            var profile = serializedObject.FindProperty(name);
+            profile.isExpanded = EditorGUILayout.Foldout(profile.isExpanded, profile.displayName + " (formats and loading)", true);
+            if (profile.isExpanded)
+            {
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    var end = profile.GetEndProperty();
+                    var child = profile.Copy();
+                    for (var enter = true; child.NextVisible(enter) && !SerializedProperty.EqualContents(child, end); enter = false)
+                        if (!AdMobIdFields.Contains(child.name)) EditorGUILayout.PropertyField(child, true);
+                }
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void OnDisable()
+        {
+            if (providerEditor != null) DestroyImmediate(providerEditor);
         }
     }
 
